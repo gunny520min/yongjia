@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<classPathEntry
+		location="C:\Users\guj\.m2\repository\mysql\mysql-connector-java\5.1.32\mysql-connector-java-5.1.32.jar" />
+	<context id="context1" targetRuntime="MyBatis3">
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://localhost/yongjia?useUnicode=true&amp;characterEncoding=utf-8"
+			userId="root" password="123456" />
+		<javaModelGenerator targetPackage="com.yongjia.model"
+			targetProject="yongjia-web" />
+		<sqlMapGenerator targetPackage="mapper" targetProject="yongjia-web" />
+		<javaClientGenerator targetPackage="com.yongjia.dao"
+			targetProject="yongjia-web" type="XMLMAPPER" />
+
+		<table tableName="%" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+			<generatedKey column="id" sqlStatement="Mysql" />
+		</table>
+	</context>
+</generatorConfiguration>
