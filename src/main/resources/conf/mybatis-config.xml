@@ -3,12 +3,15 @@
 PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-        <!-- 命名空间 -->
-    <typeAliases>
-         <typeAlias alias="User" type="com.yongjia.model.User"/>
-    </typeAliases>
- 
-    <!-- 映射map -->
-    <mappers>
-    </mappers>
+	<!-- 命名空间 -->
+	<typeAliases>
+		<!-- <typeAlias alias="User" type="com.yongjia.model.User"/> <typeAlias 
+			alias="AdminUser" type="com.yongjia.model.AdminUser"/> <typeAlias alias="Saler" 
+			type="com.yongjia.model.Saler"/> -->
+		<package name="com.yongjia.model" />
+	</typeAliases>
+
+	<!-- 映射map -->
+	<mappers>
+	</mappers>
 </configuration>

@@ -129,7 +129,7 @@ public class CookieUtil {
 		Map<String, String> userMap = IdentityUtil.getMapFromCookie(request, this.home);
 		if (null != userMap) {
 		} else {
-			userMap = new HashMap<>();
+			userMap = new HashMap<String, String>();
 		}
 		return userMap;
 	}

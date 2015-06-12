@@ -39,8 +39,8 @@ public class UserController {
     
     @RequestMapping("get")
     @ResponseBody
-    public List<AdminUser> getUsers() {
-    	return adminUserMapper.selectAll();
+    public AdminUser getUser(Integer id) {
+    	return adminUserMapper.selectByPrimaryKey(id);
     }
     
     @RequestMapping("add")
