@@ -74,7 +74,8 @@ public class WeixinController {
     private TaskExecutor taskExecutor;
 
     @RequestMapping("")
-    public @ResponseBody String api(WeiXinBean weixinBean, HttpServletRequest request, HttpServletResponse response) {
+    @ResponseBody
+    public String api(WeiXinBean weixinBean, HttpServletRequest request, HttpServletResponse response) {
         // 设置token
         weixinBean.setToken(Token);
         // 验证签名
@@ -94,16 +95,6 @@ public class WeixinController {
         } catch (Exception e) {
 
         }
-        
-        response.setContentType("text/html; charset=utf-8");  
-        PrintWriter out;
-        try {
-            out = response.getWriter();
-            out.println("123456"); 
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }   
         
         return null;
     }
