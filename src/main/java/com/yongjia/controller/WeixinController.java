@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONObject;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +73,7 @@ public class WeixinController {
     private TaskExecutor taskExecutor;
 
     @RequestMapping("")
-    @ResponseBody
-    public String api(WeiXinBean weixinBean, HttpServletRequest request, HttpServletResponse response) {
+    public @ResponseBody String api(WeiXinBean weixinBean, HttpServletRequest request, HttpServletResponse response) {
         // 设置token
         weixinBean.setToken(Token);
         // 验证签名
@@ -84,6 +82,7 @@ public class WeixinController {
                 /************* 微信接入 *************/
                 if (DataUtils.isNotNullOrEmpty(weixinBean.getEchostr())) {
                     log.info("微信接入。。。");
+                    log.info("sss:"+weixinBean.getEchostr());
                     return weixinBean.getEchostr();
                 }
                 acceptMsg(request, response);

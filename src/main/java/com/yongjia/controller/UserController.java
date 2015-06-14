@@ -1,11 +1,11 @@
 package com.yongjia.controller;
  
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,6 +22,8 @@ import com.yongjia.utils.ToJsonUtil;
 @RequestMapping("/")
 public class UserController {
 
+    private static Logger log = Logger.getLogger(UserController.class);
+
 	@Autowired
 	UserMapper userMapper;
 	@Autowired
@@ -29,11 +31,11 @@ public class UserController {
 	
     @RequestMapping("index")
     public String index(){
-    	System.out.println("1111111111");
     	User user = new User();
         user.setNickname("你好22222");
         user.setState(221);
-        userMapper.insertSelective(user);
+        userMapper.insert(user);
+        log.info(user);
         return "index";
     }
     
