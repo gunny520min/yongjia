@@ -84,10 +84,10 @@ public class WeixinController {
                 /************* 微信接入 *************/
                 if (DataUtils.isNotNullOrEmpty(weixinBean.getEchostr())) {
                     log.info("微信接入。。。");
-                    log.info("sss:"+weixinBean.getEchostr());
-                    response.setContentType("text/html; charset=utf-8");  
-                    PrintWriter out = response.getWriter();   
-                    out.println(weixinBean.getEchostr());   
+                    log.info("sss:" + weixinBean.getEchostr());
+                    response.setContentType("text/html; charset=utf-8");
+                    PrintWriter out = response.getWriter();
+                    out.println(weixinBean.getEchostr());
                     return null;
                 }
                 acceptMsg(request, response);
@@ -95,7 +95,7 @@ public class WeixinController {
         } catch (Exception e) {
 
         }
-        
+
         return null;
     }
 
@@ -109,8 +109,9 @@ public class WeixinController {
         try {
             msg = WeiXin.recv(request.getInputStream());
             WxSendMsg sendMsg = WeiXin.builderSendByRecv(msg);
-            // log.info(sendMsg.getToUser());
-            // log.info(map.get("wxopenid"));
+            log.info("wxopenid");
+            log.info(sendMsg.getToUser());
+
             // 目前支持的消息有(
             // WxRecvTextMsg/文本消息,
             // WxRecvEventMsg/事件消息,
@@ -146,6 +147,7 @@ public class WeixinController {
             }
 
             // 发送回微信
+            log.info("回复消息：");
             log.info(sendMsg.toDocument().toString());
             WeiXin.send(sendMsg, response.getOutputStream());
         } catch (JDOMException e) {
@@ -228,7 +230,7 @@ public class WeixinController {
         }
 
     }
-    
+
     private void unSubscribeWxUser(String openid) {
         WxUser wxuser = wxUserMapper.selectByPrimaryKey(openid);
         if (wxuser != null) {
