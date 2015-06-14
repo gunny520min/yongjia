@@ -1,6 +1,7 @@
 package com.yongjia.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,14 +84,28 @@ public class WeixinController {
                 if (DataUtils.isNotNullOrEmpty(weixinBean.getEchostr())) {
                     log.info("微信接入。。。");
                     log.info("sss:"+weixinBean.getEchostr());
-                    return weixinBean.getEchostr();
+                    response.setContentType("text/html; charset=utf-8");  
+                    PrintWriter out = response.getWriter();   
+                    out.println(weixinBean.getEchostr());   
+                    return null;
                 }
                 acceptMsg(request, response);
             }
         } catch (Exception e) {
 
         }
-        return "123456";
+        
+        response.setContentType("text/html; charset=utf-8");  
+        PrintWriter out;
+        try {
+            out = response.getWriter();
+            out.println("123456"); 
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }   
+        
+        return null;
     }
 
     /**
