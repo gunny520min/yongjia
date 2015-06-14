@@ -152,9 +152,11 @@ public class WeixinController {
             log.info(sendMsg.toDocument().toString());
             WeiXin.send(sendMsg, response.getOutputStream());
         } catch (JDOMException e) {
+            log.info("jdom error");
             log.error(e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
+            log.info("io error");
             log.error(e.getMessage());
             e.printStackTrace();
         }
