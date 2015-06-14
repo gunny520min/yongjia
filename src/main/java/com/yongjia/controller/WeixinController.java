@@ -184,7 +184,7 @@ public class WeixinController {
                 } else {
                     url += "?wxopenid=" + sendMsg.getToUser();
                 }
-                sendNewsMsg.addItem(wxMsgItemList.get(i).getTitle(), wxMsgItemList.get(i).getDesc(),
+                sendNewsMsg.addItem(wxMsgItemList.get(i).getTitle(), wxMsgItemList.get(i).getDescipition(),
                         wxMsgItemList.get(i).getPic(), url);
             }
             sendMsg = sendNewsMsg;

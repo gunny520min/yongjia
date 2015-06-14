@@ -1,4 +1,4 @@
-package com.yongjia.model;
+package com.yongjia.mybatis.model;
 
 public class WxMsgItem {
     /**

@@ -7,10 +7,10 @@
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
 			connectionURL="jdbc:mysql://localhost/yongjia?useUnicode=true&amp;characterEncoding=utf-8"
 			userId="root" password="123456" />
-		<javaModelGenerator targetPackage="com.yongjia.model"
+		<javaModelGenerator targetPackage="com.yongjia.mybatis.model"
 			targetProject="yongjia-web" />
 		<sqlMapGenerator targetPackage="mapper" targetProject="yongjia-web" />
-		<javaClientGenerator targetPackage="com.yongjia.dao"
+		<javaClientGenerator targetPackage="com.yongjia.mybatis.dao"
 			targetProject="yongjia-web" type="XMLMAPPER" />
 
 		<table tableName="%" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
