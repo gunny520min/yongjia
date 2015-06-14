@@ -16,6 +16,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.yongjia.dao.WxMessageMapper;
 import com.yongjia.dao.WxMsgItemMapper;
@@ -75,7 +76,7 @@ public class WeixinController {
 
     @RequestMapping("")
     @ResponseBody
-    public String api(WeiXinBean weixinBean, HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView api(WeiXinBean weixinBean, HttpServletRequest request, HttpServletResponse response) {
         // 设置token
         weixinBean.setToken(Token);
         // 验证签名
