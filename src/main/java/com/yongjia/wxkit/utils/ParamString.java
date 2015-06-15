@@ -19,7 +19,8 @@ public class ParamString {
 
 	public final static String ACCESS_TOKEN_URL = "access_token_url";
 
-	public final static String USERINFO_URL = "userinfo_url";
+    public final static String USERINFO_URL = "userinfo_url";
+    public final static String GET_USER_LIST_URL = "get_userlist_url";
 
 	public final static String GET_TOKEN_URL = "get_token_url";
 	public final static String CREATE_MENU = "create_menu";

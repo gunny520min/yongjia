@@ -2,13 +2,18 @@ package com.yongjia.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONObject;
 
+import org.apache.http.util.TextUtils;
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,18 +28,20 @@ import com.yongjia.dao.WxMsgItemMapper;
 import com.yongjia.dao.WxRuleKeywordMapper;
 import com.yongjia.dao.WxRuleMapper;
 import com.yongjia.dao.WxUserMapper;
+import com.yongjia.model.WxMenu;
 import com.yongjia.model.WxMessage;
 import com.yongjia.model.WxMsgItem;
 import com.yongjia.model.WxRule;
 import com.yongjia.model.WxRuleKeyword;
 import com.yongjia.model.WxUser;
+import com.yongjia.model.WxUserList;
 import com.yongjia.utils.DataUtils;
 import com.yongjia.utils.HttpClientUtil;
 import com.yongjia.wxkit.WeiXin;
 import com.yongjia.wxkit.bean.TypeBean;
 import com.yongjia.wxkit.bean.WeiXinBean;
-import com.yongjia.wxkit.http.HttpUtils;
 import com.yongjia.wxkit.utils.ParamString;
+import com.yongjia.wxkit.utils.WeixinUtil;
 import com.yongjia.wxkit.utils.WxPropertiesUtil;
 import com.yongjia.wxkit.vo.recv.WxRecvEventMsg;
 import com.yongjia.wxkit.vo.recv.WxRecvGeoMsg;
@@ -72,6 +79,7 @@ public class WeixinController {
     /**
      * 注入线程池
      */
+    @Resource(name = "taskExecutor")
     private TaskExecutor taskExecutor;
 
     @RequestMapping("")
@@ -89,15 +97,33 @@ public class WeixinController {
                     response.setContentType("text/html; charset=utf-8");
                     PrintWriter out = response.getWriter();
                     out.println(weixinBean.getEchostr());
+
+                    // TODO add task pubnish menu
+                    pubnishMenu();
+                    // TODO add task getWxUsers
+                    getOldUserList();
                     return null;
                 }
                 acceptMsg(request, response);
             }
         } catch (Exception e) {
-
+            log.info(e.getMessage());
+            e.printStackTrace();
         }
 
         return null;
+    }
+
+    @RequestMapping("menu")
+    @ResponseBody
+    public void pubnishMenu() {
+        taskExecutor.execute(new PubnishMenuTask());
+    }
+
+    @RequestMapping("getWxUserList")
+    @ResponseBody
+    public void getOldUserList() {
+        taskExecutor.execute(new getOldWxUserTask(wxUserMapper));
     }
 
     /**
@@ -149,8 +175,8 @@ public class WeixinController {
 
             // 发送回微信
             log.info("回复消息：");
-            log.info(sendMsg.toDocument().toString());
-            WeiXin.send(sendMsg, response.getOutputStream());
+            log.info(JSONObject.fromObject(sendMsg).toString());
+            WeiXin.send(sendMsg, response);
         } catch (JDOMException e) {
             log.info("jdom error");
             log.error(e.getMessage());
@@ -173,7 +199,7 @@ public class WeixinController {
 
         WxRule rule = wxRuleMapper.selectByPrimaryKey(ruleId);
         WxMessage wxMessage = wxMessageMapper.selectByPrimaryKey(rule.getMsgId());
-        List<WxMsgItem> wxMsgItemList = wxMsgItemMapper.selectByMsgId(wxMessage.getId());
+        List<WxMsgItem> wxMsgItemList = wxMsgItemMapper.selectListByMsgId(wxMessage.getId());
 
         if (wxMessage.getMsgType() == 1 && wxMsgItemList.size() == 1) {
             sendMsg = new WxSendTextMsg(sendMsg, wxMsgItemList.get(0).getContent());
@@ -209,13 +235,16 @@ public class WeixinController {
      */
     private WxSendMsg dealTextMsg(WxSendMsg sendMsg, WxRecvMsg msg) {
         String keyword = ((WxRecvTextMsg) msg).getContent();
-        String openid = ((WxRecvTextMsg) msg).getFromUser();
         WxRuleKeyword ruleKeyword = wxRuleKeywordMapper.selectByKeyword(keyword);
         if (ruleKeyword != null) {
             WxRule rule = wxRuleMapper.selectByPrimaryKey(ruleKeyword.getRuleId());
             if (rule != null) {
                 sendMsg = obtainContent(sendMsg, rule.getId());
+            } else {
+                sendMsg = null;
             }
+        } else {
+            sendMsg = null;
         }
         return sendMsg;
     }
@@ -229,11 +258,15 @@ public class WeixinController {
             wxUser.setTicket(ticket);
             wxUserMapper.insert(wxUser);
         } else {
-
+            // TODO 多次关注是否记录关注来源
         }
 
     }
 
+    /**
+     * 
+     * @param openid
+     */
     private void unSubscribeWxUser(String openid) {
         WxUser wxuser = wxUserMapper.selectByPrimaryKey(openid);
         if (wxuser != null) {
@@ -242,6 +275,15 @@ public class WeixinController {
         }
     }
 
+    /**
+     * 关注后获取用户信息
+     * 
+     * @ClassName: SubscribeTask
+     * @Description: TODO
+     * @author Comsys-guj
+     * @date 2015年6月15日 上午11:36:12
+     * 
+     */
     private class SubscribeTask implements Runnable {
         private WxUserMapper wxUserMapper;
         private String openid;
@@ -255,16 +297,102 @@ public class WeixinController {
         }
 
         public void run() {
-            String token = HttpUtils.getToken(AppID, AppSecret);
-            String url = WxPropertiesUtil.getProperty(ParamString.WX_USER_INFO);
-            url = url.replace("{1}", token);
-            url = url.replace("{2}", openid);
-            String res = HttpClientUtil.sendGetRequest(url, WxPropertiesUtil.getProperty(ParamString.ENCODING));
-            if (res.contains("errcode")) {
-                log.error("获取用户信息异常：" + res);
-            } else {
-                WxUser wxUser = (WxUser) JSONObject.toBean(JSONObject.fromObject(res), WxUser.class);
+            String token = WeixinUtil.getToken(AppID, AppSecret);
+            WxUser wxUser = WeixinUtil.getWxUserInfo(token, openid);
+            if (wxUser != null) {
                 saveWxUser(wxUser, ticket);
+            }
+        }
+    }
+
+    /**
+     * 发布菜单
+     * 
+     * @ClassName: PubnishMenuTask
+     * @Description: TODO
+     * @author Comsys-guj
+     * @date 2015年6月15日 上午11:57:05
+     * 
+     */
+    private class PubnishMenuTask implements Runnable {
+
+        public PubnishMenuTask() {
+            super();
+        }
+
+        public void run() {
+            String accessToken = WeixinUtil.getToken(AppID, AppSecret);
+
+            List<WxMenu> menuList = new ArrayList<WxMenu>();
+            WxMenu wxMenu = new WxMenu();
+            wxMenu.setType("view");
+            wxMenu.setName("我的");
+            wxMenu.setUrl("http://yjstatic.tlan.com.cn/weixin/profile.html");
+            menuList.add(wxMenu);
+            wxMenu = new WxMenu();
+            wxMenu.setType("view");
+            wxMenu.setName("车管家");
+            wxMenu.setUrl("http://yjstatic.tlan.com.cn/weixin/keeper.html");
+            menuList.add(wxMenu);
+            wxMenu = new WxMenu();
+            wxMenu.setType("view");
+            wxMenu.setName("展厅");
+            wxMenu.setUrl("http://yjstatic.tlan.com.cn/weixin/styles.html");
+            menuList.add(wxMenu);
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("button", menuList);
+            String menuJson = JSONObject.fromObject(map).toString();
+            log.info("access token is " + accessToken);
+            log.info("menu json is " + menuJson);
+
+            if (WeixinUtil.generatorMenu(accessToken, menuJson)) {
+                log.info("发布成功");
+            } else {
+                log.info("发布失败");
+            }
+        }
+    }
+
+    /**
+     * 
+     * @ClassName: getOldWxUserTask
+     * @Description: TODO
+     * @author Comsys-guj
+     * @date 2015年6月15日 上午11:52:21
+     * 
+     */
+    private class getOldWxUserTask implements Runnable {
+        private WxUserMapper wxUserMapper;
+        private String nextOpenid;
+        private List<String> openidList;
+        private WxUserList wxUserList;
+
+        public getOldWxUserTask(WxUserMapper wxUserMapper) {
+            super();
+            this.wxUserMapper = wxUserMapper;
+            this.nextOpenid = "";
+            this.openidList = new ArrayList<String>();
+        }
+
+        public void run() {
+            String token = WeixinUtil.getToken(AppID, AppSecret);
+            do {
+
+                wxUserList = WeixinUtil.getWxUserList(token, nextOpenid);
+                if (wxUserList != null) {
+                    if (wxUserList.getData() != null) {
+                        openidList.addAll(wxUserList.getData().getOpenid());
+                    }
+                    nextOpenid = wxUserList.getNext_openid();
+                }
+                log.info("next openid is " + nextOpenid);
+            } while (!TextUtils.isEmpty(nextOpenid));
+
+            for (String openid : openidList) {
+                WxUser wxUser = WeixinUtil.getWxUserInfo(token, openid);
+                if (wxUser != null) {
+                    saveWxUser(wxUser, "old");
+                }
             }
         }
     }

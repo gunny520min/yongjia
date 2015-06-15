@@ -1,5 +1,6 @@
 package com.yongjia.controller;
  
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,8 +42,8 @@ public class UserController {
     
     @RequestMapping("get")
     @ResponseBody
-    public AdminUser getUser(Integer id) {
-    	return adminUserMapper.selectByPrimaryKey(id);
+    public List<AdminUser> getUser(Integer id) {
+    	return adminUserMapper.selectAll();
     }
     
     @RequestMapping("add")
