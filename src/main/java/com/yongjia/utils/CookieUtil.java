@@ -30,11 +30,11 @@ public class CookieUtil {
 	private static Log log = LogFactory.getLog(CookieUtil.class);
 
 	// 设置cookie有效期是2周，根据需要自定义
-	public Integer cookieMaxAge = 60*30;//梦杰建议30分钟
+	public static Integer cookieMaxAge = 60*30;//梦杰建议30分钟
 //	public Integer cookieMaxAge = 60 * 60 * 24 * 14;
 
-	private String home = "www.qdingnet.com"; // cookie
-	private String domain = ".qdingnet.com"; // cookie's domain
+	private static String home = "yongjia.tlan.com.cn/"; // cookie
+	private static String domain = ".tlan.com.cn"; // cookie's domain
 
 	public static final String verifyCode = "verifyCode";// verify code picture
 	public static final String USER_CODE = "userCode";
@@ -61,11 +61,11 @@ public class CookieUtil {
 	 * @param userName
 	 * @param userId
 	 */
-	public void setIdentity(HttpServletRequest request, HttpServletResponse response, String userName, Long userId) {
+	public static void setIdentity(HttpServletRequest request, HttpServletResponse response, String userName, Long userId) {
 		if (null != cookieMaxAge && 0 != cookieMaxAge) {
-			IdentityUtil.setIdentity(request, response, this.home, userName, userId, cookieMaxAge);
+			IdentityUtil.setIdentity(request, response, home, userName, userId, cookieMaxAge);
 		} else {
-			IdentityUtil.setIdentity(request, response, this.home, userName, userId);
+			IdentityUtil.setIdentity(request, response, home, userName, userId);
 		}
 	}
 
@@ -77,12 +77,12 @@ public class CookieUtil {
 	 * @param params
 	 * @param userId
 	 */
-	public void setIdentity(HttpServletRequest request, HttpServletResponse response, Map<String, String> params,
+	public static void setIdentity(HttpServletRequest request, HttpServletResponse response, Map<String, String> params,
 			Long userId) {
 		if (null != cookieMaxAge && 0 != cookieMaxAge) {
-			IdentityUtil.setIdentity(request, response, this.home, params, userId, cookieMaxAge);
+			IdentityUtil.setIdentity(request, response, home, params, userId, cookieMaxAge);
 		} else {
-			IdentityUtil.setIdentity(request, response, this.home, params, userId);
+			IdentityUtil.setIdentity(request, response, home, params, userId);
 		}
 	}
 
@@ -92,8 +92,8 @@ public class CookieUtil {
 	 * @param response
 	 * @return
 	 */
-	public Map getIdentity(HttpServletRequest request, HttpServletResponse response) {
-		Map userMap = IdentityUtil.getIdentity(request, this.home);
+	public static Map getIdentity(HttpServletRequest request, HttpServletResponse response) {
+		Map userMap = IdentityUtil.getIdentity(request, home);
 		if (null != userMap) {
 			// 判断是否在有效期内,过期就删除Cookie
 			// if (userMap.get(SAVE_TIME) != null) {
@@ -114,8 +114,8 @@ public class CookieUtil {
 	 * @param response
 	 * @return
 	 */
-	public String getKeyIdentity(HttpServletRequest request, String key) {
-		Map<String, String> map = this.getIdentity(request);
+	public static String getKeyIdentity(HttpServletRequest request, String key) {
+		Map<String, String> map = getIdentity(request);
 		return map.get(key);
 	}
 
@@ -125,8 +125,8 @@ public class CookieUtil {
 	 * @param request
 	 * @return
 	 */
-	public Map<String, String> getIdentity(HttpServletRequest request) {
-		Map<String, String> userMap = IdentityUtil.getMapFromCookie(request, this.home);
+	public static Map<String, String> getIdentity(HttpServletRequest request) {
+		Map<String, String> userMap = IdentityUtil.getMapFromCookie(request, home);
 		if (null != userMap) {
 		} else {
 			userMap = new HashMap<String, String>();
@@ -140,12 +140,12 @@ public class CookieUtil {
 	 * @param request
 	 * @param response
 	 */
-	public void deleteIdentity(HttpServletRequest request, HttpServletResponse response) {
-		IdentityUtil.deleteIdentity(request, response, this.home);
+	public static void deleteIdentity(HttpServletRequest request, HttpServletResponse response) {
+		IdentityUtil.deleteIdentity(request, response, home);
 	}
 
-	public Long getID(HttpServletRequest request, HttpServletResponse response) {
-		Map map = this.getIdentity(request, response);
+	public static Long getUserID(HttpServletRequest request, HttpServletResponse response) {
+		Map map = getIdentity(request, response);
 		if (map == null) {
 			return null;
 		}
@@ -158,8 +158,8 @@ public class CookieUtil {
 	 * @param request
 	 * @return
 	 */
-	public Long getID(HttpServletRequest request) {
-		Map map = this.getIdentity(request);
+	public static Long getUserID(HttpServletRequest request) {
+		Map map = getIdentity(request);
 		if (null == map || null == map.get(USER_ID)) {
 			return null;
 		}
@@ -167,8 +167,8 @@ public class CookieUtil {
 		return userId;
 	}
 
-	public String getName(HttpServletRequest request, HttpServletResponse response) {
-		Map map = this.getIdentity(request, response);
+	public static String getName(HttpServletRequest request, HttpServletResponse response) {
+		Map map = getIdentity(request, response);
 		if (map == null || StringUtils.isBlank(map.get(USER_NAME).toString())) {
 			return null;
 		}
@@ -183,7 +183,7 @@ public class CookieUtil {
 	 * @param userName
 	 * @param userId
 	 */
-	public void setIdentity(HttpServletRequest request, HttpServletResponse response, String kaptcha) {
+	public static void setIdentity(HttpServletRequest request, HttpServletResponse response, String kaptcha) {
 		String value = null;
 		try {
 			value = MD5Util.getMd5Sum(kaptcha);
@@ -191,7 +191,7 @@ public class CookieUtil {
 			log.error("got error when getMD5", e);
 			return;
 		}
-		RequestUtil.setCookie(response, verifyCode, value, -1, this.domain, null);
+		RequestUtil.setCookie(response, verifyCode, value, -1, domain, null);
 
 	}
 
@@ -201,7 +201,7 @@ public class CookieUtil {
 	 * @param request
 	 * @return
 	 */
-	public String getKaptchaIdentity(HttpServletRequest request) {
+	public static String getKaptchaIdentity(HttpServletRequest request) {
 		String capText = null;
 		Cookie c = RequestUtil.getCookie(request, verifyCode);
 		if (c != null) {
@@ -212,8 +212,8 @@ public class CookieUtil {
 	}
 
 	// 用户注销时,清除Cookie,在需要时可随时调用
-	public void clearCookie(HttpServletResponse response) {
-		Cookie cookie = new Cookie(this.home, null);
+	public static void clearCookie(HttpServletResponse response) {
+		Cookie cookie = new Cookie(home, null);
 		cookie.setMaxAge(0);
 		cookie.setPath("/");
 		response.addCookie(cookie);
@@ -226,7 +226,7 @@ public class CookieUtil {
 	 * @param value
 	 * @return
 	 */
-	private Boolean isExpire(Long value) {
+	private static Boolean isExpire(Long value) {
 		Calendar c = Calendar.getInstance();
 		try {
 			Long interval = c.getTimeInMillis() - value;
@@ -239,30 +239,6 @@ public class CookieUtil {
 			return true;
 		}
 		return false;
-	}
-
-	public String getHome() {
-		return home;
-	}
-
-	public void setHome(String home) {
-		this.home = home;
-	}
-
-	public String getDomain() {
-		return domain;
-	}
-
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-
-	public Integer getCookieMaxAge() {
-		return cookieMaxAge;
-	}
-
-	public void setCookieMaxAge(Integer cookieMaxAge) {
-		this.cookieMaxAge = cookieMaxAge;
 	}
 
 }
