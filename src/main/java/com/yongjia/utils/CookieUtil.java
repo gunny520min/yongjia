@@ -158,14 +158,36 @@ public class CookieUtil {
 	 * @param request
 	 * @return
 	 */
-	public static Long getUserID(HttpServletRequest request) {
-		Map map = getIdentity(request);
-		if (null == map || null == map.get(USER_ID)) {
-			return null;
-		}
-		Long userId = Long.valueOf(map.get(USER_ID).toString());
-		return userId;
-	}
+    public static Long getUserID(HttpServletRequest request) {
+        Map map = getIdentity(request);
+        if (null == map || null == map.get(USER_ID)) {
+            return null;
+        }
+        Long userId = Long.valueOf(map.get(USER_ID).toString());
+        return userId;
+    }
+    
+    public static String getUserName(HttpServletRequest request) {
+        Map map = getIdentity(request);
+        if (null == map || null == map.get(USER_NAME)) {
+            return null;
+        }
+        String userName = map.get(USER_NAME).toString();
+        return userName;
+    }
+    /**
+     * 
+     * @param request
+     * @return
+     */
+    public static Long getRoleID(HttpServletRequest request) {
+        Map map = getIdentity(request);
+        if (null == map || null == map.get(ROLE_ID)) {
+            return null;
+        }
+        Long roleId = Long.valueOf(map.get(ROLE_ID).toString());
+        return roleId;
+    }
 
 	public static String getName(HttpServletRequest request, HttpServletResponse response) {
 		Map map = getIdentity(request, response);

@@ -16,6 +16,9 @@ public class PotentialCustomerAndMember {
      * @mbggenerated Tue Jul 07 14:25:04 CST 2015
      */
     private Long memberId;
+
+    private String connectMobile;
+
     private String mobile;
 
     private Integer sex;
@@ -135,6 +138,14 @@ public class PotentialCustomerAndMember {
 
     public void setMemberId(Long memberId) {
         this.memberId = memberId;
+    }
+
+    public String getConnectMobile() {
+        return connectMobile;
+    }
+
+    public void setConnectMobile(String connectMobile) {
+        this.connectMobile = connectMobile;
     }
 
     public String getCarModel() {

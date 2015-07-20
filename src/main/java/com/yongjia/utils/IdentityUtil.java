@@ -130,9 +130,10 @@ public class IdentityUtil {
 			deleteIdentity(request, response, homeName);
 			return;
 		}
-		String value = encodeCookie(userName, userId);
+		Map<String, String> userMap = getUserIdentity(userName, userId);
+		String value = encodeCookie(userMap, userId);
 		RequestUtil.setCookie(response, homeName, value, maxAge, null, null);
-		Map userMap = getUserIdentity(userName, userId);
+		
 		request.setAttribute(CookieUtil.CURRENT_VISITOR, userMap);
 	}
 	
@@ -183,10 +184,10 @@ public class IdentityUtil {
 		setIdentity(request, response, homeName, params, usrId, -1);
 	}
 
-	public static Map getUserIdentity(String userName, Long userId) {
-		Map map = new HashMap();
+	public static Map<String, String> getUserIdentity(String userName, Long userId) {
+		Map<String, String> map = new HashMap<String, String>();
 		map.put(CookieUtil.USER_NAME, userName);
-		map.put(CookieUtil.USER_ID, userId);
+		map.put(CookieUtil.USER_ID, userId.toString());
 		return map;
 	}
 

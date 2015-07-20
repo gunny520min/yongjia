@@ -44,37 +44,36 @@ public class GiftController extends BaseController {
 
     @Autowired
     private MemberCarMapper memberCarMapper;
-    
+
     @Autowired
     private PotentialCustomerMapper pCustomermMapper;
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(HttpServletRequest request, HttpServletResponse response) {
+    public Map list(Integer pageNo, Integer pageSize, HttpServletRequest request, HttpServletResponse response) {
 
-//        List<Gift> giftList = giftMapper.selectAll();
-        List<Gift> giftList = new ArrayList<Gift>();
-        Gift gift = new Gift();
-        gift.setContent("");
-        gift.setId(1L);
-        gift.setName("礼品1");
-        gift.setPic("");
-        gift.setPoint(2000);
-        gift.setPrividerName("aaa");
-        gift.setStatus(Gift.StatusPubnish);
-        giftList.add(gift);
-        
-        gift = new Gift();
-        gift.setContent("");
-        gift.setId(2L);
-        gift.setName("礼品2");
-        gift.setPic("");
-        gift.setPoint(2000);
-        gift.setPrividerName("aaaaa");
-        gift.setStatus(Gift.StatusStop);
-        giftList.add(gift);
-        
-        return ToJsonUtil.toListMap(200, "success", giftList);
+        Long totalCount = giftMapper.countAll();
+        List<Gift> giftList = null;
+        if (totalCount > 0) {
+            giftList = giftMapper.selectAll(getPageMap(pageNo, pageSize));
+        }
+        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, giftList);
+    }
+
+    @RequestMapping("/get")
+    @ResponseBody
+    public Map get(Long id, HttpServletRequest request, HttpServletResponse response) {
+
+        try {
+            Gift gift = giftMapper.selectByPrimaryKey(id);
+            if (gift != null) {
+                return ToJsonUtil.toEntityMap(200, "success", gift);
+            } else {
+                return ToJsonUtil.toEntityMap(400, "无效id", null);
+            }
+        } catch (Exception e) {
+            return ToJsonUtil.toEntityMap(400, "error", null);
+        }
     }
 
     @RequestMapping("/add")
@@ -86,8 +85,8 @@ public class GiftController extends BaseController {
         gift.setCreateBy(userId);
         gift.setUpdateAt(System.currentTimeMillis());
         gift.setUpdateBy(userId);
-        
-        if (giftMapper.insert(gift)>0) {
+
+        if (giftMapper.insertSelective(gift) > 0) {
             return ToJsonUtil.toEntityMap(200, "success", null);
         } else {
             return ToJsonUtil.toEntityMap(400, "error", null);
@@ -100,8 +99,8 @@ public class GiftController extends BaseController {
         Long userId = CookieUtil.getUserID(request);
         gift.setUpdateAt(System.currentTimeMillis());
         gift.setUpdateBy(userId);
-        
-        if (giftMapper.updateByPrimaryKey(gift)>0) {
+
+        if (giftMapper.updateByPrimaryKeySelective(gift) > 0) {
             return ToJsonUtil.toEntityMap(200, "success", null);
         } else {
             return ToJsonUtil.toEntityMap(400, "error", null);
@@ -110,9 +109,9 @@ public class GiftController extends BaseController {
 
     @RequestMapping("/toggle")
     @ResponseBody
-    public Map toggle(int giftId, HttpServletRequest request, HttpServletResponse response) {
-        
-        Gift gift = giftMapper.selectByPrimaryKey(giftId);
+    public Map toggle(Long id, HttpServletRequest request, HttpServletResponse response) {
+
+        Gift gift = giftMapper.selectByPrimaryKey(id);
         if (gift.getStatus().equals(Gift.StatusPubnish)) {
             gift.setStatus(Gift.StatusStop);
         } else {
@@ -121,8 +120,8 @@ public class GiftController extends BaseController {
         Long userId = CookieUtil.getUserID(request);
         gift.setUpdateAt(System.currentTimeMillis());
         gift.setUpdateBy(userId);
-        
-        if (giftMapper.updateByPrimaryKey(gift)>0) {
+
+        if (giftMapper.updateByPrimaryKeySelective(gift) > 0) {
             return ToJsonUtil.toEntityMap(200, "success", null);
         } else {
             return ToJsonUtil.toEntityMap(400, "error", null);
@@ -131,15 +130,13 @@ public class GiftController extends BaseController {
 
     @RequestMapping("/delete")
     @ResponseBody
-    public Map delete(int giftId, HttpServletRequest request, HttpServletResponse response) {
-        
-        if (giftMapper.deleteByPrimaryKey(giftId)>0) {
+    public Map delete(Long id, HttpServletRequest request, HttpServletResponse response) {
+
+        if (giftMapper.deleteByPrimaryKey(id) > 0) {
             return ToJsonUtil.toEntityMap(200, "success", null);
         } else {
             return ToJsonUtil.toEntityMap(400, "error", null);
         }
     }
-    
-    
 
 }

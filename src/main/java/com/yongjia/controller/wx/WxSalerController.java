@@ -24,13 +24,13 @@ public class WxSalerController extends BaseController {
     private static Logger log = Logger.getLogger(WxSalerController.class);
 
     @Autowired
-    private UserMapper salerMapper;
+    private UserMapper userMapper;
 
     @RequestMapping("/login")
     @ResponseBody
     public Map login(String account, String pwd, HttpServletRequest request, HttpServletResponse response) {
 
-        User saler = salerMapper.selectByAccount(account);
+        User saler = userMapper.selectByAccount(account);
         if (saler != null) {
             if (saler.getRoleId() == User.RoleSaler) {
                 if (PasswordUtils.authenticatePassword(saler.getPwd(), pwd)) {
@@ -48,15 +48,15 @@ public class WxSalerController extends BaseController {
 
     @RequestMapping("/resetPwd")
     @ResponseBody
-    public Map resetPwd(Integer id, String oldpwd, String newpwd, HttpServletRequest request,
+    public Map resetPwd(Long id, String oldpwd, String newpwd, HttpServletRequest request,
             HttpServletResponse response) {
 
-        User saler = salerMapper.selectByPrimaryKey(id);
+        User saler = userMapper.selectByPrimaryKey(id);
         if (saler != null) {
             if (saler.getRoleId() == User.RoleSaler) {
                 if (PasswordUtils.authenticatePassword(saler.getPwd(), oldpwd)) {
                     saler.setPwd(PasswordUtils.encode(newpwd));
-                    salerMapper.updateByPrimaryKey(saler);
+                    userMapper.updateByPrimaryKey(saler);
                     return ToJsonUtil.toEntityMap(200, "success", saler);
                 } else {
                     return ToJsonUtil.toEntityMap(401, "密码错误！", null);

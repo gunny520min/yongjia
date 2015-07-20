@@ -34,7 +34,7 @@ public class AppointmentController extends BaseController {
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(HttpServletRequest request, HttpServletResponse response) {
+    public Map list(Integer status, Integer pageNo, Integer pageSize, HttpServletRequest request, HttpServletResponse response) {
 
 //        List<Appointment> appointmentList = appointmentMapper.selectAll();
         List<Appointment> appointmentList = new ArrayList<Appointment>();
@@ -74,10 +74,10 @@ public class AppointmentController extends BaseController {
 
     @RequestMapping("/setStatus")
     @ResponseBody
-    public Map update(int appointmentId, int status, HttpServletRequest request, HttpServletResponse response) {
+    public Map update(Long id, int status, HttpServletRequest request, HttpServletResponse response) {
 
         Long userId = CookieUtil.getUserID(request);
-        Appointment appointment = appointmentMapper.selectByPrimaryKey(appointmentId);
+        Appointment appointment = appointmentMapper.selectByPrimaryKey(id);
         appointment.setStatus(status);
         appointment.setUpdateAt(new Date().getTime());
         appointment.setUpdateBy(userId);

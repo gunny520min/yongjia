@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -19,6 +20,7 @@ import com.yongjia.dao.MemberCarMapper;
 import com.yongjia.dao.MemberMapper;
 import com.yongjia.dao.PointPoolConfigMapper;
 import com.yongjia.dao.PointPoolMapper;
+import com.yongjia.dao.PointPoolRecordMapper;
 import com.yongjia.dao.SignPointConfigMapper;
 import com.yongjia.dao.UserMapper;
 import com.yongjia.dao.WxUserMapper;
@@ -26,10 +28,12 @@ import com.yongjia.model.Member;
 import com.yongjia.model.MemberCar;
 import com.yongjia.model.PointPool;
 import com.yongjia.model.PointPoolConfig;
+import com.yongjia.model.PointPoolRecord;
 import com.yongjia.model.SignPointConfig;
 import com.yongjia.model.User;
 import com.yongjia.model.WxUser;
 import com.yongjia.utils.CookieUtil;
+import com.yongjia.utils.DateUtil;
 import com.yongjia.utils.PasswordUtils;
 import com.yongjia.utils.ToJsonUtil;
 
@@ -43,113 +47,214 @@ public class PointPoolController extends BaseController {
     private PointPoolMapper pointPoolMapper;
 
     @Autowired
-    private PointPoolConfigMapper pointPoolConfigMapper;
+    private PointPoolRecordMapper pointPoolRecordMapper;
     @Autowired
     private SignPointConfigMapper signPointConfigMapper;
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(HttpServletRequest request, HttpServletResponse response) {
+    public Map list(Integer pageNo, Integer pageSize, HttpServletRequest request, HttpServletResponse response) {
 
-        // List<PointPool> pointPoolList = pointPoolMapper.selectAll();
-        List<PointPool> pointPoolList = new ArrayList<PointPool>();
-        PointPool pointPool = new PointPool();
-        pointPool.setId(1L);
-        pointPool.setName("2015积分池");
-        pointPool.setTotalPoint(0);
-        pointPool.setStartAt(System.currentTimeMillis());
-        pointPool.setEndAt(System.currentTimeMillis());
-        pointPoolList.add(pointPool);
+        Long count = pointPoolMapper.countAll();
+        if (count > 0) {
+            List<PointPool> pointPoolList = pointPoolMapper.selectAll(getPageMap(pageNo, pageSize));
+            for (int i = 0; i < pointPoolList.size(); i++) {
+                Long now = System.currentTimeMillis();
+                if (pointPoolList.get(i).getEndAt() < now) {
+                    pointPoolList.get(i).setStatus(PointPool.StatusOverdue);
+                } else if (pointPoolList.get(i).getStartAt() <= now && pointPoolList.get(i).getEndAt() >= now) {
+                    pointPoolList.get(i).setStatus(PointPool.StatusActive);
+                } else if (pointPoolList.get(i).getStartAt() > now) {
+                    pointPoolList.get(i).setStatus(PointPool.StatusNoActive);
+                }
+            }
+            return ToJsonUtil
+                    .toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, pointPoolList);
+        } else {
+            return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, null);
+        }
+    }
 
-        pointPool = new PointPool();
-        pointPool.setId(2L);
-        pointPool.setName("2014积分池");
-        pointPool.setTotalPoint(2000);
-        pointPool.setStartAt(System.currentTimeMillis());
-        pointPool.setEndAt(System.currentTimeMillis());
-        pointPoolList.add(pointPool);
-        return ToJsonUtil.toListMap(200, "success", pointPoolList);
+    @RequestMapping("/recordlist")
+    @ResponseBody
+    public Map recordlist(Long pointPoolId, Integer pageNo, Integer pageSize, HttpServletRequest request,
+            HttpServletResponse response) {
+        Long count = pointPoolRecordMapper.countByPointPoolId(pointPoolId);
+        List<PointPoolRecord> pointPoolRecordList = null;
+        if (count > 0) {
+            pointPoolRecordList = pointPoolRecordMapper.selectByPointPoolId(pointPoolId, getPageMap(pageNo, pageSize));
+        }
+        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count,
+                pointPoolRecordList);
     }
 
     @RequestMapping("/add")
     @ResponseBody
     public Map add(PointPool pointPool, HttpServletRequest request, HttpServletResponse response) {
-
-        if (pointPoolMapper.insert(pointPool) > 0) {
-            return ToJsonUtil.toEntityMap(200, "success", null);
+        if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
+            Long maxEndAt = pointPoolMapper.selectMaxEndAt();
+            if (pointPool.getStartAt() < maxEndAt) {
+                return ToJsonUtil.toEntityMap(201, "新增积分池有效时间不能重叠", null);
+            } else if (pointPool.getStartAt() > pointPool.getEndAt()) {
+                return ToJsonUtil.toEntityMap(201, "积分池结束时间必须大于起始时间", null);
+            }
+            Long userId = CookieUtil.getUserID(request);
+            pointPool.setCreateBy(userId);
+            pointPool.setCreateAt(System.currentTimeMillis());
+            pointPool.setUpdateBy(userId);
+            pointPool.setUpdateAt(System.currentTimeMillis());
+            if (pointPoolMapper.insertSelective(pointPool) > 0) {
+                return ToJsonUtil.toEntityMap(200, "success", null);
+            } else {
+                return ToJsonUtil.toEntityMap(400, "error", null);
+            }
         } else {
-            return ToJsonUtil.toEntityMap(400, "error", null);
+            return ToJsonUtil.toEntityMap(403, "权限不够", null);
         }
-
     }
 
     @RequestMapping("/update")
     @ResponseBody
     public Map update(PointPool pointPool, HttpServletRequest request, HttpServletResponse response) {
+        if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
+            if (pointPool.getStartAt() >= System.currentTimeMillis()) {
 
-        if (pointPoolMapper.updateByPrimaryKeySelective(pointPool) > 0) {
-            return ToJsonUtil.toEntityMap(200, "success", null);
+                PointPool beforePointPool = pointPoolMapper.selectByPrimaryKey(pointPool.getId() - 1);
+                PointPool afterPointPool = pointPoolMapper.selectByPrimaryKey(pointPool.getId() + 1);
+
+                if ((beforePointPool != null && pointPool.getStartAt() < beforePointPool.getEndAt())
+                        || (afterPointPool != null && pointPool.getEndAt() > afterPointPool.getStartAt())) {
+                    return ToJsonUtil.toEntityMap(201, "新增积分池有效时间不能重叠", null);
+                } else if (pointPool.getStartAt() > pointPool.getEndAt()) {
+                    return ToJsonUtil.toEntityMap(201, "积分池结束时间必须大于起始时间", null);
+                }
+                Long userId = CookieUtil.getUserID(request);
+                pointPool.setUpdateBy(userId);
+                pointPool.setUpdateAt(System.currentTimeMillis());
+                if (pointPoolMapper.updateByPrimaryKeySelective(pointPool) > 0) {
+                    return ToJsonUtil.toEntityMap(200, "success", null);
+                } else {
+                    return ToJsonUtil.toEntityMap(400, "error", null);
+                }
+            } else {
+                return ToJsonUtil.toEntityMap(400, "该积分池不可修改", null);
+            }
         } else {
-            return ToJsonUtil.toEntityMap(400, "error", null);
+            return ToJsonUtil.toEntityMap(403, "权限不够", null);
         }
     }
 
     @RequestMapping("/charge")
     @ResponseBody
-    public Map charge(int pointPoolId, int point, HttpServletRequest request, HttpServletResponse response) {
+    @Transactional
+    public Map charge(Long id, Integer point, HttpServletRequest request, HttpServletResponse response) {
+        if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
+            Long now = System.currentTimeMillis();
 
-        PointPool pointPool = pointPoolMapper.selectByPrimaryKey(pointPoolId);
-        pointPool.setTotalPoint(pointPool.getTotalPoint() + point);
-        if (pointPoolMapper.updateByPrimaryKeySelective(pointPool) > 0) {
-            return ToJsonUtil.toEntityMap(200, "success", pointPool);
+            Long userId = CookieUtil.getUserID(request);
+            PointPool pointPool = pointPoolMapper.selectByPrimaryKey(id);
+
+            if (pointPool.getStartAt() <= now && pointPool.getEndAt() >= now) {
+                pointPool.setTotalPoint(pointPool.getTotalPoint() + point);
+                pointPool.setUpdateBy(userId);
+                pointPool.setUpdateAt(System.currentTimeMillis());
+                if (pointPoolMapper.updateByPrimaryKeySelective(pointPool) > 0) {
+                    PointPoolRecord pointPoolRecord = new PointPoolRecord();
+                    pointPoolRecord.setAction("充值");
+                    pointPoolRecord.setOperatorName(CookieUtil.getUserName(request));
+                    pointPoolRecord.setOperatorRole("主管");
+                    pointPoolRecord.setPoint(point);
+                    pointPoolRecord.setPointPoolId(id);
+                    pointPoolRecord.setTotalPointAfter(pointPool.getTotalPoint());
+                    pointPoolRecord.setTotalPointBefore(pointPool.getTotalPoint() - point);
+
+                    if (pointPoolRecordMapper.insertSelective(pointPoolRecord) > 0) {
+                        return ToJsonUtil.toEntityMap(200, "success", pointPool);
+                    } else {
+                        return ToJsonUtil.toEntityMap(400, "error", null);
+                    }
+                } else {
+                    return ToJsonUtil.toEntityMap(400, "error", null);
+                }
+            } else {
+                return ToJsonUtil.toEntityMap(400, "该积分池不在使用中", null);
+            }
         } else {
-            return ToJsonUtil.toEntityMap(400, "error", null);
+            return ToJsonUtil.toEntityMap(403, "权限不够", null);
         }
     }
 
     @RequestMapping("/delete")
     @ResponseBody
-    public Map delete(int pointPoolId, HttpServletRequest request, HttpServletResponse response) {
-
-        if (pointPoolMapper.deleteByPrimaryKey(pointPoolId) > 0) {
-            return ToJsonUtil.toEntityMap(200, "success", null);
+    public Map delete(Long id, HttpServletRequest request, HttpServletResponse response) {
+        if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
+            PointPool pointPool = pointPoolMapper.selectByPrimaryKey(id);
+            if (pointPool.getStartAt() >= System.currentTimeMillis()) {
+                if (pointPoolMapper.deleteByPrimaryKey(id) > 0) {
+                    return ToJsonUtil.toEntityMap(200, "success", null);
+                } else {
+                    return ToJsonUtil.toEntityMap(400, "error", null);
+                }
+            } else {
+                return ToJsonUtil.toEntityMap(400, "该积分池不可删除", null);
+            }
         } else {
-            return ToJsonUtil.toEntityMap(400, "error", null);
+            return ToJsonUtil.toEntityMap(403, "权限不够", null);
         }
     }
 
     @RequestMapping("/config")
     @ResponseBody
-    public Map config(int pointPoolId, int registerPoint, int carOwnerPoint, int toBuyCarPoint,
+    public Map config(Long id, Integer registerPoint, Integer carOwnerPoint, Integer toBuyCarPoint,
             HttpServletRequest request, HttpServletResponse response) {
+        if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
 
-        PointPool pointPool = pointPoolMapper.selectByPrimaryKey(pointPoolId);
-        if (registerPoint > 0) {
-            pointPool.setRegisterPoint(registerPoint);
-        }
-        if (carOwnerPoint > 0) {
-            pointPool.setCarOwnerPoint(carOwnerPoint);
-        }
-        if (toBuyCarPoint > 0) {
-            pointPool.setToBuyCarPoint(toBuyCarPoint);
-        }
-        pointPoolMapper.updateByPrimaryKey(pointPool);
+            Long userId = CookieUtil.getUserID(request);
+            PointPool pointPool = pointPoolMapper.selectByPrimaryKey(id);
 
-        return ToJsonUtil.toEntityMap(200, "success", null);
+            if (pointPool.getEndAt() >= System.currentTimeMillis()) {
+                pointPool.setUpdateBy(userId);
+                pointPool.setUpdateAt(System.currentTimeMillis());
+                if (registerPoint > 0) {
+                    pointPool.setRegisterPoint(registerPoint);
+                }
+                if (carOwnerPoint > 0) {
+                    pointPool.setCarOwnerPoint(carOwnerPoint);
+                }
+                if (toBuyCarPoint > 0) {
+                    pointPool.setToBuyCarPoint(toBuyCarPoint);
+                }
+                pointPoolMapper.updateByPrimaryKey(pointPool);
+
+                return ToJsonUtil.toEntityMap(200, "success", null);
+            } else {
+                return ToJsonUtil.toEntityMap(400, "该积分池不可配置积分项", null);
+            }
+        } else {
+            return ToJsonUtil.toEntityMap(403, "权限不够", null);
+        }
     }
 
     @RequestMapping("/getSignConfig")
     @ResponseBody
     public Map getSignConfig(String month, HttpServletRequest request, HttpServletResponse response) {
 
-        // List<SignPointConfig> signPointConfigList = signPointConfigMapper.selectByMonth(month);
+        List<SignPointConfig> signPointConfigListFromDb = signPointConfigMapper.selectByMonth(month);
+        Integer monthDayCount = DateUtil.getDayByMonth(month);
         List<SignPointConfig> signPointConfigList = new ArrayList<SignPointConfig>();
-        for (int i = 0; i < 31; i++) {
+        for (int i = 0; i < monthDayCount; i++) {
             SignPointConfig signPointConfig = new SignPointConfig();
-            signPointConfig.setId(1L);
-            signPointConfig.setMonth("2015-07");
-            signPointConfig.setTimes(i);
-            signPointConfig.setPoint(10);
+            signPointConfig.setMonth(month);
+            signPointConfig.setTimes(i+1);
+            signPointConfig.setPoint(0);
+
+            for (SignPointConfig sp : signPointConfigListFromDb) {
+                if (sp.getTimes().equals(i+1)) {
+                    signPointConfig.setPoint(sp.getPoint());
+                    break;
+                }
+            }
+
             signPointConfigList.add(signPointConfig);
         }
 
@@ -158,23 +263,39 @@ public class PointPoolController extends BaseController {
 
     @RequestMapping("/setSignConfig")
     @ResponseBody
-    public Map getSignConfig(String month, Integer times, Integer point, HttpServletRequest request,
+    public Map setSignConfig(String month, Integer times, Integer point, HttpServletRequest request,
             HttpServletResponse response) {
-
-        // SignPointConfig signPointConfig = signPointConfigMapper.selectByMonthAndTimes(month, times);
-        // if (signPointConfig==null) {
-        // signPointConfig = new SignPointConfig();
-        // signPointConfig.setMonth(month);
-        // signPointConfig.setTimes(times);
-        // signPointConfig.setPoint(point);
-        // signPointConfigMapper.insert(signPointConfig);
-        // } else {
-        // signPointConfig.setPoint(point);
-        // signPointConfigMapper.updateByPrimaryKey(signPointConfig);
-        // }
-        return ToJsonUtil.toEntityMap(200, "success", null);
+        if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
+            Long userId = CookieUtil.getUserID(request);
+            Long now = System.currentTimeMillis();
+            SignPointConfig signPointConfig = signPointConfigMapper.selectByMonthAndTimes(month, times);
+            if (signPointConfig != null) {
+                signPointConfig.setPoint(point);
+                signPointConfig.setUpdateAt(now);
+                signPointConfig.setUpdateBy(userId);
+                if (signPointConfigMapper.updateByPrimaryKeySelective(signPointConfig) > 0) {
+                    return ToJsonUtil.toEntityMap(200, "success", null);
+                } else {
+                    return ToJsonUtil.toEntityMap(400, "error", null);
+                }
+            } else {
+                signPointConfig = new SignPointConfig();
+                signPointConfig.setMonth(month);
+                signPointConfig.setTimes(times);
+                signPointConfig.setPoint(point);
+                signPointConfig.setCreateAt(now);
+                signPointConfig.setCreateBy(userId);
+                signPointConfig.setUpdateAt(now);
+                signPointConfig.setUpdateBy(userId);
+                if (signPointConfigMapper.insertSelective(signPointConfig) > 0) {
+                    return ToJsonUtil.toEntityMap(200, "success", null);
+                } else {
+                    return ToJsonUtil.toEntityMap(400, "error", null);
+                }
+            }
+        } else {
+            return ToJsonUtil.toEntityMap(403, "权限不够", null);
+        }
     }
-    
-    // TODO 添加积分池记录
 
 }

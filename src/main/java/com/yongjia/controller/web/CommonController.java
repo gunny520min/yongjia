@@ -43,10 +43,14 @@ public class CommonController extends BaseController {
         User user = userMapper.selectByAccount(account);
         if (user != null) {
             if (PasswordUtils.authenticatePassword(user.getPwd(), pwd)) {
-                CookieUtil.setIdentity(request, response, user.getName(), (long) user.getId());
                 if (user.getRoleId() == 4) {
                     return ToJsonUtil.toEntityMap(403, "权限不够！", null);
                 } else {
+                    Map<String, String> map = new HashMap<String, String>();
+                    map.put(CookieUtil.USER_ID, user.getId().toString());
+                    map.put(CookieUtil.ROLE_ID, user.getRoleId().toString());
+                    map.put(CookieUtil.USER_NAME, user.getName());
+                    CookieUtil.setIdentity(request, response, map, user.getId());
                     return ToJsonUtil.toEntityMap(200, "success", user);
                 }
             } else {
@@ -55,6 +59,15 @@ public class CommonController extends BaseController {
         } else {
             return ToJsonUtil.toEntityMap(404, "账号不存在！", null);
         }
+    }
+
+    @RequestMapping("/getCurrentUser")
+    @ResponseBody
+    public Map getCurrentUser(HttpServletRequest request, HttpServletResponse response) {
+
+        Long userId = CookieUtil.getUserID(request);
+        User user = userMapper.selectByPrimaryKey(userId);
+        return ToJsonUtil.toEntityMap(200, "success", user);
     }
 
     @RequestMapping("/logout")
@@ -71,7 +84,7 @@ public class CommonController extends BaseController {
             HttpServletResponse response) {
 
         Long id = CookieUtil.getUserID(request);
-        User user = userMapper.selectByPrimaryKey(id.intValue());// TODO long to int
+        User user = userMapper.selectByPrimaryKey(id);
         if (user != null) {
             if (PasswordUtils.authenticatePassword(user.getPwd(), oldpwd)) {
                 user.setPwd(PasswordUtils.encode(newpwd));
