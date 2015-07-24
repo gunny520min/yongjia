@@ -32,12 +32,12 @@ public class UserController extends BaseController {
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(String name, String phone, Integer pageNo, Integer pageSize, HttpServletRequest request,
+    public Map list(String name, String mobile, Integer pageNo, Integer pageSize, HttpServletRequest request,
             HttpServletResponse response) {
-        Long totalCount = userMapper.countByNameAndPhone(name, phone);
+        Long totalCount = userMapper.countByNameAndPhone(name, mobile);
         List<User> userList = null;
         if (totalCount > 0) {
-            userList = userMapper.selectByNameAndPhone(name, phone, getPageMap(pageNo, pageSize));
+            userList = userMapper.selectByNameAndPhone(name, mobile, getPageMap(pageNo, pageSize));
         }
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, userList);
     }

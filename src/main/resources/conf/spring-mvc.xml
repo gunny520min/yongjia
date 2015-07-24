@@ -13,7 +13,23 @@
 
 	<!-- 扫描controller（controller层注入） -->
 	<context:component-scan base-package="com.yongjia.controller" />
-
+	
+	<!-- 处理在类级别上的@RequestMapping注解 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+		<property name="interceptors">
+			<!-- 多个拦截器,顺序执行 -->
+			<list>
+				<ref bean="webInterceptor" />
+			</list>
+		</property>
+	</bean>
+	<!-- 如果不定义mappingURL，则默认拦截所有对Controller的请求 ; 可以使用正则表达式对url进行匹配，从而更细粒度的进行拦截(.*/entryOrJsonController\.do\?action=reg.*); -->
+	<bean id="webInterceptor" class="com.yongjia.interceptor.WebInterceptor">
+		<property name="mappingURL" value="/web/" />
+	</bean>
+	
+	
 	<!-- 避免IE在ajax请求时，返回json出现下载 -->
 	<!-- <bean id="jacksonMessageConverter" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"> 
 		<property name="supportedMediaTypes"> <list> <value>text/html;charset=UTF-8</value> 

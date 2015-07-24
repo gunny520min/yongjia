@@ -28,12 +28,12 @@ public class PotentialCustomerController extends BaseController {
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(String name, String phone, Integer pageNo, Integer pageSize, HttpServletRequest request,
+    public Map list(String name, String mobile, Integer pageNo, Integer pageSize, HttpServletRequest request,
             HttpServletResponse response) {
 
-        Long totalCount = pCustomermMapper.countByNameAndPhone(name, phone);
+        Long totalCount = pCustomermMapper.countByNameAndPhone(name, mobile);
         if (totalCount != null && totalCount > 0) {
-            List<PotentialCustomerAndMember> customerList = pCustomermMapper.selectByNameAndPhone(name, phone,
+            List<PotentialCustomerAndMember> customerList = pCustomermMapper.selectByNameAndPhone(name, mobile,
                     getPageMap(pageNo, pageSize));
             return ToJsonUtil.toPagetMap(200, "success", pageNo, pageSize, totalCount, customerList);
         } else {

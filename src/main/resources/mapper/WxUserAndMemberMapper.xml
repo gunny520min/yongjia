@@ -25,11 +25,11 @@
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="mobile" property="mobile" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="INTEGER" />
-    <result column="valiFlag" property="vali_flag" jdbcType="INTEGER" />
-    <result column="createAt" property="create_at" jdbcType="BIGINT" />
-    <result column="createBy" property="create_by" jdbcType="BIGINT" />
-    <result column="updateAt" property="update_at" jdbcType="BIGINT" />
-    <result column="updateBy" property="update_by" jdbcType="BIGINT" />
+    <result column="vali_flag" property="valiFlag" jdbcType="INTEGER" />
+    <result column="create_at" property="createAt" jdbcType="BIGINT" />
+    <result column="create_by" property="createBy" jdbcType="BIGINT" />
+    <result column="update_at" property="updateAt" jdbcType="BIGINT" />
+    <result column="update_by" property="updateBy" jdbcType="BIGINT" />
   </resultMap>
   <sql id="Base_Column_List" >
     <!--

@@ -240,6 +240,17 @@ public class CookieUtil {
 		cookie.setPath("/");
 		response.addCookie(cookie);
 	}
+	
+	/**
+	 * 刷新cookie
+	 * @param request
+	 * @param response
+	 */
+	public static void refreshCookie(HttpServletRequest request, HttpServletResponse response) {
+	    Map<String, String> params = getIdentity(request);
+	    Long userId = getUserID(request);
+	    setIdentity(request, response, params, userId);
+	}
 
 	/**
 	 * 如果过期就是true

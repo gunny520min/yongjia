@@ -54,10 +54,10 @@ public class CommonController extends BaseController {
                     return ToJsonUtil.toEntityMap(200, "success", user);
                 }
             } else {
-                return ToJsonUtil.toEntityMap(401, "账号或密码错误！", null);
+                return ToJsonUtil.toEntityMap(400, "账号或密码错误！", null);
             }
         } else {
-            return ToJsonUtil.toEntityMap(404, "账号不存在！", null);
+            return ToJsonUtil.toEntityMap(400, "账号不存在！", null);
         }
     }
 
@@ -91,10 +91,10 @@ public class CommonController extends BaseController {
                 userMapper.updateByPrimaryKey(user);
                 return ToJsonUtil.toEntityMap(200, "success", user);
             } else {
-                return ToJsonUtil.toEntityMap(401, "密码错误！", null);
+                return ToJsonUtil.toEntityMap(400, "密码错误！", null);
             }
         } else {
-            return ToJsonUtil.toEntityMap(404, "账号不存在！", null);
+            return ToJsonUtil.toEntityMap(400, "账号不存在！", null);
         }
     }
 

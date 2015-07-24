@@ -6,6 +6,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONArray;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,12 +41,13 @@ public class WxUserController extends BaseController {
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(String name, String phone, Integer pageNo, Integer pageSize, HttpServletRequest request,
+    public Map list(String name, String mobile, Integer pageNo, Integer pageSize, HttpServletRequest request,
             HttpServletResponse response) {
-        Long totalCount = wxUserAndMemberMapper.countByNameAndPhone(name, phone);
+        Long totalCount = wxUserAndMemberMapper.countByNameAndPhone(name, mobile);
         List<WxUserAndMember> wxuserAndMemberList = null;
         if (totalCount > 0) {
-            wxuserAndMemberList = wxUserAndMemberMapper.selectByNameAndPhone(name, phone, getPageMap(pageNo, pageSize));
+            wxuserAndMemberList = wxUserAndMemberMapper.selectByNameAndPhone(name, mobile, getPageMap(pageNo, pageSize));
+            log.info("wxuserAndMemberList is :"+JSONArray.fromObject(wxuserAndMemberList).toString());
         }
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
                 wxuserAndMemberList);
@@ -54,7 +57,7 @@ public class WxUserController extends BaseController {
     @ResponseBody
     public Map getMemberCar(Long memberId, HttpServletRequest request, HttpServletResponse response) {
         if (memberId == null) {
-            return ToJsonUtil.toEntityMap(200, "success", null);
+            return ToJsonUtil.toEntityMap(400, "error", null);
         } else {
             List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
             return ToJsonUtil.toListMap(200, "success", memberCars);

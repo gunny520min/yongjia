@@ -13,6 +13,7 @@
 	<!-- 扫描文件（自动将service层注入） -->
 	<context:component-scan base-package="com.yongjia.service" />
 
+<!-- 返回json -->
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
 		<property name="messageConverters">
@@ -30,6 +31,9 @@
 		</property>
 	</bean>
 
+	<!--  -->
+
+	<!-- 线程池？ -->
 	<bean id="taskExecutor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<!-- 核心线程数 -->

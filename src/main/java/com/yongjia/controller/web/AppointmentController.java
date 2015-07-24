@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yongjia.controller.BaseController;
+import com.yongjia.dao.AppointmentAndMemberMapper;
 import com.yongjia.dao.AppointmentMapper;
 import com.yongjia.dao.UserMapper;
 import com.yongjia.model.Appointment;
+import com.yongjia.model.AppointmentAndMember;
 import com.yongjia.model.User;
 import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.PasswordUtils;
@@ -31,27 +33,22 @@ public class AppointmentController extends BaseController {
 
     @Autowired
     private AppointmentMapper appointmentMapper;
+    @Autowired
+    private AppointmentAndMemberMapper appointmentAndMemberMapper;
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(Integer status, Integer pageNo, Integer pageSize, HttpServletRequest request, HttpServletResponse response) {
+    public Map list(Integer status, Integer pageNo, Integer pageSize, HttpServletRequest request,
+            HttpServletResponse response) {
 
-//        List<Appointment> appointmentList = appointmentMapper.selectAll();
-        List<Appointment> appointmentList = new ArrayList<Appointment>();
-        Appointment appointment = new Appointment();
-        appointment.setAppointContent("");
-        appointment.setAppointTime(System.currentTimeMillis());
-        appointment.setArriveTime(null);
-        appointment.setCarType("奥迪");
-        appointment.setConnectPhone("18511896713");
-        appointment.setId(1L);
-        appointment.setIsTestDrive(Appointment.NotTestCar);
-        appointment.setKilo("1000");
-        appointment.setProblemDesc("");
-        appointment.setStatus(Appointment.StatusToConfirm);
-        appointment.setType(Appointment.TypeBaoyang);
-        appointmentList.add(appointment);
-        return ToJsonUtil.toListMap(200, "success", appointmentList);
+        Long totalCount = appointmentAndMemberMapper.countByStatus(status);
+        List<AppointmentAndMember> appointmentList = null;
+        if (totalCount > 0) {
+            appointmentList = appointmentAndMemberMapper.selectByStatus(status, getPageMap(pageNo, pageSize));
+        }
+
+        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
+                appointmentList);
     }
 
     @RequestMapping("/add")
@@ -65,7 +62,7 @@ public class AppointmentController extends BaseController {
         appointment.setUpdateAt(new Date().getTime());
         appointment.setUpdateBy(userId);
 
-        if (appointmentMapper.insert(appointment) > 0) {
+        if (appointmentMapper.insertSelective(appointment) > 0) {
             return ToJsonUtil.toEntityMap(200, "success", null);
         } else {
             return ToJsonUtil.toEntityMap(400, "error", null);
