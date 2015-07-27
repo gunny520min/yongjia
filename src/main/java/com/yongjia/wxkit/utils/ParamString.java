@@ -41,6 +41,8 @@ public class ParamString {
 	public static final String API_BASE_URL = "api_base_url";
 	public static final String BSEE_PATH = "base_path";
 	public static final String WX_SCOPE = "wx_scope";
+	public static final String SCOPE_SNSAPI_BASE = "snsapi_base";
+	public static final String SCOPE_SNSAPI_USER_INFO = "snsapi_userinfo";
 	public static final String WX_USER_INFO = "wx_user_info";
 
 	public static final String IMAGE_TYPE = "image_type";

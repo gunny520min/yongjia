@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
-import com.yongjia.controller.BaseController;
 import com.yongjia.dao.CarHallMapper;
 import com.yongjia.dao.CarHallModelMapper;
 import com.yongjia.dao.CarHallPicMapper;

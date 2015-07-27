@@ -2,10 +2,8 @@ package com.yongjia.controller.web;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,9 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
-import com.yongjia.controller.BaseController;
 import com.yongjia.dao.UserMapper;
 import com.yongjia.model.User;
 import com.yongjia.utils.CookieUtil;
@@ -28,7 +24,7 @@ import com.yongjia.utils.ToJsonUtil;
 import com.yongjia.utils.UpYunUtil;
 
 @Controller
-@RequestMapping("/web/")
+@RequestMapping("/web")
 public class CommonController extends BaseController {
 
     private static Logger log = Logger.getLogger(CommonController.class);
@@ -67,6 +63,9 @@ public class CommonController extends BaseController {
 
         Long userId = CookieUtil.getUserID(request);
         User user = userMapper.selectByPrimaryKey(userId);
+        if (user==null) {
+            return ToJsonUtil.toEntityMap(401, "error", null);
+        }
         return ToJsonUtil.toEntityMap(200, "success", user);
     }
 

@@ -77,14 +77,30 @@ public class CookieUtil {
 	 * @param params
 	 * @param userId
 	 */
-	public static void setIdentity(HttpServletRequest request, HttpServletResponse response, Map<String, String> params,
-			Long userId) {
-		if (null != cookieMaxAge && 0 != cookieMaxAge) {
-			IdentityUtil.setIdentity(request, response, home, params, userId, cookieMaxAge);
-		} else {
-			IdentityUtil.setIdentity(request, response, home, params, userId);
-		}
-	}
+    public static void setIdentity(HttpServletRequest request, HttpServletResponse response, Map<String, String> params,
+            Long userId) {
+        if (null != cookieMaxAge && 0 != cookieMaxAge) {
+            IdentityUtil.setIdentity(request, response, home, params, userId, cookieMaxAge);
+        } else {
+            IdentityUtil.setIdentity(request, response, home, params, userId);
+        }
+    }
+
+    public static void setIdentity(HttpServletRequest request, HttpServletResponse response, Map<String, String> params) {
+        if (null != cookieMaxAge && 0 != cookieMaxAge) {
+            IdentityUtil.setIdentity(request, response, home, params, null, cookieMaxAge);
+        } else {
+            IdentityUtil.setIdentity(request, response, home, params, null);
+        }
+    }
+    
+    public static void setIdentity(HttpServletRequest request, HttpServletResponse response, Map<String, String> params,Integer cookieMaxAge) {
+        if (null != cookieMaxAge && 0 != cookieMaxAge) {
+            IdentityUtil.setIdentity(request, response, home, params, null, cookieMaxAge);
+        } else {
+            IdentityUtil.setIdentity(request, response, home, params, null);
+        }
+    }
 
 	/**
 	 * 

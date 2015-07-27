@@ -1,4 +1,4 @@
-package com.yongjia.controller;
+package com.yongjia.controller.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,7 +19,7 @@ public class BaseController {
     protected static final int defaultPageSize = 10;
 
     @RequestMapping("")
-    public String index(HttpServletRequest request, HttpServletResponse response) {
+    private String index(HttpServletRequest request, HttpServletResponse response) {
         return "index";
     }
     

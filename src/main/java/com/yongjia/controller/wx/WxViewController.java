@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.yongjia.controller.BaseController;
+import com.yongjia.controller.web.BaseController;
 import com.yongjia.model.Appointment;
 import com.yongjia.model.CarHall;
 import com.yongjia.model.CarHallPic;

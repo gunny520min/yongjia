@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yongjia.controller.BaseController;
 import com.yongjia.dao.MemberCarMapper;
 import com.yongjia.dao.MemberMapper;
 import com.yongjia.dao.WxUserAndMemberMapper;

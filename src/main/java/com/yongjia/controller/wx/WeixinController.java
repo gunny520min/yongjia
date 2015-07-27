@@ -2,6 +2,9 @@ package com.yongjia.controller.wx;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,11 +22,11 @@ import org.jdom.JDOMException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.yongjia.controller.BaseController;
 import com.yongjia.dao.MessageMapper;
 import com.yongjia.dao.WxMessageMapper;
 import com.yongjia.dao.WxMsgItemMapper;
@@ -37,8 +40,8 @@ import com.yongjia.model.WxRule;
 import com.yongjia.model.WxRuleKeyword;
 import com.yongjia.model.WxUser;
 import com.yongjia.model.WxUserList;
+import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.DataUtils;
-import com.yongjia.utils.HttpClientUtil;
 import com.yongjia.wxkit.WeiXin;
 import com.yongjia.wxkit.bean.TypeBean;
 import com.yongjia.wxkit.bean.WeiXinBean;
@@ -53,17 +56,10 @@ import com.yongjia.wxkit.vo.recv.WxRecvPicMsg;
 import com.yongjia.wxkit.vo.recv.WxRecvTextMsg;
 import com.yongjia.wxkit.vo.send.WxSendMsg;
 import com.yongjia.wxkit.vo.send.WxSendNewsMsg;
-import com.yongjia.wxkit.vo.send.WxSendTextMsg;
 
 @Controller
 @RequestMapping("/wx")
-public class WeixinController extends BaseController {
-
-    /**
-     */
-    public static final String AppID = WxPropertiesUtil.getProperty("app_id");
-    public static final String AppSecret = WxPropertiesUtil.getProperty("app_secret");
-    public static final String Token = WxPropertiesUtil.getProperty("app_token");
+public class WeixinController extends WxBaseController {
 
     private static Logger log = Logger.getLogger(WeixinController.class);
 
@@ -87,7 +83,7 @@ public class WeixinController extends BaseController {
 
     @RequestMapping("")
     @ResponseBody
-    public ModelAndView api(WeiXinBean weixinBean, HttpServletRequest request, HttpServletResponse response) {
+    public void api(WeiXinBean weixinBean, HttpServletRequest request, HttpServletResponse response) {
         // 设置token
         weixinBean.setToken(Token);
         // 验证签名
@@ -101,9 +97,9 @@ public class WeixinController extends BaseController {
                     PrintWriter out = response.getWriter();
                     out.println(weixinBean.getEchostr());
 
-                    pubnishMenu();
-                    getOldUserList();
-                    return null;
+                    pubnishMenu(request, response);
+                    // getOldUserList();
+                    return;
                 }
                 acceptMsg(request, response);
             }
@@ -111,20 +107,37 @@ public class WeixinController extends BaseController {
             log.info(e.getMessage());
             e.printStackTrace();
         }
-
-        return null;
     }
 
     @RequestMapping("menu")
     @ResponseBody
-    public void pubnishMenu() {
-        taskExecutor.execute(new PubnishMenuTask());
+    public void pubnishMenu(HttpServletRequest request, HttpServletResponse response) {
+        taskExecutor.execute(new PubnishMenuTask(request, response));
     }
 
     @RequestMapping("getWxUserList")
     @ResponseBody
-    public void getOldUserList() {
+    public void getOldUserList(HttpServletRequest request, HttpServletResponse response) {
         taskExecutor.execute(new getOldWxUserTask(wxUserMapper));
+    }
+
+    @RequestMapping("/openid")
+    public String openid(Model model, String code, String page, HttpServletRequest request, HttpServletResponse response) {
+        log.info("get openid start :" + request.getRequestURL().toString());
+        String openid = WeixinUtil.getOpenid(AppID, AppSecret, code);
+        String redirectUrl = "";
+        try {
+            redirectUrl = URLDecoder.decode(page, WxPropertiesUtil.getProperty(ParamString.ENCODING));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("openid", openid);
+        params.put("code", code);
+        CookieUtil.setIdentity(request, response, params, 0);
+        
+        model.addAttribute("openid", openid);
+        return redirectUrl;
     }
 
     /**
@@ -304,6 +317,19 @@ public class WeixinController extends BaseController {
         }
     }
 
+    private String menuUrlFormat(HttpServletRequest request, HttpServletResponse response, String menuUrl) {
+        String url = "";
+        try {
+            String page = URLEncoder.encode(menuUrl, WxPropertiesUtil.getProperty(ParamString.ENCODING));
+            url = WeixinUtil.getCode(AppID, "http://peon.cn/wx/openid?page=" + page, ParamString.SCOPE_SNSAPI_BASE,
+                    "123");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
     /**
      * 发布菜单
      * 
@@ -314,8 +340,12 @@ public class WeixinController extends BaseController {
      */
     private class PubnishMenuTask implements Runnable {
 
-        public PubnishMenuTask() {
-            super();
+        private HttpServletRequest request;
+        private HttpServletResponse response;
+
+        public PubnishMenuTask(HttpServletRequest request, HttpServletResponse response) {
+            this.request = request;
+            this.response = response;
         }
 
         public void run() {
@@ -325,7 +355,7 @@ public class WeixinController extends BaseController {
             WxMenu wxMenu = new WxMenu();
             wxMenu.setType("view");
             wxMenu.setName("我的");
-            wxMenu.setUrl("http://yjstatic.tlan.com.cn/weixin/profile.html");
+            wxMenu.setUrl(menuUrlFormat(request, response, "weixin/managerHome"));
             menuList.add(wxMenu);
             wxMenu = new WxMenu();
             wxMenu.setType("view");
