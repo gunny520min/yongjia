@@ -116,7 +116,7 @@ public class PointPoolController extends BaseController {
     @ResponseBody
     public Map update(PointPool pointPool, HttpServletRequest request, HttpServletResponse response) {
         if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
-            if (pointPool.getStartAt() >= System.currentTimeMillis()) {
+            if (pointPool.getEndAt() >= System.currentTimeMillis()) {
 
                 PointPool beforePointPool = pointPoolMapper.selectByPrimaryKey(pointPool.getId() - 1);
                 PointPool afterPointPool = pointPoolMapper.selectByPrimaryKey(pointPool.getId() + 1);
@@ -153,7 +153,7 @@ public class PointPoolController extends BaseController {
             Long userId = CookieUtil.getUserID(request);
             PointPool pointPool = pointPoolMapper.selectByPrimaryKey(id);
 
-            if (pointPool.getStartAt() <= now && pointPool.getEndAt() >= now) {
+            if (pointPool.getEndAt() >= System.currentTimeMillis()) {
                 pointPool.setTotalPoint(pointPool.getTotalPoint() + point);
                 pointPool.setUpdateBy(userId);
                 pointPool.setUpdateAt(System.currentTimeMillis());

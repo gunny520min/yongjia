@@ -36,7 +36,7 @@ public class WxSalerController extends BaseController {
                 if (PasswordUtils.authenticatePassword(saler.getPwd(), pwd)) {
                     return ToJsonUtil.toEntityMap(200, "success", saler);
                 } else {
-                    return ToJsonUtil.toEntityMap(401, "账号或密码错误！", null);
+                    return ToJsonUtil.toEntityMap(400, "账号或密码错误！", null);
                 }
             } else {
                 return ToJsonUtil.toEntityMap(403, "您不是销售！", null);
@@ -59,7 +59,7 @@ public class WxSalerController extends BaseController {
                     userMapper.updateByPrimaryKey(saler);
                     return ToJsonUtil.toEntityMap(200, "success", saler);
                 } else {
-                    return ToJsonUtil.toEntityMap(401, "密码错误！", null);
+                    return ToJsonUtil.toEntityMap(400, "密码错误！", null);
                 }
             } else {
                 return ToJsonUtil.toEntityMap(403, "您不是销售！", null);

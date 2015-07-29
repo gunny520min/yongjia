@@ -23,12 +23,14 @@ import com.yongjia.dao.CarHallModelMapper;
 import com.yongjia.dao.CarHallPicMapper;
 import com.yongjia.dao.CarModelMapper;
 import com.yongjia.dao.CarModelParamMapper;
+import com.yongjia.dao.CarTypeMapper;
 import com.yongjia.dao.UserMapper;
 import com.yongjia.model.CarHall;
 import com.yongjia.model.CarHallModel;
 import com.yongjia.model.CarHallPic;
 import com.yongjia.model.CarModel;
 import com.yongjia.model.CarModelParam;
+import com.yongjia.model.CarType;
 import com.yongjia.model.User;
 import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.PasswordUtils;
@@ -50,6 +52,8 @@ public class CarController extends BaseController {
     private CarHallPicMapper carHallPicMapper;
     @Autowired
     private CarHallModelMapper carHallModelMapper;
+    @Autowired
+    private CarTypeMapper carTypeMapper;
 
     @RequestMapping("/carlist")
     @ResponseBody
@@ -78,10 +82,21 @@ public class CarController extends BaseController {
 
     @RequestMapping("/importCarType")
     @ResponseBody
-    public Map addCarType(String typeName, Integer importFlag, File file, HttpServletRequest request,
+    public Map importCarType(String typeName, Integer importFlag, File file, HttpServletRequest request,
             HttpServletResponse response) {
         // TODO
         return ToJsonUtil.toEntityMap(200, "success", null);
+    }
+
+    @RequestMapping("/getCarType")
+    @ResponseBody
+    public Map getCarType(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            List<CarType> carTypeList = carTypeMapper.selectAll();
+            return ToJsonUtil.toListMap(200, "success", carTypeList);
+        } catch (Exception e) {
+            return ToJsonUtil.toEntityMap(400, "error", null);
+        }
     }
 
     @RequestMapping("/updateCarModel")

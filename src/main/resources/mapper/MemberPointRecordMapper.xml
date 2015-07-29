@@ -9,6 +9,12 @@
     -->
     <id column="id" property="id" jdbcType="BIGINT" />
     <result column="member_id" property="memberId" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="sex" property="sex" jdbcType="INTEGER" />
+    <result column="head_imgurl" property="headImgurl" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="vali_flag" property="valiFlag" jdbcType="INTEGER" />
     <result column="point_pool_id" property="pointPoolId" jdbcType="BIGINT" />
     <result column="point" property="point" jdbcType="INTEGER" />
     <result column="type" property="type" jdbcType="INTEGER" />
@@ -23,11 +29,12 @@
   </resultMap>
   
   <sql id="Base_Column_List" >
-    id, member_id, point_pool_id, point, type, action, action_content, create_at, create_by
+    mpr.id, mpr.member_id, m.name, m.mobile, m.sex, m.head_imgurl, m.status, m.vali_flag,  
+    mpr.point_pool_id, mpr.point, mpr.type, mpr.action, mpr.action_content, mpr.create_at, mpr.create_by
   </sql>
   
   <sql id="Blob_Column_List" >
-    remark
+    mpr.remark
   </sql>
   
   <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
@@ -35,16 +42,20 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from member_point_record
+    from member_point_record as mpr
+    left join member as m
+    on mpr.member_id = m.id
     where id = #{id,jdbcType=BIGINT}
   </select>
   
   <select id="countByPoolIdAndType" resultType="java.lang.Long">
     select 
     count(1)
-    from member_point_record
-    where point_pool_id = #{pointPoolId,jdbcType=BIGINT}
-    and type = #{type,jdbcType=INTEGER}
+    from member_point_record as mpr
+    left join member as m
+    on mpr.member_id = m.id
+    where mpr.point_pool_id = #{pointPoolId,jdbcType=BIGINT}
+    and mpr.type = #{type,jdbcType=INTEGER}
   </select>
   
   <select id="selectByPoolIdAndType" resultMap="ResultMapWithBLOBs" >
@@ -52,10 +63,12 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from member_point_record
-    where point_pool_id = #{pointPoolId,jdbcType=BIGINT}
-    and type = #{type,jdbcType=INTEGER}
-    order by create_at desc
+    from member_point_record as mpr
+    left join member as m
+    on mpr.member_id = m.id
+    where mpr.point_pool_id = #{pointPoolId,jdbcType=BIGINT}
+    and mpr.type = #{type,jdbcType=INTEGER}
+    order by mpr.create_at desc
     limit #{page.pageStart}, #{page.pageSize}
   </select>
   
@@ -200,4 +213,5 @@
       create_by = #{createBy,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  
 </mapper>

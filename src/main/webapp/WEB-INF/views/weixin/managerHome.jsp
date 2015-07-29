@@ -6,5 +6,6 @@
   <meta charset="utf-8">
   <title>车管家</title>
 </head>
-<h1>openid = ${openid }</h1>
+<h1>openid = ${wxUser.openid }</h1>
+<h1>nickname = ${wxUser.nickname }</h1>
 </html>

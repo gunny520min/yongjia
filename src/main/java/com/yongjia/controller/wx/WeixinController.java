@@ -56,9 +56,10 @@ import com.yongjia.wxkit.vo.recv.WxRecvPicMsg;
 import com.yongjia.wxkit.vo.recv.WxRecvTextMsg;
 import com.yongjia.wxkit.vo.send.WxSendMsg;
 import com.yongjia.wxkit.vo.send.WxSendNewsMsg;
+import com.yongjia.wxkit.vo.send.WxSendTextMsg;
 
 @Controller
-@RequestMapping("/wx")
+@RequestMapping("/wx/api")
 public class WeixinController extends WxBaseController {
 
     private static Logger log = Logger.getLogger(WeixinController.class);
@@ -73,8 +74,6 @@ public class WeixinController extends WxBaseController {
     private WxMsgItemMapper wxMsgItemMapper;
     @Autowired
     private WxUserMapper wxUserMapper;
-    @Autowired
-    private MessageMapper messageMapper;
     /**
      * 注入线程池
      */
@@ -97,7 +96,7 @@ public class WeixinController extends WxBaseController {
                     PrintWriter out = response.getWriter();
                     out.println(weixinBean.getEchostr());
 
-                    pubnishMenu(request, response);
+//                    pubnishMenu(request, response);
                     // getOldUserList();
                     return;
                 }
@@ -132,11 +131,11 @@ public class WeixinController extends WxBaseController {
             e.printStackTrace();
         }
         Map<String, String> params = new HashMap<String, String>();
-        params.put("openid", openid);
-        params.put("code", code);
+        params.put(CookieUtil.OPEN_ID, openid);
         CookieUtil.setIdentity(request, response, params, 0);
-        
-        model.addAttribute("openid", openid);
+
+        WxUser wxUser = wxUserMapper.selectByPrimaryKey(openid);
+        model.addAttribute("wxUser", wxUser);
         return redirectUrl;
     }
 
@@ -209,14 +208,14 @@ public class WeixinController extends WxBaseController {
      * @param key
      * @return
      */
-    private WxSendMsg obtainContent(WxSendMsg sendMsg, Integer ruleId) {
+    private WxSendMsg obtainContent(WxSendMsg sendMsg, Long ruleId) {
 
         WxRule rule = wxRuleMapper.selectByPrimaryKey(ruleId);
         WxMessage wxMessage = wxMessageMapper.selectByPrimaryKey(rule.getMsgId());
-        List<WxMsgItem> wxMsgItemList = wxMsgItemMapper.selectListByMsgId(wxMessage.getId());
+        List<WxMsgItem> wxMsgItemList = wxMsgItemMapper.selectByWxMsgId(wxMessage.getId());
         // TODO 回复消息内容
         if (wxMessage.getMsgType() == 1 && wxMsgItemList.size() == 1) {
-            // sendMsg = new WxSendTextMsg(sendMsg, wxMsgItemList.get(0).getContent());
+            sendMsg = new WxSendTextMsg(sendMsg, wxMsgItemList.get(0).getContent());
         } else {
             WxSendNewsMsg sendNewsMsg = new WxSendNewsMsg(sendMsg);
             for (int i = 0; i < wxMsgItemList.size(); i++) {
@@ -227,8 +226,8 @@ public class WeixinController extends WxBaseController {
                 } else {
                     url += "?wxopenid=" + sendMsg.getToUser();
                 }
-                // sendNewsMsg.addItem(wxMsgItemList.get(i).getTitle(), wxMsgItemList.get(i).getDescipition(),
-                // wxMsgItemList.get(i).getPic(), url);
+                sendNewsMsg.addItem(wxMsgItemList.get(i).getTitle(), wxMsgItemList.get(i).getDescription(),
+                        wxMsgItemList.get(i).getPic(), url);
             }
             sendMsg = sendNewsMsg;
         }

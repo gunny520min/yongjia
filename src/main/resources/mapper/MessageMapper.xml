@@ -12,7 +12,8 @@
 		<result column="update_at" property="updateAt" jdbcType="BIGINT" />
 		<result column="update_by" property="updateBy" jdbcType="BIGINT" />
 		<result column="status" property="status" jdbcType="INTEGER" />
-		<result column="push_flag" property="pushFlag" jdbcType="INTEGER" />
+		<result column="pos_message" property="posMessage" jdbcType="INTEGER" />
+		<result column="pos_manager" property="posManager" jdbcType="INTEGER" />
 	</resultMap>
 
 	<resultMap id="ResultMapWithBLOBs" type="com.yongjia.model.Message"
@@ -22,7 +23,7 @@
 
 	<sql id="Base_Column_List">
 		id, title, descipition, author, pic, create_at, create_by,
-		update_at, update_by, status, push_flag
+		update_at, update_by, status, pos_message, pos_manager
 	</sql>
 	<sql id="Blob_Column_List">
 		content
@@ -44,7 +45,7 @@
 		,
 		<include refid="Blob_Column_List" />
 		from message
-		order by push_flag asc,update_at desc
+		order by update_at desc
 		limit #{page.pageStart}, #{page.pageSize}
 	</select>
 
@@ -63,15 +64,15 @@
 		useGeneratedKeys="true" keyProperty="id">
 		insert into message (title,
 		descipition, author, pic,
-		 create_at,
-		create_by, update_at, update_by,
-		content, status, push_flag)
+		create_at, create_by, update_at, update_by,
+		content, status, pos_message,pos_manager)
 		values (#{title,jdbcType=VARCHAR},
 		#{descipition,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}, #{pic,jdbcType=VARCHAR},
 		 #{createAt,jdbcType=BIGINT},
 		#{createBy,jdbcType=BIGINT}, #{updateAt,jdbcType=BIGINT},
 		#{updateBy,jdbcType=BIGINT},
-		#{content,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER}, #{pushFlag,jdbcType=INTEGER})
+		#{content,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
+		#{posMessage,jdbcType=INTEGER}), #{posManager,jdbcType=INTEGER})
 	</insert>
 
 	<insert id="insertSelective" parameterType="com.yongjia.model.Message"
@@ -108,8 +109,11 @@
 			<if test="status != null">
 				status,
 			</if>
-			<if test="pushFlag != null">
-				push_flag,
+			<if test="posMessage != null">
+				pos_message,
+			</if>
+			<if test="posManager != null">
+				pos_manager,
 			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -143,8 +147,11 @@
 			<if test="status != null">
 				#{status,jdbcType=INTEGER},
 			</if>
-			<if test="pushFlag != null">
-				#{pushFlag,jdbcType=INTEGER},
+			<if test="posMessage != null">
+				#{posMessage,jdbcType=INTEGER},
+			</if>
+			<if test="posManager != null">
+				#{posManager,jdbcType=INTEGER},
 			</if>
 		</trim>
 	</insert>
@@ -182,8 +189,11 @@
 			<if test="status != null">
 				status = #{status,jdbcType=INTEGER},
 			</if>
-			<if test="pushFlag != null">
-				push_flag = #{pushFlag,jdbcType=INTEGER},
+			<if test="posMessage != null">
+				pos_message = #{posMessage,jdbcType=VARCHAR},
+			</if>
+			<if test="posManager != null">
+				pos_manager = #{posManager,jdbcType=VARCHAR},
 			</if>
 		</set>
 		where id = #{id,jdbcType=BIGINT}
@@ -201,7 +211,8 @@
 		update_at = #{updateAt,jdbcType=BIGINT},
 		update_by = #{updateBy,jdbcType=BIGINT},
 		status = #{status,jdbcType=INTEGER},
-		push_flag = #{pushFlag,jdbcType=INTEGER},
+		pos_manager = #{posManager,jdbcType=INTEGER},
+		pos_message = #{posMessage,jdbcType=INTEGER},
 		content = #{content,jdbcType=LONGVARCHAR}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -218,7 +229,8 @@
 		update_at = #{updateAt,jdbcType=BIGINT},
 		update_by = #{updateBy,jdbcType=BIGINT},
 		status = #{status,jdbcType=INTEGER},
-		push_flag = #{pushFlag,jdbcType=INTEGER}
+		pos_manager = #{posManager,jdbcType=INTEGER},
+		pos_message = #{posMessage,jdbcType=INTEGER}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 	

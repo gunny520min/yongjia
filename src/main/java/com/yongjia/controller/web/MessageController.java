@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yongjia.dao.MessageMapper;
 import com.yongjia.model.Message;
+import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.ToJsonUtil;
 
 @Controller
@@ -38,6 +39,13 @@ public class MessageController extends BaseController {
     @RequestMapping("/add")
     @ResponseBody
     public Map add(Message message, HttpServletRequest request, HttpServletResponse response) {
+        Long userId = CookieUtil.getUserID(request);
+        Long nowTime = System.currentTimeMillis();
+        message.setCreateAt(nowTime);
+        message.setCreateBy(userId);
+        message.setUpdateAt(nowTime);
+        message.setUpdateBy(userId);
+        message.setStatus(Message.StatusActive);
         messageMapper.insertSelective(message);
         return ToJsonUtil.toListMap(200, "success", null);
     }
@@ -45,26 +53,35 @@ public class MessageController extends BaseController {
     @RequestMapping("/update")
     @ResponseBody
     public Map update(Message message, HttpServletRequest request, HttpServletResponse response) {
+        Long userId = CookieUtil.getUserID(request);
+        Long nowTime = System.currentTimeMillis();
+        message.setUpdateAt(nowTime);
+        message.setUpdateBy(userId);
         messageMapper.updateByPrimaryKeySelective(message);
         return ToJsonUtil.toListMap(200, "success", null);
     }
 
-    @RequestMapping("/statusToggle")
+    @RequestMapping("/toggle")
     @ResponseBody
     public Map statusToggle(Long id, Integer status, HttpServletRequest request, HttpServletResponse response) {
+        Long userId = CookieUtil.getUserID(request);
+        Long nowTime = System.currentTimeMillis();
+        
         Message message = messageMapper.selectByPrimaryKey(id);
         message.setStatus(status);
+        message.setUpdateAt(nowTime);
+        message.setUpdateBy(userId);
         messageMapper.updateByPrimaryKeySelective(message);
         return ToJsonUtil.toListMap(200, "success", null);
     }
     
-    @RequestMapping("/pushToggle")
-    @ResponseBody
-    public Map pushToggle(Long id, Integer pushFlag, HttpServletRequest request, HttpServletResponse response) {
-        Message message = messageMapper.selectByPrimaryKey(id);
-        message.setPushFlag(pushFlag);
-        messageMapper.updateByPrimaryKeySelective(message);
-        return ToJsonUtil.toListMap(200, "success", null);
-    }
+//    @RequestMapping("/pushToggle")
+//    @ResponseBody
+//    public Map pushToggle(Long id, Integer pushFlag, HttpServletRequest request, HttpServletResponse response) {
+//        Message message = messageMapper.selectByPrimaryKey(id);
+//        message.setPushFlag(pushFlag);
+//        messageMapper.updateByPrimaryKeySelective(message);
+//        return ToJsonUtil.toListMap(200, "success", null);
+//    }
     
 }
