@@ -215,13 +215,13 @@ public class CookieUtil {
         return roleId;
     }
 
-	public static String getName(HttpServletRequest request, HttpServletResponse response) {
-		Map map = getIdentity(request, response);
-		if (map == null || StringUtils.isBlank(map.get(USER_NAME).toString())) {
-			return null;
-		}
-		return (String) map.get(USER_NAME);
-	}
+//	public static String getName(HttpServletRequest request, HttpServletResponse response) {
+//		Map map = getIdentity(request, response);
+//		if (map == null || StringUtils.isBlank(map.get(USER_NAME).toString())) {
+//			return null;
+//		}
+//		return (String) map.get(USER_NAME);
+//	}
 
 	/**
 	 * 保存Cookie,图片验证码

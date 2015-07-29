@@ -40,11 +40,14 @@ public class MessageController extends BaseController {
     @ResponseBody
     public Map add(Message message, HttpServletRequest request, HttpServletResponse response) {
         Long userId = CookieUtil.getUserID(request);
+        String userName = CookieUtil.getUserName(request);
         Long nowTime = System.currentTimeMillis();
         message.setCreateAt(nowTime);
         message.setCreateBy(userId);
+        message.setCreateByName(userName);
         message.setUpdateAt(nowTime);
         message.setUpdateBy(userId);
+        message.setUpdateByName(userName);
         message.setStatus(Message.StatusActive);
         messageMapper.insertSelective(message);
         return ToJsonUtil.toListMap(200, "success", null);
@@ -54,9 +57,11 @@ public class MessageController extends BaseController {
     @ResponseBody
     public Map update(Message message, HttpServletRequest request, HttpServletResponse response) {
         Long userId = CookieUtil.getUserID(request);
+        String userName = CookieUtil.getUserName(request);
         Long nowTime = System.currentTimeMillis();
         message.setUpdateAt(nowTime);
         message.setUpdateBy(userId);
+        message.setUpdateByName(userName);
         messageMapper.updateByPrimaryKeySelective(message);
         return ToJsonUtil.toListMap(200, "success", null);
     }
@@ -66,11 +71,13 @@ public class MessageController extends BaseController {
     public Map statusToggle(Long id, Integer status, HttpServletRequest request, HttpServletResponse response) {
         Long userId = CookieUtil.getUserID(request);
         Long nowTime = System.currentTimeMillis();
+        String userName = CookieUtil.getUserName(request);
         
         Message message = messageMapper.selectByPrimaryKey(id);
         message.setStatus(status);
         message.setUpdateAt(nowTime);
         message.setUpdateBy(userId);
+        message.setUpdateByName(userName);
         messageMapper.updateByPrimaryKeySelective(message);
         return ToJsonUtil.toListMap(200, "success", null);
     }

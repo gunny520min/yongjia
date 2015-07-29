@@ -9,8 +9,12 @@
 		<result column="pic" property="pic" jdbcType="VARCHAR" />
 		<result column="create_at" property="createAt" jdbcType="BIGINT" />
 		<result column="create_by" property="createBy" jdbcType="BIGINT" />
+		<result column="create_by_name" property="createByName"
+			jdbcType="VARCHAR" />
 		<result column="update_at" property="updateAt" jdbcType="BIGINT" />
 		<result column="update_by" property="updateBy" jdbcType="BIGINT" />
+		<result column="update_by_name" property="updateByName"
+			jdbcType="VARCHAR" />
 		<result column="status" property="status" jdbcType="INTEGER" />
 		<result column="pos_message" property="posMessage" jdbcType="INTEGER" />
 		<result column="pos_manager" property="posManager" jdbcType="INTEGER" />
@@ -23,7 +27,9 @@
 
 	<sql id="Base_Column_List">
 		id, title, descipition, author, pic, create_at, create_by,
-		update_at, update_by, status, pos_message, pos_manager
+		create_by_name,
+		update_at, update_by, update_by_name, status,
+		pos_message, pos_manager
 	</sql>
 	<sql id="Blob_Column_List">
 		content
@@ -39,14 +45,15 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
-	<select id="selectAll" resultMap="ResultMapWithBLOBs" >
+	<select id="selectAll" resultMap="ResultMapWithBLOBs">
 		select
 		<include refid="Base_Column_List" />
 		,
 		<include refid="Blob_Column_List" />
 		from message
 		order by update_at desc
-		limit #{page.pageStart}, #{page.pageSize}
+		limit #{page.pageStart},
+		#{page.pageSize}
 	</select>
 
 	<select id="countAll" resultType="java.lang.Long">
@@ -56,7 +63,8 @@
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-		delete from message
+		delete from
+		message
 		where id = #{id,jdbcType=BIGINT}
 	</delete>
 
@@ -64,15 +72,22 @@
 		useGeneratedKeys="true" keyProperty="id">
 		insert into message (title,
 		descipition, author, pic,
-		create_at, create_by, update_at, update_by,
-		content, status, pos_message,pos_manager)
+		create_at, create_by, create_by_name,
+		update_at, update_by, update_by_name,
+		content, status,
+		pos_message,pos_manager)
 		values (#{title,jdbcType=VARCHAR},
-		#{descipition,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}, #{pic,jdbcType=VARCHAR},
-		 #{createAt,jdbcType=BIGINT},
-		#{createBy,jdbcType=BIGINT}, #{updateAt,jdbcType=BIGINT},
+		#{descipition,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR},
+		#{pic,jdbcType=VARCHAR},
+		#{createAt,jdbcType=BIGINT},
+		#{createBy,jdbcType=BIGINT}, #{createByName,jdbcType=VARCHAR},
+		#{updateAt,jdbcType=BIGINT},
 		#{updateBy,jdbcType=BIGINT},
-		#{content,jdbcType=LONGVARCHAR}, #{status,jdbcType=INTEGER},
-		#{posMessage,jdbcType=INTEGER}), #{posManager,jdbcType=INTEGER})
+		#{updateByName,jdbcType=VARCHAR},
+		#{content,jdbcType=LONGVARCHAR},
+		#{status,jdbcType=INTEGER},
+		#{posMessage,jdbcType=INTEGER}),
+		#{posManager,jdbcType=INTEGER})
 	</insert>
 
 	<insert id="insertSelective" parameterType="com.yongjia.model.Message"
@@ -97,11 +112,17 @@
 			<if test="createBy != null">
 				create_by,
 			</if>
+			<if test="createByName != null">
+				create_by_name,
+			</if>
 			<if test="updateAt != null">
 				update_at,
 			</if>
 			<if test="updateBy != null">
 				update_by,
+			</if>
+			<if test="updateByName != null">
+				update_by_name,
 			</if>
 			<if test="content != null">
 				content,
@@ -135,11 +156,17 @@
 			<if test="createBy != null">
 				#{createBy,jdbcType=BIGINT},
 			</if>
+			<if test="createByName != null">
+				#{createByName,jdbcType=VARCHAR},
+			</if>
 			<if test="updateAt != null">
 				#{updateAt,jdbcType=BIGINT},
 			</if>
 			<if test="updateBy != null">
 				#{updateBy,jdbcType=BIGINT},
+			</if>
+			<if test="updateByName != null">
+				#{updateByName,jdbcType=VARCHAR},
 			</if>
 			<if test="content != null">
 				#{content,jdbcType=LONGVARCHAR},
@@ -155,7 +182,7 @@
 			</if>
 		</trim>
 	</insert>
-	
+
 	<update id="updateByPrimaryKeySelective" parameterType="com.yongjia.model.Message">
 		update message
 		<set>
@@ -177,11 +204,17 @@
 			<if test="createBy != null">
 				create_by = #{createBy,jdbcType=BIGINT},
 			</if>
+			<if test="createByName != null">
+				create_by_name = #{createByName,jdbcType=VARCHAR},
+			</if>
 			<if test="updateAt != null">
 				update_at = #{updateAt,jdbcType=BIGINT},
 			</if>
 			<if test="updateBy != null">
 				update_by = #{updateBy,jdbcType=BIGINT},
+			</if>
+			<if test="updateByName != null">
+				update_by_name = #{updateByName,jdbcType=VARCHAR},
 			</if>
 			<if test="content != null">
 				content = #{content,jdbcType=LONGVARCHAR},
@@ -198,40 +231,58 @@
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
-	
+
 	<update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yongjia.model.Message">
-		update message
+		update
+		message
 		set
 		title = #{title,jdbcType=VARCHAR},
-		descipition = #{descipition,jdbcType=VARCHAR},
+		descipition =
+		#{descipition,jdbcType=VARCHAR},
 		author = #{author,jdbcType=VARCHAR},
 		pic = #{pic,jdbcType=VARCHAR},
 		create_at = #{createAt,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},
-		update_at = #{updateAt,jdbcType=BIGINT},
+		create_by_name =
+		#{createByName,jdbcType=VARCHAR},
+		update_at =
+		#{updateAt,jdbcType=BIGINT},
 		update_by = #{updateBy,jdbcType=BIGINT},
-		status = #{status,jdbcType=INTEGER},
-		pos_manager = #{posManager,jdbcType=INTEGER},
-		pos_message = #{posMessage,jdbcType=INTEGER},
-		content = #{content,jdbcType=LONGVARCHAR}
+		update_by_name = #{updateByName,jdbcType=VARCHAR},
+		status =
+		#{status,jdbcType=INTEGER},
+		pos_manager =
+		#{posManager,jdbcType=INTEGER},
+		pos_message =
+		#{posMessage,jdbcType=INTEGER},
+		content =
+		#{content,jdbcType=LONGVARCHAR}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
-	
+
 	<update id="updateByPrimaryKey" parameterType="com.yongjia.model.Message">
 		update message
 		set
 		title = #{title,jdbcType=VARCHAR},
-		descipition = #{descipition,jdbcType=VARCHAR},
+		descipition =
+		#{descipition,jdbcType=VARCHAR},
 		author = #{author,jdbcType=VARCHAR},
 		pic = #{pic,jdbcType=VARCHAR},
 		create_at = #{createAt,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},
-		update_at = #{updateAt,jdbcType=BIGINT},
+		create_by_name =
+		#{createByName,jdbcType=VARCHAR},
+		update_at =
+		#{updateAt,jdbcType=BIGINT},
 		update_by = #{updateBy,jdbcType=BIGINT},
-		status = #{status,jdbcType=INTEGER},
-		pos_manager = #{posManager,jdbcType=INTEGER},
-		pos_message = #{posMessage,jdbcType=INTEGER}
+		update_by_name = #{updateByName,jdbcType=VARCHAR},
+		status =
+		#{status,jdbcType=INTEGER},
+		pos_manager =
+		#{posManager,jdbcType=INTEGER},
+		pos_message =
+		#{posMessage,jdbcType=INTEGER}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
-	
+
 </mapper>
