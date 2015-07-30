@@ -116,8 +116,8 @@ public class PointPoolController extends BaseController {
     @ResponseBody
     public Map update(PointPool pointPool, HttpServletRequest request, HttpServletResponse response) {
         if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
-            if (pointPool.getEndAt() >= System.currentTimeMillis()) {
-
+            if (pointPool.getStartAt() >= System.currentTimeMillis()) {
+                // TODO 获取前一个积分池和后一个积分池
                 PointPool beforePointPool = pointPoolMapper.selectByPrimaryKey(pointPool.getId() - 1);
                 PointPool afterPointPool = pointPoolMapper.selectByPrimaryKey(pointPool.getId() + 1);
 

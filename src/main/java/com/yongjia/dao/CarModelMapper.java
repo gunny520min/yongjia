@@ -35,6 +35,8 @@ public interface CarModelMapper {
      * @mbggenerated Tue Jul 07 14:25:04 CST 2015
      */
     CarModel selectByPrimaryKey(Long id);
+    
+    List<CarModel> selectByTypeId(Long typeId);
 
     Long countByName(@Param("typeName") String typeName, @Param("modelName") String modelName);
 

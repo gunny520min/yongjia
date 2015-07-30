@@ -27,6 +27,14 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
+	<select id="selectByTypeId" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from car_model
+		where type_id = #{typeId,jdbcType=BIGINT}
+	</select>
+
 	<select id="selectByName" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />

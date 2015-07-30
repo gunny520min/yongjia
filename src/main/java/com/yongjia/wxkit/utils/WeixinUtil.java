@@ -133,7 +133,7 @@ public class WeixinUtil {
      * @return
      */
     public static boolean templateMessage(String token, String json) {
-        // post方式创建菜单
+        
         String response = HttpClientUtil.sendPostRequestByJava(
                 WxPropertiesUtil.getProperty(ParamString.TEMPLATE_MESSAGE).replace("{1}", token), json);
         log.info("templateMessage:" + response);

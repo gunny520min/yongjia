@@ -99,6 +99,17 @@ public class CarController extends BaseController {
         }
     }
 
+    @RequestMapping("/getCarModel")
+    @ResponseBody
+    public Map getCarModel(Long typeId, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            List<CarModel> carModelList = carModelMapper.selectByTypeId(typeId);
+            return ToJsonUtil.toListMap(200, "success", carModelList);
+        } catch (Exception e) {
+            return ToJsonUtil.toEntityMap(400, "error", null);
+        }
+    }
+
     @RequestMapping("/updateCarModel")
     @ResponseBody
     @Transactional
@@ -154,22 +165,33 @@ public class CarController extends BaseController {
     @Transactional
     public Map addCarHall(CarHall carHall, String carHallPics, String carModelIds, HttpServletRequest request,
             HttpServletResponse response) {
+        Long userId = CookieUtil.getUserID(request);
+        Long now = System.currentTimeMillis();
+        carHall.setCreateAt(now);
+        carHall.setCreateBy(userId);
+        carHall.setUpdateAt(now);
+        carHall.setUpdateBy(userId);
+        carHall.setStatus(CarHall.StatusActive);
         Long carHallId = carHallMapper.insertSelective(carHall);
         try {
-            List<String> carHallPicList = (List<String>) JSONArray.parse(carHallPics);
-            for (String img : carHallPicList) {
-                CarHallPic carHallPic = new CarHallPic();
-                carHallPic.setCarHallId(carHallId);
-                carHallPic.setImg(img);
-                carHallPicMapper.insertSelective(carHallPic);
+            if (carHallPics != null) {
+                List<String> carHallPicList = (List<String>) JSONArray.parse(carHallPics);
+                for (String img : carHallPicList) {
+                    CarHallPic carHallPic = new CarHallPic();
+                    carHallPic.setCarHallId(carHallId);
+                    carHallPic.setImg(img);
+                    carHallPicMapper.insertSelective(carHallPic);
+                }
             }
-            List<Long> carModelIdList = (List<Long>) JSONArray.parse(carModelIds);
-            for (Long carModelId : carModelIdList) {
-                CarHallModel carHallModel = new CarHallModel();
-                carHallModel.setCarHallId(carHallId);
-                carHallModel.setCarModelId(carModelId);
-                carHallModelMapper.insertSelective(carHallModel);
+            if (carModelIds != null) {
+                List<Long> carModelIdList = (List<Long>) JSONArray.parse(carModelIds);
+                for (Long carModelId : carModelIdList) {
+                    CarHallModel carHallModel = new CarHallModel();
+                    carHallModel.setCarHallId(carHallId);
+                    carHallModel.setCarModelId(carModelId);
+                    carHallModelMapper.insertSelective(carHallModel);
 
+                }
             }
         } catch (JSONException je) {
             return ToJsonUtil.toEntityMap(400, "json error", null);
