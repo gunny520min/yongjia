@@ -45,6 +45,9 @@ public class PointController extends BaseController {
     @Autowired
     private MemberPointRecordMapper memberPointRecordMapper;
 
+    @Autowired
+    private PointPoolMapper pointPoolMapper;
+
     @RequestMapping("/listExchange")
     @ResponseBody
     public Map listExchange(Long pointPoolId, Integer pageNo, Integer pageSize, HttpServletRequest request,
@@ -77,7 +80,15 @@ public class PointController extends BaseController {
     @RequestMapping("/addExchange")
     @ResponseBody
     public Map addExchange(MemberPointRecord memberPointRecord, HttpServletRequest request, HttpServletResponse response) {
-
+        if (memberPointRecord.getMemberId()==null) {
+           return ToJsonUtil.toEntityMap(400, "memberId 不能为空", null);
+        }
+        
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        if (pointPool==null) {
+            return ToJsonUtil.toEntityMap(400, "没有激活的积分池", null);
+        }
+        memberPointRecord.setPointPoolId(pointPool.getId());
         Long userId = CookieUtil.getUserID(request);
         memberPointRecord.setType(MemberPointRecord.TypeUse);
         memberPointRecord.setCreateBy(userId);
@@ -93,7 +104,15 @@ public class PointController extends BaseController {
     @RequestMapping("/addPoint")
     @ResponseBody
     public Map addPoint(MemberPointRecord memberPointRecord, HttpServletRequest request, HttpServletResponse response) {
-
+        if (memberPointRecord.getMemberId()==null) {
+            return ToJsonUtil.toEntityMap(400, "memberId 不能为空", null);
+         }
+         
+         PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+         if (pointPool==null) {
+             return ToJsonUtil.toEntityMap(400, "没有激活的积分池", null);
+         }
+         memberPointRecord.setPointPoolId(pointPool.getId());
         Long userId = CookieUtil.getUserID(request);
         memberPointRecord.setType(MemberPointRecord.TypeGet);
         memberPointRecord.setCreateBy(userId);

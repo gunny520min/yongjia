@@ -35,6 +35,8 @@ public interface PointPoolMapper {
      * @mbggenerated Tue Jul 07 14:25:04 CST 2015
      */
     PointPool selectByPrimaryKey(Long id);
+    
+    PointPool selectActivePool(Long now);
 
     List<PointPool> selectAll(@Param("page")Map page);
     
