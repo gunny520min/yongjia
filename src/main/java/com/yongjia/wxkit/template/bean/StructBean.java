@@ -1,10 +1,10 @@
-package com.yongjia.wxkit.template.common;
+package com.yongjia.wxkit.template.bean;
 
-public class Struct {
+public class StructBean {
 	String value;
 	String color;
 
-	public Struct(String value, String color) {
+	public StructBean(String value, String color) {
 		super();
 		this.value = value;
 		this.color = color;

@@ -25,6 +25,14 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
+	<select id="selectByHallId" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from car_hall_model
+		where car_hall_id = #{hallId,jdbcType=BIGINT}
+	</select>
+
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from
 		car_hall_model
@@ -44,7 +52,7 @@
 		values ( #{carHallId,jdbcType=BIGINT},
 		#{carModelId,jdbcType=BIGINT})
 	</insert>
-	
+
 	<insert id="insertSelective" parameterType="com.yongjia.model.CarHallModel"
 		useGeneratedKeys="true" keyProperty="id">
 		insert into car_hall_model
@@ -65,7 +73,7 @@
 			</if>
 		</trim>
 	</insert>
-	
+
 	<update id="updateByPrimaryKeySelective" parameterType="com.yongjia.model.CarHallModel">
 		update car_hall_model
 		<set>
@@ -78,13 +86,14 @@
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
-	
+
 	<update id="updateByPrimaryKey" parameterType="com.yongjia.model.CarHallModel">
-		update car_hall_model
+		update
+		car_hall_model
 		set car_hall_id = #{carHallId,jdbcType=BIGINT},
 		car_model_id = #{carModelId,jdbcType=BIGINT}
 		where id =
 		#{id,jdbcType=BIGINT}
 	</update>
-	
+
 </mapper>

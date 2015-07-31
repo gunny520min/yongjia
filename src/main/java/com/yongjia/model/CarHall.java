@@ -1,5 +1,7 @@
 package com.yongjia.model;
 
+import java.util.List;
+
 public class CarHall {
     public static final int StatusStop = 1;
     public static final int StatusActive = 0;
@@ -88,6 +90,29 @@ public class CarHall {
      * 
      * @mbggenerated Tue Jul 07 14:25:04 CST 2015
      */
+    
+    
+    private List<String> carHallPics;
+    
+    private List<Long> carModelIds;
+    
+    
+    public List<String> getCarHallPics() {
+        return carHallPics;
+    }
+
+    public void setCarHallPics(List<String> carHallPics) {
+        this.carHallPics = carHallPics;
+    }
+
+    public List<Long> getCarModelIds() {
+        return carModelIds;
+    }
+
+    public void setCarModelIds(List<Long> carModelIds) {
+        this.carModelIds = carModelIds;
+    }
+
     public Long getId() {
         return id;
     }

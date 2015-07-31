@@ -7,7 +7,7 @@ public class WxBaseController {
 
     /**
      */
-    protected static final String AppID = WxPropertiesUtil.getProperty("app_id");
-    protected static final String AppSecret = WxPropertiesUtil.getProperty("app_secret");
-    protected static final String Token = WxPropertiesUtil.getProperty("app_token");
+    public static final String AppID = WxPropertiesUtil.getProperty("app_id");
+    public static final String AppSecret = WxPropertiesUtil.getProperty("app_secret");
+    public static final String Token = WxPropertiesUtil.getProperty("app_token");
 }

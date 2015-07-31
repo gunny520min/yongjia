@@ -132,11 +132,12 @@ public class WeixinUtil {
      * @param json
      * @return
      */
-    public static boolean templateMessage(String token, String json) {
-        
+    public static boolean sendTplMessage(String token, String json) {
+        System.out.println("send json : " + json);
         String response = HttpClientUtil.sendPostRequestByJava(
                 WxPropertiesUtil.getProperty(ParamString.TEMPLATE_MESSAGE).replace("{1}", token), json);
         log.info("templateMessage:" + response);
+        System.out.println("templateMessage:" + response);
         JSONObject jo = JSONObject.fromObject(response);
         if ("0".equals(jo.get("errcode"))) {
             return true;

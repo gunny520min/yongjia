@@ -3,6 +3,7 @@ package com.yongjia.controller.web;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +77,7 @@ public class CarController extends BaseController {
             List<CarModelParam> carParamList = carModelParamMapper.selectByModelId(carModelId);
             return ToJsonUtil.toListMap(200, "success", carParamList);
         } catch (Exception e) {
-            return ToJsonUtil.toListMap(200, "error", null);
+            return ToJsonUtil.toListMap(400, "error", null);
         }
     }
 
@@ -160,10 +161,47 @@ public class CarController extends BaseController {
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carHallList);
     }
 
+//    @RequestMapping("/getCarHallPics")
+//    @ResponseBody
+//    public Map getCarHallPics(Long carHallId, HttpServletRequest request, HttpServletResponse response) {
+//        try {
+//            List<CarHallPic> carHallPics = carHallPicMapper.selectByHallId(carHallId);
+//
+//            return ToJsonUtil.toListMap(200, "success", carHallPics);
+//        } catch (Exception e) {
+//            return ToJsonUtil.toListMap(400, "error", null);
+//        }
+//    }
+
+    @RequestMapping("/getCarHallDetail")
+    @ResponseBody
+    public Map getCarHallDetail(Long carHallId, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            CarHall carHall = carHallMapper.selectByPrimaryKey(carHallId);
+            List<CarHallPic> carHallPics = carHallPicMapper.selectByHallId(carHallId);
+            List<String> carHallPicStr = new ArrayList<String>();
+            for(int i=0;i<carHallPics.size();i++){
+                carHallPicStr.add(carHallPics.get(i).getImg());
+            }
+            carHall.setCarHallPics(carHallPicStr);
+            
+            List<CarHallModel> carHallModels = carHallModelMapper.selectByHallId(carHallId);
+            List<Long> carHallModelStr = new ArrayList<Long>();
+            for(int i=0;i<carHallModels.size();i++){
+                carHallModelStr.add(carHallModels.get(i).getCarModelId());
+            }
+            carHall.setCarModelIds(carHallModelStr);
+            
+            return ToJsonUtil.toEntityMap(200, "success", carHall);
+        } catch (Exception e) {
+            return ToJsonUtil.toListMap(400, "error", null);
+        }
+    }
+
     @RequestMapping("/addCarHall")
     @ResponseBody
     @Transactional
-    public Map addCarHall(CarHall carHall, String carHallPics, String carModelIds, HttpServletRequest request,
+    public Map addCarHall(CarHall carHall, HttpServletRequest request,
             HttpServletResponse response) {
         Long userId = CookieUtil.getUserID(request);
         Long now = System.currentTimeMillis();
@@ -172,20 +210,19 @@ public class CarController extends BaseController {
         carHall.setUpdateAt(now);
         carHall.setUpdateBy(userId);
         carHall.setStatus(CarHall.StatusActive);
-        Long carHallId = carHallMapper.insertSelective(carHall);
+        carHallMapper.insertSelective(carHall);
+        Long carHallId = carHall.getId();
         try {
-            if (carHallPics != null) {
-                List<String> carHallPicList = (List<String>) JSONArray.parse(carHallPics);
-                for (String img : carHallPicList) {
+            if (carHall.getCarHallPics() != null) {
+                for (String img : carHall.getCarHallPics()) {
                     CarHallPic carHallPic = new CarHallPic();
                     carHallPic.setCarHallId(carHallId);
                     carHallPic.setImg(img);
                     carHallPicMapper.insertSelective(carHallPic);
                 }
             }
-            if (carModelIds != null) {
-                List<Long> carModelIdList = (List<Long>) JSONArray.parse(carModelIds);
-                for (Long carModelId : carModelIdList) {
+            if (carHall.getCarModelIds() != null) {
+                for (Long carModelId : carHall.getCarModelIds()) {
                     CarHallModel carHallModel = new CarHallModel();
                     carHallModel.setCarHallId(carHallId);
                     carHallModel.setCarModelId(carModelId);
@@ -202,15 +239,14 @@ public class CarController extends BaseController {
     @RequestMapping("/updateCarHall")
     @ResponseBody
     @Transactional
-    public Map updateCarHall(CarHall carHall, String carHallPics, String carModelIds, HttpServletRequest request,
+    public Map updateCarHall(CarHall carHall, HttpServletRequest request,
             HttpServletResponse response) {
         carHallMapper.updateByPrimaryKeySelective(carHall);
         Long carHallId = carHall.getId();
         try {
-            List<String> carHallPicList = (List<String>) JSONArray.parse(carHallPics);
-            if (carHallPicList != null && carHallPicList.size() > 0) {
+            if (carHall.getCarHallPics() != null && carHall.getCarHallPics().size() > 0) {
                 carHallPicMapper.deleteByCarHallId(carHallId);
-                for (String img : carHallPicList) {
+                for (String img : carHall.getCarHallPics()) {
                     CarHallPic carHallPic = new CarHallPic();
                     carHallPic.setCarHallId(carHallId);
                     carHallPic.setImg(img);
@@ -218,10 +254,9 @@ public class CarController extends BaseController {
                 }
             }
 
-            List<Long> carModelIdList = (List<Long>) JSONArray.parse(carModelIds);
-            if (carHallPicList != null && carHallPicList.size() > 0) {
+            if (carHall.getCarModelIds() != null && carHall.getCarModelIds().size() > 0) {
                 carHallModelMapper.deleteByCarHallId(carHallId);
-                for (Long carModelId : carModelIdList) {
+                for (Long carModelId : carHall.getCarModelIds()) {
                     CarHallModel carHallModel = new CarHallModel();
                     carHallModel.setCarHallId(carHallId);
                     carHallModel.setCarModelId(carModelId);

@@ -1,4 +1,4 @@
-package com.yongjia.wxkit.template.common;
+package com.yongjia.wxkit.template.bean;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ public class ServiceCommonBean {
 	private String template_id;
 	private String topcolor;
 	private String url;
-	private Map<String, Struct> data = new HashMap<String, Struct>();
+	private Map<String, StructBean> data = new HashMap<String, StructBean>();
 
 	public String getTouser() {
 		return touser;
@@ -35,11 +35,11 @@ public class ServiceCommonBean {
 		this.topcolor = topcolor;
 	}
 
-	public Map<String, Struct> getData() {
+	public Map<String, StructBean> getData() {
 		return data;
 	}
 
-	public void setData(Map<String, Struct> data) {
+	public void setData(Map<String, StructBean> data) {
 		this.data = data;
 	}
 
