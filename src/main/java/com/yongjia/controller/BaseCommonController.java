@@ -33,9 +33,9 @@ public class BaseCommonController {
     
     @RequestMapping("/getCarType")
     @ResponseBody
-    public Map getCarType(HttpServletRequest request, HttpServletResponse response) {
+    public Map getCarType(Integer importFlag, HttpServletRequest request, HttpServletResponse response) {
         try {
-            List<CarType> carTypeList = carTypeMapper.selectAll();
+            List<CarType> carTypeList = carTypeMapper.selectByImportFlag(importFlag);
             return ToJsonUtil.toListMap(200, "success", carTypeList);
         } catch (Exception e) {
             return ToJsonUtil.toEntityMap(400, "error", null);

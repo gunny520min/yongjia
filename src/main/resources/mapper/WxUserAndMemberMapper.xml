@@ -30,6 +30,7 @@
     <result column="create_by" property="createBy" jdbcType="BIGINT" />
     <result column="update_at" property="updateAt" jdbcType="BIGINT" />
     <result column="update_by" property="updateBy" jdbcType="BIGINT" />
+    <result column="point" property="point" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Base_Column_List" >
     <!--
@@ -40,15 +41,17 @@
     wu.openid, wu.subscribe, wu.nickname, wu.sex, wu.language, wu.city, wu.province, 
     wu.country, wu.headimgurl, wu.subscribe_time, wu.unionid, wu.remark, wu.groupid, wu.ticket,
     m.id, m.name, m.mobile, m.status, m.vali_flag,
-    m.create_at, m.create_by, m.update_at, m.update_by
+    m.create_at, m.create_by, m.update_at, m.update_by,
+    mp.point
   </sql>
   
-  <select id="selectByOpenid" resultMap="BaseResultMap" parameterType="java.lang.String">
+  <select id="selectByOpenid" resultMap="BaseResultMap" >
     select 
     <include refid="Base_Column_List" />
     from wx_user as wu 
 		LEFT JOIN wx_user2member as wum ON wu.openid = wum.openid
 		LEFT JOIN member as m ON wum.member_id = m.id
+		LEFT JOIN member_point as mp ON mp.member_id = m.id and mp.point_pool_id = #{pointPoolId, jdbcType=BIGINT}
 		where wu.openid = #{openid, jdbcType=VARCHAR}
   </select>
   
@@ -58,6 +61,7 @@
     from wx_user as wu 
 		LEFT JOIN wx_user2member as wum ON wu.openid = wum.openid
 		LEFT JOIN member as m ON wum.member_id = m.id
+		LEFT JOIN member_point as mp ON mp.member_id = m.id and mp.point_pool_id = #{pointPoolId, jdbcType=BIGINT}
 		where 1=1
 		<if test="name != null">
 			and m.name = #{name,jdbcType=VARCHAR}
@@ -74,6 +78,7 @@
     from wx_user as wu 
 		LEFT JOIN wx_user2member as wum ON wu.openid = wum.openid
 		LEFT JOIN member as m ON wum.member_id = m.id
+		LEFT JOIN member_point as mp ON mp.member_id = m.id and mp.point_pool_id = #{pointPoolId, jdbcType=BIGINT}
 		where 1=1
 		<if test="name != null">
 			and m.name = #{name,jdbcType=VARCHAR}

@@ -49,12 +49,14 @@ public class GiftController extends BaseController {
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(Integer pageNo, Integer pageSize, HttpServletRequest request, HttpServletResponse response) {
-
-        Long totalCount = giftMapper.countAll();
+    public Map list(String name, Integer pageNo, Integer pageSize, HttpServletRequest request, HttpServletResponse response) {
+        if (name != null && name.length() == 0) {
+            name = null;
+        }
+        Long totalCount = giftMapper.countByName(name);
         List<Gift> giftList = null;
         if (totalCount > 0) {
-            giftList = giftMapper.selectAll(getPageMap(pageNo, pageSize));
+            giftList = giftMapper.selectByName(name, getPageMap(pageNo, pageSize));
         }
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, giftList);
     }

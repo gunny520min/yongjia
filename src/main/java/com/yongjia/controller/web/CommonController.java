@@ -41,7 +41,9 @@ public class CommonController extends BaseController {
         User user = userMapper.selectByAccount(account);
         if (user != null) {
             if (PasswordUtils.authenticatePassword(user.getPwd(), pwd)) {
-                if (user.getRoleId() == 4) {
+                if (user.getStatus().equals(User.StatusStop)) {
+                    return ToJsonUtil.toEntityMap(403, "用户已停用", null);
+                } else if (user.getRoleId() == 4) {
                     return ToJsonUtil.toEntityMap(403, "权限不够！", null);
                 } else {
                     Map<String, String> map = new HashMap<String, String>();
@@ -103,7 +105,7 @@ public class CommonController extends BaseController {
     public Map uploadPic(@RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request,
             HttpServletResponse response) {
 
-        String imgName = DataUtils.getUUID()+".jpg";
+        String imgName = DataUtils.getUUID() + ".jpg";
         String path = request.getSession().getServletContext().getRealPath("upload");
         String fileName = file.getOriginalFilename();
         File targetFile = new File(path, fileName);
@@ -127,7 +129,7 @@ public class CommonController extends BaseController {
                 return ToJsonUtil.toEntityMap(200, "success", picUrl);
             } else {
                 log.info("upload pic fail!");
-                String picUrl2 = request.getContextPath()+"/upload/"+fileName;
+                String picUrl2 = request.getContextPath() + "/upload/" + fileName;
                 return ToJsonUtil.toEntityMap(200, "success", picUrl2);
             }
         } catch (IOException e) {

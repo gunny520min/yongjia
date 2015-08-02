@@ -15,11 +15,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.yongjia.controller.web.BaseController;
 import com.yongjia.dao.MemberCarMapper;
 import com.yongjia.dao.MemberMapper;
+import com.yongjia.dao.PointPoolMapper;
 import com.yongjia.dao.SmsSendRecordMapper;
 import com.yongjia.dao.WxUser2memberMapper;
 import com.yongjia.dao.WxUserAndMemberMapper;
 import com.yongjia.model.Member;
 import com.yongjia.model.MemberCar;
+import com.yongjia.model.PointPool;
 import com.yongjia.model.SmsSendRecord;
 import com.yongjia.model.WxUser2member;
 import com.yongjia.model.WxUserAndMember;
@@ -48,6 +50,9 @@ public class WxMemberController extends BaseController {
     @Autowired
     private SmsSendRecordMapper smsSendRecordMapper;
 
+    @Autowired
+    private PointPoolMapper pointPoolMapper;
+
     @RequestMapping("/regsiter")
     @ResponseBody
     public Map regsiter(String mobile, String viliCode, HttpServletRequest request, HttpServletResponse response) {
@@ -65,7 +70,12 @@ public class WxMemberController extends BaseController {
         /**
          * 判断是否注册过
          */
-        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid);
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        Long pointPoolId = 0L;
+        if (pointPool != null) {
+            pointPoolId = pointPool.getId();
+        }
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
         if (wxUserAndMember.getId() > 0) {
             return ToJsonUtil.toEntityMap(400, "您已经注册过了", null);
         }

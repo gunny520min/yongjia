@@ -33,6 +33,12 @@ public class UserController extends BaseController {
     @ResponseBody
     public Map list(String name, String mobile, Integer pageNo, Integer pageSize, HttpServletRequest request,
             HttpServletResponse response) {
+        if (name != null && name.length() == 0) {
+            name = null;
+        }
+        if (mobile != null && mobile.length() == 0) {
+            mobile = null;
+        }
         Long totalCount = userMapper.countByNameAndPhone(name, mobile);
         List<User> userList = null;
         if (totalCount > 0) {

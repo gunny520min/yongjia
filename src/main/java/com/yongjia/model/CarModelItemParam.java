@@ -1,25 +1,21 @@
 package com.yongjia.model;
 
-import java.util.List;
-
-public class CarModelParam {
+public class CarModelItemParam {
     private String name;
-    private List<CarModelItemParam> value;
-
+    private String value;
+    
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
-    public List<CarModelItemParam> getValue() {
+    public String getValue() {
         return value;
     }
-
-    public void setValue(List<CarModelItemParam> value) {
+    public void setValue(String value) {
         this.value = value;
     }
-
+    
+    
 }

@@ -1,6 +1,5 @@
 package com.yongjia.controller.web;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -16,12 +15,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yongjia.dao.AppointmentAndMemberMapper;
 import com.yongjia.dao.AppointmentMapper;
-import com.yongjia.dao.UserMapper;
 import com.yongjia.model.Appointment;
 import com.yongjia.model.AppointmentAndMember;
-import com.yongjia.model.User;
 import com.yongjia.utils.CookieUtil;
-import com.yongjia.utils.PasswordUtils;
 import com.yongjia.utils.ToJsonUtil;
 
 @Controller
@@ -70,11 +66,14 @@ public class AppointmentController extends BaseController {
 
     @RequestMapping("/setStatus")
     @ResponseBody
-    public Map update(Long id, int status, HttpServletRequest request, HttpServletResponse response) {
+    public Map update(Long id, int status, Long arriveTime, HttpServletRequest request, HttpServletResponse response) {
 
         Long userId = CookieUtil.getUserID(request);
         Appointment appointment = appointmentMapper.selectByPrimaryKey(id);
         appointment.setStatus(status);
+        if (arriveTime != null && arriveTime > 0) {
+            appointment.setArriveTime(arriveTime);
+        }
         appointment.setUpdateAt(new Date().getTime());
         appointment.setUpdateBy(userId);
 

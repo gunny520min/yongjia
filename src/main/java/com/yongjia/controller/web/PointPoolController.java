@@ -76,12 +76,12 @@ public class PointPoolController extends BaseController {
 
     @RequestMapping("/recordlist")
     @ResponseBody
-    public Map recordlist(Long pointPoolId, Integer pageNo, Integer pageSize, HttpServletRequest request,
+    public Map recordlist(Long pointPoolId, Integer type, Integer pageNo, Integer pageSize, HttpServletRequest request,
             HttpServletResponse response) {
-        Long count = pointPoolRecordMapper.countByPointPoolId(pointPoolId);
+        Long count = pointPoolRecordMapper.countByPointPoolIdAndType(pointPoolId,type);
         List<PointPoolRecord> pointPoolRecordList = null;
         if (count > 0) {
-            pointPoolRecordList = pointPoolRecordMapper.selectByPointPoolId(pointPoolId, getPageMap(pageNo, pageSize));
+            pointPoolRecordList = pointPoolRecordMapper.selectByPointPoolIdAndType(pointPoolId,type, getPageMap(pageNo, pageSize));
         }
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count,
                 pointPoolRecordList);
@@ -159,6 +159,7 @@ public class PointPoolController extends BaseController {
                 pointPool.setUpdateAt(System.currentTimeMillis());
                 if (pointPoolMapper.updateByPrimaryKeySelective(pointPool) > 0) {
                     PointPoolRecord pointPoolRecord = new PointPoolRecord();
+                    pointPoolRecord.setType(PointPoolRecord.TypeAdd);
                     pointPoolRecord.setAction("充值");
                     pointPoolRecord.setOperatorName(CookieUtil.getUserName(request));
                     pointPoolRecord.setOperatorRole("主管");

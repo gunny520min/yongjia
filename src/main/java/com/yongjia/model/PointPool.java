@@ -47,6 +47,7 @@ public class PointPool {
      * @mbggenerated Tue Jul 07 14:25:04 CST 2015
      */
     private Integer totalPoint;
+    private Integer totalReducePoint;
     
     private Integer registerPoint;
     private Integer memberPoint;
@@ -97,6 +98,14 @@ public class PointPool {
 
     public void setUpdateAt(Long updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public Integer getTotalReducePoint() {
+        return totalReducePoint;
+    }
+
+    public void setTotalReducePoint(Integer totalReducePoint) {
+        this.totalReducePoint = totalReducePoint;
     }
 
     /**

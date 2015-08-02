@@ -1,6 +1,7 @@
 package com.yongjia.controller.web;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,11 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -70,11 +76,55 @@ public class CarController extends BaseController {
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carList);
     }
 
-    @RequestMapping("/importCarType")
+    @RequestMapping("/addCarType")
     @ResponseBody
-    public Map importCarType(String typeName, Integer importFlag, File file, HttpServletRequest request,
+    public Map addCarType(CarType carType, HttpServletRequest request, HttpServletResponse response) {
+        try {
+            if (carTypeMapper.insertSelective(carType) > 0) {
+                return ToJsonUtil.toEntityMap(200, "success", null);
+            } else {
+                return ToJsonUtil.toEntityMap(400, "insert error", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ToJsonUtil.toEntityMap(500, "server error", null);
+        }
+
+    }
+
+    @RequestMapping("/importCarModel")
+    @ResponseBody
+    public Map importCarType(Long typeId, String typeName,
+            @RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request,
             HttpServletResponse response) {
         // TODO
+        try {
+            POIFSFileSystem fs = new POIFSFileSystem(file.getInputStream());
+            HSSFWorkbook wb = new HSSFWorkbook(fs);
+            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                HSSFSheet sheet = wb.getSheetAt(i);
+                List<CarModelParam> params = new ArrayList<CarModelParam>();
+                for(int j=0; j<sheet.getLastRowNum(); j++){
+                    CarModelParam param = new CarModelParam();
+                }
+                
+                
+                String carModelName = sheet.getSheetName();
+                CarModel carModel = new CarModel();
+                carModel.setCarModelName(carModelName);
+                carModel.setStatus(CarModel.StatusActive);
+                carModel.setTypeId(typeId);
+                carModel.setTypeName(typeName);
+                carModelMapper.insertSelective(carModel);
+                
+                
+                
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return ToJsonUtil.toEntityMap(200, "success", null);
     }
 

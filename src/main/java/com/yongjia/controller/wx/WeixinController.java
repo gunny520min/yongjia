@@ -28,12 +28,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.yongjia.dao.MessageMapper;
+import com.yongjia.dao.PointPoolMapper;
 import com.yongjia.dao.WxMessageMapper;
 import com.yongjia.dao.WxMsgItemMapper;
 import com.yongjia.dao.WxRuleKeywordMapper;
 import com.yongjia.dao.WxRuleMapper;
 import com.yongjia.dao.WxUserAndMemberMapper;
 import com.yongjia.dao.WxUserMapper;
+import com.yongjia.model.PointPool;
 import com.yongjia.model.WxMenu;
 import com.yongjia.model.WxMessage;
 import com.yongjia.model.WxMsgItem;
@@ -78,6 +80,8 @@ public class WeixinController extends WxBaseController {
     private WxUserMapper wxUserMapper;
     @Autowired
     private WxUserAndMemberMapper wxUserAndMemberMapper;
+    @Autowired
+    private PointPoolMapper pointPoolMapper;
     /**
      * 注入线程池
      */
@@ -134,8 +138,12 @@ public class WeixinController extends WxBaseController {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid);
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        Long pointPoolId = 0L;
+        if (pointPool != null) {
+            pointPoolId = pointPool.getId();
+        }
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid,pointPoolId);
         model.addAttribute("wxUser", wxUserAndMember);
 
         Map<String, String> params = new HashMap<String, String>();

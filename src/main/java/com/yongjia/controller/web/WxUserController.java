@@ -17,9 +17,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yongjia.dao.MemberCarMapper;
 import com.yongjia.dao.MemberMapper;
+import com.yongjia.dao.PointPoolMapper;
 import com.yongjia.dao.WxUserAndMemberMapper;
 import com.yongjia.model.Member;
 import com.yongjia.model.MemberCar;
+import com.yongjia.model.PointPool;
 import com.yongjia.model.WxUserAndMember;
 import com.yongjia.utils.ToJsonUtil;
 
@@ -38,15 +40,31 @@ public class WxUserController extends BaseController {
     @Autowired
     private MemberCarMapper memberCarMapper;
 
+    @Autowired
+    private PointPoolMapper pointPoolMapper;
+
     @RequestMapping("/list")
     @ResponseBody
     public Map list(String name, String mobile, Integer pageNo, Integer pageSize, HttpServletRequest request,
             HttpServletResponse response) {
-        Long totalCount = wxUserAndMemberMapper.countByNameAndPhone(name, mobile);
+        if (name != null && name.length() == 0) {
+            name = null;
+        }
+        if (mobile != null && mobile.length() == 0) {
+            mobile = null;
+        }
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        Long pointPoolId = 0L;
+        if (pointPool != null) {
+            pointPoolId = pointPool.getId();
+        }
+
+        Long totalCount = wxUserAndMemberMapper.countByNameAndPhone(name, mobile, pointPoolId);
         List<WxUserAndMember> wxuserAndMemberList = null;
         if (totalCount > 0) {
-            wxuserAndMemberList = wxUserAndMemberMapper.selectByNameAndPhone(name, mobile, getPageMap(pageNo, pageSize));
-            log.info("wxuserAndMemberList is :"+JSONArray.fromObject(wxuserAndMemberList).toString());
+            wxuserAndMemberList = wxUserAndMemberMapper.selectByNameAndPhone(name, mobile, pointPoolId,
+                    getPageMap(pageNo, pageSize));
+            log.info("wxuserAndMemberList is :" + JSONArray.fromObject(wxuserAndMemberList).toString());
         }
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
                 wxuserAndMemberList);
@@ -84,7 +102,15 @@ public class WxUserController extends BaseController {
 
             Member member = memberMapper.selectByPrimaryKey(memberCar.getMemberId());
             member.setStatus(Member.StatusCarOwner);
-            member.setValiFlag(Member.NoVali);
+            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberCar.getMemberId());
+            Integer viliFlag = Member.NoVali;
+            for (MemberCar car : memberCars) {
+                if (car.getStatus().equals(MemberCar.StatusToVali)) {
+                    viliFlag = Member.ToVali;
+                    break;
+                }
+            }
+            member.setValiFlag(viliFlag);
             if (memberMapper.updateByPrimaryKeySelective(member) > 0) {
                 return ToJsonUtil.toEntityMap(200, "success", null);
             } else {
@@ -104,8 +130,17 @@ public class WxUserController extends BaseController {
         memberCar.setStatus(MemberCar.StatusNo);
         if (memberCarMapper.updateByPrimaryKeySelective(memberCar) > 0) {
             Member member = memberMapper.selectByPrimaryKey(memberCar.getMemberId());
-            member.setValiFlag(Member.NoVali);
+            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberCar.getMemberId());
+            Integer viliFlag = Member.NoVali;
+            for (MemberCar car : memberCars) {
+                if (car.getStatus().equals(MemberCar.StatusToVali)) {
+                    viliFlag = Member.ToVali;
+                    break;
+                }
+            }
+            member.setValiFlag(viliFlag);
             if (memberMapper.updateByPrimaryKeySelective(member) > 0) {
+                
                 return ToJsonUtil.toEntityMap(200, "success", null);
             } else {
                 return ToJsonUtil.toEntityMap(400, "error", null);
