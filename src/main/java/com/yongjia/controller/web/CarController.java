@@ -98,10 +98,29 @@ public class CarController extends BaseController {
 
     @RequestMapping("/importCarModel")
     @ResponseBody
-    public Map importCarType(Long typeId, String typeName,
-            @RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request,
+    public Map importCarType(Long typeId, String typeName, String paramsStr, HttpServletRequest request,
             HttpServletResponse response) {
-        
+
+        try {
+            List<CarModel> carModels = JSONArray.parseArray(paramsStr, CarModel.class);
+            for (CarModel carModel : carModels) {
+                carModel.setTypeId(typeId);
+                carModel.setTypeName(typeName);
+                carModelMapper.insertSelective(carModel);
+            }
+        } catch (Exception e) {
+            return ToJsonUtil.toEntityMap(400, "sql error maybe", null);
+        }
+        return ToJsonUtil.toEntityMap(200, "success", null);
+    }
+
+    @RequestMapping("/importCarModel")
+    @ResponseBody
+    public Map importCarType(@RequestParam(value = "file", required = true) MultipartFile file,
+            HttpServletRequest request, HttpServletResponse response) {
+
+        List<CarModel> allParams = new ArrayList<CarModel>();
+
         try {
             POIFSFileSystem fs = new POIFSFileSystem(file.getInputStream());
             HSSFWorkbook wb = new HSSFWorkbook(fs);
@@ -109,14 +128,14 @@ public class CarController extends BaseController {
                 HSSFSheet sheet = wb.getSheetAt(i);
                 List<CarModelParam> params = new ArrayList<CarModelParam>();
                 String paramName = null;
-                for(int j=0; j<sheet.getLastRowNum(); j++){
-                    
-                    CarModelParam param = new CarModelParam();;
+                for (int j = 0; j < sheet.getLastRowNum(); j++) {
+
+                    CarModelParam param = new CarModelParam();
                     List<CarModelItemParam> childParams = new ArrayList<CarModelItemParam>();
                     HSSFRow row = sheet.getRow(j);
-                    HSSFCell cell1 = row.getCell(0);  
-                    if (paramName==null || !ExcelUtil.getCellStringValue(cell1).equals(paramName)) {
-                        if (paramName!=null) {
+                    HSSFCell cell1 = row.getCell(0);
+                    if (paramName == null || !ExcelUtil.getCellStringValue(cell1).equals(paramName)) {
+                        if (paramName != null) {
                             params.add(param);
                         }
                         param = new CarModelParam();
@@ -127,20 +146,17 @@ public class CarController extends BaseController {
                     CarModelItemParam carModelItemParam = new CarModelItemParam();
                     HSSFCell cell2 = row.getCell(1);
                     carModelItemParam.setName(ExcelUtil.getCellStringValue(cell2));
-                    HSSFCell cell3 = row.getCell(2); 
+                    HSSFCell cell3 = row.getCell(2);
                     carModelItemParam.setValue(ExcelUtil.getCellStringValue(cell3));
                     childParams.add(carModelItemParam);
-                    
+
                 }
-                
-                String carModelName = sheet.getSheetName();
                 CarModel carModel = new CarModel();
+                String carModelName = sheet.getSheetName();
                 carModel.setCarModelName(carModelName);
                 carModel.setStatus(CarModel.StatusActive);
-                carModel.setTypeId(typeId);
-                carModel.setTypeName(typeName);
                 carModel.setParams(JSONArray.toJSONString(params));
-                carModelMapper.insertSelective(carModel);
+                allParams.add(carModel);
             }
 
         } catch (IOException e) {
@@ -149,7 +165,7 @@ public class CarController extends BaseController {
         } catch (Exception e) {
             return ToJsonUtil.toEntityMap(400, "sql error maybe", null);
         }
-        return ToJsonUtil.toEntityMap(200, "success", null);
+        return ToJsonUtil.toListMap(200, "success", allParams);
     }
 
     @RequestMapping("/updateCarModel")
