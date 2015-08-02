@@ -98,7 +98,7 @@ public class CarController extends BaseController {
 
     @RequestMapping("/importCarModel")
     @ResponseBody
-    public Map importCarType(Long typeId, String typeName, String paramsStr, HttpServletRequest request,
+    public Map importCarModel(Long typeId, String typeName, String paramsStr, HttpServletRequest request,
             HttpServletResponse response) {
 
         try {
@@ -114,9 +114,9 @@ public class CarController extends BaseController {
         return ToJsonUtil.toEntityMap(200, "success", null);
     }
 
-    @RequestMapping("/importCarModel")
+    @RequestMapping("/importCarModelExcel")
     @ResponseBody
-    public Map importCarType(@RequestParam(value = "file", required = true) MultipartFile file,
+    public Map importCarModelExcel(@RequestParam(value = "file", required = true) MultipartFile file,
             HttpServletRequest request, HttpServletResponse response) {
 
         List<CarModel> allParams = new ArrayList<CarModel>();
