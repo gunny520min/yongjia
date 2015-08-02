@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -36,10 +38,12 @@ import com.yongjia.model.CarHall;
 import com.yongjia.model.CarHallModel;
 import com.yongjia.model.CarHallPic;
 import com.yongjia.model.CarModel;
+import com.yongjia.model.CarModelItemParam;
 import com.yongjia.model.CarModelParam;
 import com.yongjia.model.CarType;
 import com.yongjia.model.User;
 import com.yongjia.utils.CookieUtil;
+import com.yongjia.utils.ExcelUtil;
 import com.yongjia.utils.PasswordUtils;
 import com.yongjia.utils.ToJsonUtil;
 
@@ -97,17 +101,37 @@ public class CarController extends BaseController {
     public Map importCarType(Long typeId, String typeName,
             @RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request,
             HttpServletResponse response) {
-        // TODO
+        
         try {
             POIFSFileSystem fs = new POIFSFileSystem(file.getInputStream());
             HSSFWorkbook wb = new HSSFWorkbook(fs);
             for (int i = 0; i < wb.getNumberOfSheets(); i++) {
                 HSSFSheet sheet = wb.getSheetAt(i);
                 List<CarModelParam> params = new ArrayList<CarModelParam>();
+                String paramName = null;
                 for(int j=0; j<sheet.getLastRowNum(); j++){
-                    CarModelParam param = new CarModelParam();
+                    
+                    CarModelParam param = new CarModelParam();;
+                    List<CarModelItemParam> childParams = new ArrayList<CarModelItemParam>();
+                    HSSFRow row = sheet.getRow(j);
+                    HSSFCell cell1 = row.getCell(0);  
+                    if (paramName==null || !ExcelUtil.getCellStringValue(cell1).equals(paramName)) {
+                        if (paramName!=null) {
+                            params.add(param);
+                        }
+                        param = new CarModelParam();
+                        paramName = ExcelUtil.getCellStringValue(cell1);
+                        param.setName(paramName);
+                        childParams = new ArrayList<CarModelItemParam>();
+                    }
+                    CarModelItemParam carModelItemParam = new CarModelItemParam();
+                    HSSFCell cell2 = row.getCell(1);
+                    carModelItemParam.setName(ExcelUtil.getCellStringValue(cell2));
+                    HSSFCell cell3 = row.getCell(2); 
+                    carModelItemParam.setValue(ExcelUtil.getCellStringValue(cell3));
+                    childParams.add(carModelItemParam);
+                    
                 }
-                
                 
                 String carModelName = sheet.getSheetName();
                 CarModel carModel = new CarModel();
@@ -115,15 +139,15 @@ public class CarController extends BaseController {
                 carModel.setStatus(CarModel.StatusActive);
                 carModel.setTypeId(typeId);
                 carModel.setTypeName(typeName);
+                carModel.setParams(JSONArray.toJSONString(params));
                 carModelMapper.insertSelective(carModel);
-                
-                
-                
             }
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            return ToJsonUtil.toEntityMap(400, "io error", null);
+        } catch (Exception e) {
+            return ToJsonUtil.toEntityMap(400, "sql error maybe", null);
         }
         return ToJsonUtil.toEntityMap(200, "success", null);
     }

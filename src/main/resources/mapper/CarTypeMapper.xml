@@ -18,7 +18,7 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
-	<select id="selectByImportFlag" resultMap="BaseResultMap">
+	<select id="selectByImportFlag" resultMap="BaseResultMap" >
 		select
 		<include refid="Base_Column_List" />
 		from car_type

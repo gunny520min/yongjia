@@ -38,6 +38,7 @@ public class BaseCommonController {
             List<CarType> carTypeList = carTypeMapper.selectByImportFlag(importFlag);
             return ToJsonUtil.toListMap(200, "success", carTypeList);
         } catch (Exception e) {
+            e.printStackTrace();
             return ToJsonUtil.toEntityMap(400, "error", null);
         }
     }
@@ -58,8 +59,8 @@ public class BaseCommonController {
     @ResponseBody
     public Map getCarParam(Long id, HttpServletRequest request, HttpServletResponse response) {
         try {
-            List<CarModelParam> carParamList = carModelParamMapper.selectByModelId(id);
-            return ToJsonUtil.toListMap(200, "success", carParamList);
+            CarModel carModel = carModelMapper.selectByPrimaryKey(id);
+            return ToJsonUtil.toEntityMap(200, "success", carModel);
         } catch (Exception e) {
             return ToJsonUtil.toListMap(400, "error", null);
         }

@@ -55,7 +55,7 @@
 		where wu.openid = #{openid, jdbcType=VARCHAR}
   </select>
   
-  <select id="selectByNameAndPhone" resultMap="BaseResultMap" >
+  <select id="selectByCondition" resultMap="BaseResultMap" >
     select 
     <include refid="Base_Column_List" />
     from wx_user as wu 
@@ -69,10 +69,13 @@
 		<if test="mobile != null">
 			and m.mobile = #{mobile,jdbcType=VARCHAR}
 		</if>
+		<if test="isMember != null">
+			and m.id is not null
+		</if>
 		limit #{page.pageStart}, #{page.pageSize}
   </select>
   
-  <select id="countByNameAndPhone" resultType="java.lang.Long" >
+  <select id="countByCondition" resultType="java.lang.Long" >
     select 
     count(1)
     from wx_user as wu 
@@ -85,6 +88,9 @@
 		</if>
 		<if test="mobile != null">
 			and m.mobile = #{mobile,jdbcType=VARCHAR}
+		</if>
+		<if test="isMember != null">
+			and m.id is not null
 		</if>
   </select>
   

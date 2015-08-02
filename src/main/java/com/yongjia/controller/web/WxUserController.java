@@ -45,7 +45,7 @@ public class WxUserController extends BaseController {
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(String name, String mobile, Integer pageNo, Integer pageSize, HttpServletRequest request,
+    public Map list(String name, String mobile, Integer isMember, Integer pageNo, Integer pageSize, HttpServletRequest request,
             HttpServletResponse response) {
         if (name != null && name.length() == 0) {
             name = null;
@@ -53,16 +53,19 @@ public class WxUserController extends BaseController {
         if (mobile != null && mobile.length() == 0) {
             mobile = null;
         }
+        if (isMember != null && isMember==0) {
+            isMember = null;
+        }
         PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
         Long pointPoolId = 0L;
         if (pointPool != null) {
             pointPoolId = pointPool.getId();
         }
 
-        Long totalCount = wxUserAndMemberMapper.countByNameAndPhone(name, mobile, pointPoolId);
+        Long totalCount = wxUserAndMemberMapper.countByCondition(name, mobile, pointPoolId,isMember);
         List<WxUserAndMember> wxuserAndMemberList = null;
         if (totalCount > 0) {
-            wxuserAndMemberList = wxUserAndMemberMapper.selectByNameAndPhone(name, mobile, pointPoolId,
+            wxuserAndMemberList = wxUserAndMemberMapper.selectByCondition(name, mobile, pointPoolId,isMember,
                     getPageMap(pageNo, pageSize));
             log.info("wxuserAndMemberList is :" + JSONArray.fromObject(wxuserAndMemberList).toString());
         }
