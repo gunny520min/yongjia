@@ -10,6 +10,8 @@ import com.yongjia.model.WxUserAndMember;
 
 public interface WxUserAndMemberMapper {
 
+    WxUserAndMember selectByOpenid(String openid);
+    
 	List<WxUserAndMember> selectByNameAndPhone(@Param("name")String name, @Param("mobile")String mobile, @Param("page")Map page);
 	
 	Long countByNameAndPhone(@Param("name")String name, @Param("mobile")String mobile);

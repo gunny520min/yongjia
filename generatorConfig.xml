@@ -13,7 +13,7 @@
 		<javaClientGenerator targetPackage="com.yongjia.dao"
 			targetProject="yongjia-web" type="XMLMAPPER" />
 
-		<table tableName="sms_send_record" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
+		<table tableName="member_sign" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
 			<generatedKey column="id" sqlStatement="Mysql" />
 		</table>
 	</context>

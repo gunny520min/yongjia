@@ -40,6 +40,7 @@ public class CookieUtil {
 	public static final String USER_CODE = "userCode";
     public static final String USER_ID = "userId";
     public static final String OPEN_ID = "openid";
+    public static final String MEMBER_ID = "memberId";
 	public static final String USER_NAME = "userName";
 	public static final String SAVE_TIME = "saveTime";
 	public static final String KAPTCHA = "Kaptcha";
@@ -191,6 +192,15 @@ public class CookieUtil {
         }
         String openid = map.get(OPEN_ID).toString();
         return openid;
+    }
+    
+    public static Long getMemberId(HttpServletRequest request) {
+        Map map = getIdentity(request);
+        if (null == map || null == map.get(MEMBER_ID)) {
+            return null;
+        }
+        Long memberId = Long.valueOf(map.get(MEMBER_ID).toString());
+        return memberId;
     }
     
     public static String getUserName(HttpServletRequest request) {

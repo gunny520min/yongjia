@@ -32,6 +32,7 @@ import com.yongjia.dao.WxMessageMapper;
 import com.yongjia.dao.WxMsgItemMapper;
 import com.yongjia.dao.WxRuleKeywordMapper;
 import com.yongjia.dao.WxRuleMapper;
+import com.yongjia.dao.WxUserAndMemberMapper;
 import com.yongjia.dao.WxUserMapper;
 import com.yongjia.model.WxMenu;
 import com.yongjia.model.WxMessage;
@@ -39,6 +40,7 @@ import com.yongjia.model.WxMsgItem;
 import com.yongjia.model.WxRule;
 import com.yongjia.model.WxRuleKeyword;
 import com.yongjia.model.WxUser;
+import com.yongjia.model.WxUserAndMember;
 import com.yongjia.model.WxUserList;
 import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.DataUtils;
@@ -74,6 +76,8 @@ public class WeixinController extends WxBaseController {
     private WxMsgItemMapper wxMsgItemMapper;
     @Autowired
     private WxUserMapper wxUserMapper;
+    @Autowired
+    private WxUserAndMemberMapper wxUserAndMemberMapper;
     /**
      * 注入线程池
      */
@@ -96,7 +100,7 @@ public class WeixinController extends WxBaseController {
                     PrintWriter out = response.getWriter();
                     out.println(weixinBean.getEchostr());
 
-//                    pubnishMenu(request, response);
+                    // pubnishMenu(request, response);
                     // getOldUserList();
                     return;
                 }
@@ -130,12 +134,17 @@ public class WeixinController extends WxBaseController {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid);
+        model.addAttribute("wxUser", wxUserAndMember);
+
         Map<String, String> params = new HashMap<String, String>();
         params.put(CookieUtil.OPEN_ID, openid);
+        if (wxUserAndMember.getId() != null) {
+            params.put(CookieUtil.MEMBER_ID, wxUserAndMember.getId() + "");
+        }
         CookieUtil.setIdentity(request, response, params, 0);
 
-        WxUser wxUser = wxUserMapper.selectByPrimaryKey(openid);
-        model.addAttribute("wxUser", wxUser);
         return redirectUrl;
     }
 

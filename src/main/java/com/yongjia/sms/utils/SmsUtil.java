@@ -36,6 +36,7 @@ public class SmsUtil {
 
     public static String[] SmsContent = new String[] { "【永佳丰田】您正在注册成为永佳会员，验证码是#code#。如不是本人操作请忽略。" };
     public static String[] SmsTpl = new String[] { "注册" };
+    public static Integer TypeRegister = 0;
     public static Long ReSendTime = 60 * 1000L;
     public static Long OverDueTime = 5 * 60 * 1000L;
 

@@ -70,45 +70,12 @@ public class CarController extends BaseController {
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carList);
     }
 
-    @RequestMapping("/getCarParam")
-    @ResponseBody
-    public Map getCarParam(Long carModelId, HttpServletRequest request, HttpServletResponse response) {
-        try {
-            List<CarModelParam> carParamList = carModelParamMapper.selectByModelId(carModelId);
-            return ToJsonUtil.toListMap(200, "success", carParamList);
-        } catch (Exception e) {
-            return ToJsonUtil.toListMap(400, "error", null);
-        }
-    }
-
     @RequestMapping("/importCarType")
     @ResponseBody
     public Map importCarType(String typeName, Integer importFlag, File file, HttpServletRequest request,
             HttpServletResponse response) {
         // TODO
         return ToJsonUtil.toEntityMap(200, "success", null);
-    }
-
-    @RequestMapping("/getCarType")
-    @ResponseBody
-    public Map getCarType(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            List<CarType> carTypeList = carTypeMapper.selectAll();
-            return ToJsonUtil.toListMap(200, "success", carTypeList);
-        } catch (Exception e) {
-            return ToJsonUtil.toEntityMap(400, "error", null);
-        }
-    }
-
-    @RequestMapping("/getCarModel")
-    @ResponseBody
-    public Map getCarModel(Long typeId, HttpServletRequest request, HttpServletResponse response) {
-        try {
-            List<CarModel> carModelList = carModelMapper.selectByTypeId(typeId);
-            return ToJsonUtil.toListMap(200, "success", carModelList);
-        } catch (Exception e) {
-            return ToJsonUtil.toEntityMap(400, "error", null);
-        }
     }
 
     @RequestMapping("/updateCarModel")
@@ -161,37 +128,37 @@ public class CarController extends BaseController {
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carHallList);
     }
 
-//    @RequestMapping("/getCarHallPics")
-//    @ResponseBody
-//    public Map getCarHallPics(Long carHallId, HttpServletRequest request, HttpServletResponse response) {
-//        try {
-//            List<CarHallPic> carHallPics = carHallPicMapper.selectByHallId(carHallId);
-//
-//            return ToJsonUtil.toListMap(200, "success", carHallPics);
-//        } catch (Exception e) {
-//            return ToJsonUtil.toListMap(400, "error", null);
-//        }
-//    }
+    // @RequestMapping("/getCarHallPics")
+    // @ResponseBody
+    // public Map getCarHallPics(Long carHallId, HttpServletRequest request, HttpServletResponse response) {
+    // try {
+    // List<CarHallPic> carHallPics = carHallPicMapper.selectByHallId(carHallId);
+    //
+    // return ToJsonUtil.toListMap(200, "success", carHallPics);
+    // } catch (Exception e) {
+    // return ToJsonUtil.toListMap(400, "error", null);
+    // }
+    // }
 
     @RequestMapping("/getCarHallDetail")
     @ResponseBody
-    public Map getCarHallDetail(Long carHallId, HttpServletRequest request, HttpServletResponse response) {
+    public Map getCarHallDetail(Long id, HttpServletRequest request, HttpServletResponse response) {
         try {
-            CarHall carHall = carHallMapper.selectByPrimaryKey(carHallId);
-            List<CarHallPic> carHallPics = carHallPicMapper.selectByHallId(carHallId);
+            CarHall carHall = carHallMapper.selectByPrimaryKey(id);
+            List<CarHallPic> carHallPics = carHallPicMapper.selectByHallId(id);
             List<String> carHallPicStr = new ArrayList<String>();
-            for(int i=0;i<carHallPics.size();i++){
+            for (int i = 0; i < carHallPics.size(); i++) {
                 carHallPicStr.add(carHallPics.get(i).getImg());
             }
             carHall.setCarHallPics(carHallPicStr);
-            
-            List<CarHallModel> carHallModels = carHallModelMapper.selectByHallId(carHallId);
+
+            List<CarHallModel> carHallModels = carHallModelMapper.selectByHallId(id);
             List<Long> carHallModelStr = new ArrayList<Long>();
-            for(int i=0;i<carHallModels.size();i++){
+            for (int i = 0; i < carHallModels.size(); i++) {
                 carHallModelStr.add(carHallModels.get(i).getCarModelId());
             }
             carHall.setCarModelIds(carHallModelStr);
-            
+
             return ToJsonUtil.toEntityMap(200, "success", carHall);
         } catch (Exception e) {
             return ToJsonUtil.toListMap(400, "error", null);
@@ -201,8 +168,7 @@ public class CarController extends BaseController {
     @RequestMapping("/addCarHall")
     @ResponseBody
     @Transactional
-    public Map addCarHall(CarHall carHall, HttpServletRequest request,
-            HttpServletResponse response) {
+    public Map addCarHall(CarHall carHall, HttpServletRequest request, HttpServletResponse response) {
         Long userId = CookieUtil.getUserID(request);
         Long now = System.currentTimeMillis();
         carHall.setCreateAt(now);
@@ -239,8 +205,7 @@ public class CarController extends BaseController {
     @RequestMapping("/updateCarHall")
     @ResponseBody
     @Transactional
-    public Map updateCarHall(CarHall carHall, HttpServletRequest request,
-            HttpServletResponse response) {
+    public Map updateCarHall(CarHall carHall, HttpServletRequest request, HttpServletResponse response) {
         carHallMapper.updateByPrimaryKeySelective(carHall);
         Long carHallId = carHall.getId();
         try {

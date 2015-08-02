@@ -42,6 +42,16 @@
     m.id, m.name, m.mobile, m.status, m.vali_flag,
     m.create_at, m.create_by, m.update_at, m.update_by
   </sql>
+  
+  <select id="selectByOpenid" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select 
+    <include refid="Base_Column_List" />
+    from wx_user as wu 
+		LEFT JOIN wx_user2member as wum ON wu.openid = wum.openid
+		LEFT JOIN member as m ON wum.member_id = m.id
+		where wu.openid = #{openid, jdbcType=VARCHAR}
+  </select>
+  
   <select id="selectByNameAndPhone" resultMap="BaseResultMap" >
     select 
     <include refid="Base_Column_List" />
