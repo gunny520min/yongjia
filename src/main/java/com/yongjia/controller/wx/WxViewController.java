@@ -1,5 +1,8 @@
 package com.yongjia.controller.wx;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -7,6 +10,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.yongjia.controller.web.BaseController;
+import com.yongjia.dao.PointPoolMapper;
+import com.yongjia.dao.UserMapper;
+import com.yongjia.dao.WxUserAndMemberMapper;
 import com.yongjia.model.Appointment;
 import com.yongjia.model.CarHall;
 import com.yongjia.model.CarHallPic;
@@ -16,17 +22,30 @@ import com.yongjia.model.Gift;
 import com.yongjia.model.Member;
 import com.yongjia.model.MemberPoint;
 import com.yongjia.model.MemberPointRecord;
+import com.yongjia.model.PointPool;
 import com.yongjia.model.PotentialCustomer;
 import com.yongjia.model.User;
 import com.yongjia.model.WxMsgItem;
 import com.yongjia.model.WxUser;
+import com.yongjia.model.WxUserAndMember;
 import com.yongjia.model.WxUserEmail;
+import com.yongjia.utils.CookieUtil;
+import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/wx/view")
 public class WxViewController extends BaseController {
 
     private static Logger log = Logger.getLogger(WxViewController.class);
+
+    @Autowired
+    WxUserAndMemberMapper wxUserAndMemberMapper;
+
+    @Autowired
+    private PointPoolMapper pointPoolMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 我的首页
@@ -37,12 +56,21 @@ public class WxViewController extends BaseController {
      * @param response
      * @return
      */
-    @RequestMapping("/mine")
-    public String mine(Model model, String openid) {
-        // TODO
-        model.addAttribute("wxUser", new WxUser());
-        model.addAttribute("saler", new User());
-        return "";
+    @RequestMapping("/mineHome")
+    public String mineHome(Model model, HttpServletRequest request, HttpServletResponse response) {
+        String openid = CookieUtil.getOpenid(request);
+        log.info("openid = " + openid);
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        Long pointPoolId = 0L;
+        if (pointPool != null) {
+            pointPoolId = pointPool.getId();
+        }
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
+        model.addAttribute("wxUser", wxUserAndMember);
+
+        User user = userMapper.selectByOpenid(openid);
+        model.addAttribute("saler", user);
+        return "weixin/mineHome";
     }
 
     /**
@@ -52,8 +80,8 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/register")
-    public String register(Model model) {
-        return "";
+    public String register(Model model, HttpServletRequest request, HttpServletResponse response) {
+        return "weixin/wxuserRegister";
     }
 
     /**
@@ -63,10 +91,18 @@ public class WxViewController extends BaseController {
      * @param openid
      * @return
      */
-    @RequestMapping("/userInfo")
-    public String userInfo(Model model, String openid) {
-        model.addAttribute("member", new Member());
-        return "";
+    @RequestMapping("/wxuserInfo")
+    public String wxuserInfo(Model model, HttpServletRequest request, HttpServletResponse response) {
+        String openid = CookieUtil.getOpenid(request);
+        log.info("openid = " + openid);
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        Long pointPoolId = 0L;
+        if (pointPool != null) {
+            pointPoolId = pointPool.getId();
+        }
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
+        model.addAttribute("wxUser", wxUserAndMember);
+        return "/weixin/wxuserInfo";
     }
 
     /**
@@ -76,10 +112,18 @@ public class WxViewController extends BaseController {
      * @param openid
      * @return
      */
-    @RequestMapping("/verifyOwner")
-    public String verifyOwner(Model model, String openid) {
-        model.addAttribute("member", new Member());
-        return "";
+    @RequestMapping("/verifyCarOwner")
+    public String verifyCarOwner(Model model, HttpServletRequest request, HttpServletResponse response) {
+        String openid = CookieUtil.getOpenid(request);
+        log.info("openid = " + openid);
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        Long pointPoolId = 0L;
+        if (pointPool != null) {
+            pointPoolId = pointPool.getId();
+        }
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
+        model.addAttribute("wxUser", wxUserAndMember);
+        return "weixin/verifyCarOwner";
     }
 
     /**
@@ -88,10 +132,10 @@ public class WxViewController extends BaseController {
      * @param model
      * @return
      */
-    @RequestMapping("/userAddCar")
-    public String verifyOwner(Model model) {
+    @RequestMapping("/addCar")
+    public String memberAddCar(Model model, HttpServletRequest request, HttpServletResponse response) {
 
-        return "";
+        return "weixin/addCar";
     }
 
     /**
@@ -101,10 +145,10 @@ public class WxViewController extends BaseController {
      * @param openid
      * @return
      */
-    @RequestMapping("/sign")
+    @RequestMapping("/sign")// TODO
     public String sign(Model model, String openid) {
         model.addAttribute("memberPointRecord", new MemberPointRecord());
-        return "";
+        return "sign";
     }
 
     /**
@@ -274,6 +318,7 @@ public class WxViewController extends BaseController {
 
     /**
      * 车管家首页
+     * 
      * @param model
      * @return
      */
@@ -285,6 +330,7 @@ public class WxViewController extends BaseController {
 
     /**
      * 道路救援
+     * 
      * @param model
      * @return
      */
@@ -292,9 +338,10 @@ public class WxViewController extends BaseController {
     public String roadRescue(Model model) {
         return "";
     }
-    
+
     /**
      * 预约首页
+     * 
      * @param model
      * @return
      */
@@ -302,7 +349,7 @@ public class WxViewController extends BaseController {
     public String appointmentHome(Model model) {
         return "";
     }
-    
+
     /**
      * 
      * @param model
@@ -312,9 +359,10 @@ public class WxViewController extends BaseController {
     public String appointmentDetail(Model model) {
         return "";
     }
-    
+
     /**
      * 购车计划首页
+     * 
      * @param model
      * @param openid
      * @return
@@ -322,12 +370,13 @@ public class WxViewController extends BaseController {
     @RequestMapping("/buycarHome")
     public String buycarHome(Model model, String openid) {
         model.addAttribute("plan", new PotentialCustomer());
-        
+
         return "";
     }
-    
+
     /**
      * 新增购车计划
+     * 
      * @param model
      * @return
      */
@@ -335,14 +384,12 @@ public class WxViewController extends BaseController {
     public String buycarAdd(Model model) {
         return "";
     }
-    
 
     @RequestMapping("/hallHome")
     public String hallHome(Model model) {
         model.addAttribute("hall", new CarHall());
         return "";
     }
-
 
     @RequestMapping("/hallDetail")
     public String hallDetail(Model model, int hallId) {

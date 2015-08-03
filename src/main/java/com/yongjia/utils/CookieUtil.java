@@ -98,9 +98,9 @@ public class CookieUtil {
     
     public static void setIdentity(HttpServletRequest request, HttpServletResponse response, Map<String, String> params,Integer cookieMaxAge) {
         if (null != cookieMaxAge && 0 != cookieMaxAge) {
-            IdentityUtil.setIdentity(request, response, home, params, null, cookieMaxAge);
+            IdentityUtil.setIdentity(request, response, home, params, 0L, cookieMaxAge);
         } else {
-            IdentityUtil.setIdentity(request, response, home, params, null);
+            IdentityUtil.setIdentity(request, response, home, params, 0L);
         }
     }
 

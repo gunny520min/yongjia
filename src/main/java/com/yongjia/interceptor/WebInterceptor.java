@@ -2,6 +2,8 @@ package com.yongjia.interceptor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,7 +57,11 @@ public class WebInterceptor implements HandlerInterceptor {
             }
         } else if (url.contains(wxURL) && !url.contains(wxApiURL)){
             if (CookieUtil.getOpenid(request)==null) {
-                // TODO
+//                render(ToJsonUtil.toEntityStr(401, "请从微信登录", null), response);
+//                return false;
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(CookieUtil.OPEN_ID, "ovK7IjvHoo2UZANmfkDOny2CBGFA");
+                CookieUtil.setIdentity(request, response, params, 0);
             } else {
                 CookieUtil.refreshCookie(request, response);
             }
