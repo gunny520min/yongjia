@@ -52,7 +52,7 @@ public class UserController extends BaseController {
     public Map add(User user, HttpServletRequest request, HttpServletResponse response) {
 
         Long roleId = CookieUtil.getRoleID(request);
-        if (roleId < 3) {
+        if (roleId < 3 && user.getRoleId()>=roleId) {
             User u = userMapper.selectByAccount(user.getAccount());
             if (u == null) {
 
