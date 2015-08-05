@@ -88,10 +88,52 @@ public class CarController extends BaseController {
     @ResponseBody
     public Map addCarType(CarType carType, HttpServletRequest request, HttpServletResponse response) {
         try {
+            carType.setCanEditFlag(CarType.CanEdit);
             if (carTypeMapper.insertSelective(carType) > 0) {
                 return ToJsonUtil.toEntityMap(200, "success", null);
             } else {
                 return ToJsonUtil.toEntityMap(400, "insert error", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ToJsonUtil.toEntityMap(500, "server error", null);
+        }
+
+    }
+
+    @RequestMapping("/updateCarType")
+    @ResponseBody
+    public Map updateCarType(CarType carType, HttpServletRequest request, HttpServletResponse response) {
+        CarType carType2 = carTypeMapper.selectByPrimaryKey(carType.getId());
+        if (carType2.getCanEditFlag().equals(CarType.CannotEdit)) {
+            ToJsonUtil.toEntityMap(400, "该车型不可编辑", null);
+        }
+        try {
+            carType.setCanEditFlag(CarType.CannotEdit);
+            if (carTypeMapper.updateByPrimaryKeySelective(carType) > 0) {
+                return ToJsonUtil.toEntityMap(200, "success", null);
+            } else {
+                return ToJsonUtil.toEntityMap(400, "update error", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ToJsonUtil.toEntityMap(500, "server error", null);
+        }
+
+    }
+
+    @RequestMapping("/deleteCarType")
+    @ResponseBody
+    public Map deleteCarType(Long id, HttpServletRequest request, HttpServletResponse response) {
+        CarType carType = carTypeMapper.selectByPrimaryKey(id);
+        if (carType.getCanEditFlag().equals(CarType.CannotEdit)) {
+            ToJsonUtil.toEntityMap(400, "该车型不可删除", null);
+        }
+        try {
+            if (carTypeMapper.deleteByPrimaryKey(id) > 0) {
+                return ToJsonUtil.toEntityMap(200, "success", null);
+            } else {
+                return ToJsonUtil.toEntityMap(400, "delete error", null);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,8 +147,16 @@ public class CarController extends BaseController {
     @Transactional
     public Map importCarModel(Long typeId, String typeName, String paramsStr, HttpServletRequest request,
             HttpServletResponse response) {
-
+        
+        
         try {
+            // 修改车型，状态改为不可编辑和删除
+            CarType carType = carTypeMapper.selectByPrimaryKey(typeId);
+            carType.setCanEditFlag(CarType.CannotEdit);
+            carTypeMapper.updateByPrimaryKeySelective(carType);
+            // 删除其他车款，防止重复导入
+            carModelMapper.deleteByTypeId(typeId);
+            // 导入车款
             List<CarModel> carModels = JSONArray.parseArray(paramsStr, CarModel.class);
             for (CarModel carModel : carModels) {
                 carModel.setTypeId(typeId);
@@ -218,7 +268,7 @@ public class CarController extends BaseController {
                     }
                     param.setValue(childParams);
                     params.add(param);
-                    
+
                     CarModel carModel = new CarModel();
                     String carModelName = sheet.getSheetName();
                     carModel.setCarModelName(carModelName);

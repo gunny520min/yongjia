@@ -83,6 +83,12 @@
 		where id = #{id,jdbcType=BIGINT}
 	</delete>
 
+	<delete id="deleteByTypeId" parameterType="java.lang.Long">
+		delete from
+		car_model
+		where type_id = #{typeId,jdbcType=BIGINT}
+	</delete>
+
 	<insert id="insert" parameterType="com.yongjia.model.CarModel"
 		useGeneratedKeys="true" keyProperty="id">
 		insert into car_model
@@ -158,13 +164,12 @@
 
 	<update id="updateByPrimaryKey" parameterType="com.yongjia.model.CarModel">
 		update car_model
-		set type_id = #{typeId,jdbcType=BIGINT},type_name =
-		#{typeName,jdbcType=VARCHAR},
-		car_model_name =
-		#{carModelName,jdbcType=VARCHAR},
+		set type_id = #{typeId,jdbcType=BIGINT},
+		type_name = #{typeName,jdbcType=VARCHAR},
+		car_model_name = #{carModelName,jdbcType=VARCHAR},
 		status = #{status,jdbcType=INTEGER},
 		params = #{params,jdbcType=LONGVARCHAR}
 		where id =
-		#{id,jdbcType=INTEGER}
+		#{id,jdbcType=BIGINT}
 	</update>
 </mapper>
