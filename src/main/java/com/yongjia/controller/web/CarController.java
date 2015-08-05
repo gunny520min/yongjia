@@ -17,6 +17,10 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,51 +124,103 @@ public class CarController extends BaseController {
             HttpServletRequest request, HttpServletResponse response) {
 
         List<CarModel> allParams = new ArrayList<CarModel>();
+        log.info("file name is "+file.getName());
+        log.info("file original name is "+file.getOriginalFilename());
+        if (file.getOriginalFilename().endsWith(".xls")) {
+            try {
+              POIFSFileSystem fs = new POIFSFileSystem(file.getInputStream());
+              HSSFWorkbook wb = new HSSFWorkbook(fs);
+              for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                  HSSFSheet sheet = wb.getSheetAt(i);
+                  List<CarModelParam> params = new ArrayList<CarModelParam>();
+                  String paramName = null;
+                  for (int j = 0; j < sheet.getLastRowNum(); j++) {
 
-        try {
-            POIFSFileSystem fs = new POIFSFileSystem(file.getInputStream());
-            HSSFWorkbook wb = new HSSFWorkbook(fs);
-            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-                HSSFSheet sheet = wb.getSheetAt(i);
-                List<CarModelParam> params = new ArrayList<CarModelParam>();
-                String paramName = null;
-                for (int j = 0; j < sheet.getLastRowNum(); j++) {
+                      CarModelParam param = new CarModelParam();
+                      List<CarModelItemParam> childParams = new ArrayList<CarModelItemParam>();
+                      HSSFRow row = sheet.getRow(j);
+                      HSSFCell cell1 = row.getCell(0);
+                      if (paramName == null || !ExcelUtil.getCellStringValue(cell1).equals(paramName)) {
+                          if (paramName != null) {
+                              params.add(param);
+                          }
+                          param = new CarModelParam();
+                          paramName = ExcelUtil.getCellStringValue(cell1);
+                          param.setName(paramName);
+                          childParams = new ArrayList<CarModelItemParam>();
+                      }
+                      CarModelItemParam carModelItemParam = new CarModelItemParam();
+                      HSSFCell cell2 = row.getCell(1);
+                      carModelItemParam.setName(ExcelUtil.getCellStringValue(cell2));
+                      HSSFCell cell3 = row.getCell(2);
+                      carModelItemParam.setValue(ExcelUtil.getCellStringValue(cell3));
+                      childParams.add(carModelItemParam);
 
-                    CarModelParam param = new CarModelParam();
-                    List<CarModelItemParam> childParams = new ArrayList<CarModelItemParam>();
-                    HSSFRow row = sheet.getRow(j);
-                    HSSFCell cell1 = row.getCell(0);
-                    if (paramName == null || !ExcelUtil.getCellStringValue(cell1).equals(paramName)) {
-                        if (paramName != null) {
-                            params.add(param);
-                        }
-                        param = new CarModelParam();
-                        paramName = ExcelUtil.getCellStringValue(cell1);
-                        param.setName(paramName);
-                        childParams = new ArrayList<CarModelItemParam>();
-                    }
-                    CarModelItemParam carModelItemParam = new CarModelItemParam();
-                    HSSFCell cell2 = row.getCell(1);
-                    carModelItemParam.setName(ExcelUtil.getCellStringValue(cell2));
-                    HSSFCell cell3 = row.getCell(2);
-                    carModelItemParam.setValue(ExcelUtil.getCellStringValue(cell3));
-                    childParams.add(carModelItemParam);
+                  }
+                  CarModel carModel = new CarModel();
+                  String carModelName = sheet.getSheetName();
+                  carModel.setCarModelName(carModelName);
+                  carModel.setStatus(CarModel.StatusActive);
+                  carModel.setParams(JSONArray.toJSONString(params));
+                  allParams.add(carModel);
+              }
 
-                }
-                CarModel carModel = new CarModel();
-                String carModelName = sheet.getSheetName();
-                carModel.setCarModelName(carModelName);
-                carModel.setStatus(CarModel.StatusActive);
-                carModel.setParams(JSONArray.toJSONString(params));
-                allParams.add(carModel);
-            }
+          } catch (IOException e) {
+              e.printStackTrace();
+              return ToJsonUtil.toEntityMap(400, "io error", null);
+          } catch (Exception e) {
+              e.printStackTrace();
+              return ToJsonUtil.toEntityMap(400, "sql error maybe", null);
+          }
+        } else if(file.getOriginalFilename().endsWith(".xlsx")){
+            try {
+              XSSFWorkbook wb = new XSSFWorkbook(file.getInputStream());
+              for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                  XSSFSheet sheet = wb.getSheetAt(i);
+                  List<CarModelParam> params = new ArrayList<CarModelParam>();
+                  String paramName = null;
+                  for (int j = 0; j < sheet.getLastRowNum(); j++) {
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ToJsonUtil.toEntityMap(400, "io error", null);
-        } catch (Exception e) {
-            return ToJsonUtil.toEntityMap(400, "sql error maybe", null);
+                      CarModelParam param = new CarModelParam();
+                      List<CarModelItemParam> childParams = new ArrayList<CarModelItemParam>();
+                      XSSFRow row = sheet.getRow(j);
+                      XSSFCell cell1 = row.getCell(0);
+                      if (paramName == null || !ExcelUtil.getCellStringValue(cell1).equals(paramName)) {
+                          if (paramName != null) {
+                              params.add(param);
+                          }
+                          param = new CarModelParam();
+                          paramName = ExcelUtil.getCellStringValue(cell1);
+                          param.setName(paramName);
+                          childParams = new ArrayList<CarModelItemParam>();
+                      }
+                      CarModelItemParam carModelItemParam = new CarModelItemParam();
+                      XSSFCell cell2 = row.getCell(1);
+                      carModelItemParam.setName(ExcelUtil.getCellStringValue(cell2));
+                      XSSFCell cell3 = row.getCell(2);
+                      carModelItemParam.setValue(ExcelUtil.getCellStringValue(cell3));
+                      childParams.add(carModelItemParam);
+
+                  }
+                  CarModel carModel = new CarModel();
+                  String carModelName = sheet.getSheetName();
+                  carModel.setCarModelName(carModelName);
+                  carModel.setStatus(CarModel.StatusActive);
+                  carModel.setParams(JSONArray.toJSONString(params));
+                  allParams.add(carModel);
+              }
+
+          } catch (IOException e) {
+              e.printStackTrace();
+              return ToJsonUtil.toEntityMap(400, "io error", null);
+          } catch (Exception e) {
+              e.printStackTrace();
+              return ToJsonUtil.toEntityMap(400, "sql error maybe", null);
+          }
+        } else {
+            return ToJsonUtil.toEntityMap(400, "只支持xls及xlsx文件", null);
         }
+        
         return ToJsonUtil.toListMap(200, "success", allParams);
     }
 

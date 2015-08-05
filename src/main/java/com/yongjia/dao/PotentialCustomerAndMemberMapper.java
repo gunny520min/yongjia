@@ -9,6 +9,8 @@ import com.yongjia.model.PotentialCustomerAndMember;
 
 public interface PotentialCustomerAndMemberMapper {
 
+    PotentialCustomerAndMember selectById(Long id);
+    
     List<PotentialCustomerAndMember> selectByNameAndPhone(@Param("name") String name, @Param("mobile") String mobile,
             @Param("page") Map page);
 

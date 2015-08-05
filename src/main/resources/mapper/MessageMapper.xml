@@ -44,6 +44,17 @@
 		from message
 		where id = #{id,jdbcType=BIGINT}
 	</select>
+	
+	<select id="selectManager" resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from message
+		where pos_manager = 1 and status = 0
+		order by update_at desc
+		limit 0 , 6;
+	</select>
 
 	<select id="selectAll" resultMap="ResultMapWithBLOBs">
 		select

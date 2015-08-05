@@ -1,5 +1,7 @@
 package com.yongjia.controller.wx;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,10 +12,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.yongjia.controller.web.BaseController;
+import com.yongjia.dao.AppointmentAndMemberMapper;
+import com.yongjia.dao.GiftMapper;
+import com.yongjia.dao.MemberPointMapper;
+import com.yongjia.dao.MemberSignMapper;
+import com.yongjia.dao.MessageMapper;
 import com.yongjia.dao.PointPoolMapper;
+import com.yongjia.dao.PotentialCustomerAndMemberMapper;
+import com.yongjia.dao.PotentialCustomerMapper;
 import com.yongjia.dao.UserMapper;
 import com.yongjia.dao.WxUserAndMemberMapper;
 import com.yongjia.model.Appointment;
+import com.yongjia.model.AppointmentAndMember;
 import com.yongjia.model.CarHall;
 import com.yongjia.model.CarHallPic;
 import com.yongjia.model.CarModel;
@@ -22,8 +32,11 @@ import com.yongjia.model.Gift;
 import com.yongjia.model.Member;
 import com.yongjia.model.MemberPoint;
 import com.yongjia.model.MemberPointRecord;
+import com.yongjia.model.MemberSign;
+import com.yongjia.model.Message;
 import com.yongjia.model.PointPool;
 import com.yongjia.model.PotentialCustomer;
+import com.yongjia.model.PotentialCustomerAndMember;
 import com.yongjia.model.User;
 import com.yongjia.model.WxMsgItem;
 import com.yongjia.model.WxUser;
@@ -46,6 +59,29 @@ public class WxViewController extends BaseController {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private MemberSignMapper memberSignMapper;
+
+    @Autowired
+    private GiftMapper giftMapper;
+
+    @Autowired
+    private MemberPointMapper memberPointMapper;
+
+    @Autowired
+    private AppointmentAndMemberMapper appointmentAndMemberMapper;
+
+    @Autowired
+    private MessageMapper messageMapper;
+
+    @Autowired
+    private PotentialCustomerAndMemberMapper potentialCustomerAndMemberMapper;
+
+    @Autowired
+    private PotentialCustomerMapper potentialCustomerMapper;
+    
+    
 
     /**
      * 我的首页
@@ -145,9 +181,11 @@ public class WxViewController extends BaseController {
      * @param openid
      * @return
      */
-    @RequestMapping("/sign")// TODO
-    public String sign(Model model, String openid) {
-        model.addAttribute("memberPointRecord", new MemberPointRecord());
+    @RequestMapping("/sign")
+    public String sign(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        MemberSign memberSign = memberSignMapper.selectByMemberId(memberId);
+        model.addAttribute("memberSign", memberSign);
         return "sign";
     }
 
@@ -157,9 +195,15 @@ public class WxViewController extends BaseController {
      * @param model
      * @return
      */
+    // TODO selectAll or tobe json
     @RequestMapping("/gift")
-    public String sign(Model model) {
-        return "";
+    public String gift(Model model, HttpServletRequest request, HttpServletResponse response) {
+        // Long totalCount = giftMapper.countByNameAndStatus(null, Gift.StatusPubnish);
+        // List<Gift> giftList = null;
+        // if (totalCount > 0) {
+        // giftList = giftMapper.selectByNameAndStatus(null, Gift.StatusPubnish, getPageMap(pageNo, pageSize));
+        // }
+        return "gift";
     }
 
     /**
@@ -170,9 +214,10 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/giftDetail")
-    public String sign(Model model, int giftId) {
-        model.addAttribute("gift", new Gift());
-        return "";
+    public String sign(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
+        Gift gift = giftMapper.selectByPrimaryKey(id);
+        model.addAttribute("gift", gift);
+        return "giftDetail";
     }
 
     /**
@@ -182,8 +227,8 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/pointNotice")
-    public String pointNotice(Model model) {
-        return "";
+    public String pointNotice(Model model, HttpServletRequest request, HttpServletResponse response) {
+        return "pointNotice";
     }
 
     /**
@@ -194,11 +239,18 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/myPoint")
-    public String myPoint(Model model, String openid) {
+    public String myPoint(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
 
-        model.addAttribute("memberPoint", new MemberPoint());
-        model.addAttribute("memberPointRecord", new MemberPointRecord());
-        return "";
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        Long pointPoolId = 0L;
+        if (pointPool != null) {
+            pointPoolId = pointPool.getId();
+        }
+        MemberPoint memberPoint = memberPointMapper.selectByMemberIdAndPoolId(memberId, pointPoolId);
+        model.addAttribute("memberPoint", memberPoint);
+
+        return "myPoint";
     }
 
     /**
@@ -209,10 +261,11 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/myAppointment")
-    public String myAppointment(Model model, String openid) {
-
-        model.addAttribute("memberAppointment", new Appointment());
-        return "";
+    public String myAppointment(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        List<AppointmentAndMember> appointmentList = appointmentAndMemberMapper.selectByMemberId(memberId);
+        model.addAttribute("appointmentList", appointmentList);
+        return "myAppointment";
     }
 
     /**
@@ -222,10 +275,9 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/news")
-    public String news(Model model) {
+    public String news(Model model, HttpServletRequest request, HttpServletResponse response) {
 
-        model.addAttribute("news", new WxMsgItem());
-        return "";
+        return "news";
     }
 
     /**
@@ -236,10 +288,11 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/newsDetail")
-    public String newsDetail(Model model, int id) {
+    public String newsDetail(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
+        Message message = messageMapper.selectByPrimaryKey(id);
+        model.addAttribute("newsDetail", message);
 
-        model.addAttribute("newsDetail", new WxMsgItem());
-        return "";
+        return "newsDetail";
     }
 
     /**
@@ -250,10 +303,9 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/myEmail")
-    public String myEmail(Model model, String openid) {
+    public String myEmail(Model model, HttpServletRequest request, HttpServletResponse response) {
 
-        model.addAttribute("wxUserEmail", new WxUserEmail());
-        return "";
+        return "myEmail";
     }
 
     /**
@@ -263,9 +315,9 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/salerLogin")
-    public String salerLogin(Model model) {
+    public String salerLogin(Model model, HttpServletRequest request, HttpServletResponse response) {
 
-        return "";
+        return "salerLogin";
     }
 
     /**
@@ -275,9 +327,9 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/salerResetPwd")
-    public String salerResetPwd(Model model) {
+    public String salerResetPwd(Model model, HttpServletRequest request, HttpServletResponse response) {
 
-        return "";
+        return "salerResetPwd";
     }
 
     /**
@@ -287,9 +339,9 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/grabCustomer")
-    public String grabCustomer(Model model) {
-
-        return "";
+    public String grabCustomer(Model model, HttpServletRequest request, HttpServletResponse response) {
+        
+        return "grabCustomer";
     }
 
     /**
@@ -299,9 +351,9 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/salerCustomer")
-    public String salerCustomer(Model model) {
-
-        return "";
+    public String salerCustomer(Model model, HttpServletRequest request, HttpServletResponse response) {
+        
+        return "salerCustomer";
     }
 
     /**
@@ -311,9 +363,10 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/salerCustomerDetail")
-    public String salerCustomerDetail(Model model) {
-
-        return "";
+    public String salerCustomerDetail(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
+        PotentialCustomerAndMember potentialCustomer = potentialCustomerAndMemberMapper.selectById(id);
+        model.addAttribute("potentialCustomer", potentialCustomer);
+        return "salerCustomerDetail";
     }
 
     /**
@@ -323,9 +376,10 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/carHome")
-    public String carHome(Model model) {
-        model.addAttribute("activity", new WxMsgItem());
-        return "";
+    public String carHome(Model model, HttpServletRequest request, HttpServletResponse response) {
+        List<Message> messageList = messageMapper.selectManager();
+        model.addAttribute("activity", messageList);
+        return "carHome";
     }
 
     /**
@@ -335,8 +389,8 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/roadRescue")
-    public String roadRescue(Model model) {
-        return "";
+    public String roadRescue(Model model, HttpServletRequest request, HttpServletResponse response) {
+        return "roadRescue";
     }
 
     /**
@@ -346,8 +400,8 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/appointmentHome")
-    public String appointmentHome(Model model) {
-        return "";
+    public String appointmentHome(Model model, HttpServletRequest request, HttpServletResponse response) {
+        return "appointmentHome";
     }
 
     /**
@@ -356,8 +410,9 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/appointmentDetail")
-    public String appointmentDetail(Model model) {
-        return "";
+    public String appointmentDetail(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
+        AppointmentAndMember appointmentAndMember = appointmentAndMemberMapper.selectById(id);
+        return "appointmentDetail";
     }
 
     /**
@@ -368,10 +423,12 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/buycarHome")
-    public String buycarHome(Model model, String openid) {
-        model.addAttribute("plan", new PotentialCustomer());
+    public String buycarHome(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        List<PotentialCustomer> potentialCustomers = potentialCustomerMapper.selectByMemberId(memberId);
+        model.addAttribute("potentialCustomers", potentialCustomers);
 
-        return "";
+        return "buycarHome";
     }
 
     /**
@@ -381,27 +438,27 @@ public class WxViewController extends BaseController {
      * @return
      */
     @RequestMapping("/buycarAdd")
-    public String buycarAdd(Model model) {
-        return "";
+    public String buycarAdd(Model model, HttpServletRequest request, HttpServletResponse response) {
+        return "buycarAdd";
     }
 
     @RequestMapping("/hallHome")
-    public String hallHome(Model model) {
+    public String hallHome(Model model, HttpServletRequest request, HttpServletResponse response) {
         model.addAttribute("hall", new CarHall());
-        return "";
+        return "hallHome";
     }
 
     @RequestMapping("/hallDetail")
-    public String hallDetail(Model model, int hallId) {
+    public String hallDetail(Model model, int hallId, HttpServletRequest request, HttpServletResponse response) {
         model.addAttribute("hall", new CarHall());
         model.addAttribute("hallPic", new CarHallPic());
         model.addAttribute("hallCarModel", new CarModel());
-        return "";
+        return "hallDetail";
     }
 
     @RequestMapping("/carParam")
-    public String carParam(Model model, int carModelId) {
+    public String carParam(Model model, int carModelId, HttpServletRequest request, HttpServletResponse response) {
         model.addAttribute("hallCarModel", new CarModelParam());
-        return "";
+        return "carParam";
     }
 }

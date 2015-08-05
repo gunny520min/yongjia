@@ -35,8 +35,11 @@ public interface PotentialCustomerMapper {
      * @mbggenerated Tue Jul 07 14:25:04 CST 2015
      */
     PotentialCustomer selectByPrimaryKey(Long id);
+    
+    List<PotentialCustomer> selectByMemberId(Long memberId);
 
     List<PotentialCustomer> selectByNameAndPhone(@Param("name") String name, @Param("mobile") String mobile, @Param("page") Map page);
+    
     Long countByNameAndPhone(@Param("name") String name, @Param("mobile") String mobile);
     
     /**

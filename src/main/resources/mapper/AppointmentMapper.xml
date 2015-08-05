@@ -6,6 +6,7 @@
 			MyBatis Generator, do not modify. This element was generated on Tue Jul 07 
 			14:25:04 CST 2015. -->
 		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="member_id" property="memberId" jdbcType="BIGINT" />
 		<result column="type" property="type" jdbcType="INTEGER" />
 		<result column="car_type" property="carType" jdbcType="VARCHAR" />
 		<result column="connect_phone" property="connectPhone"
@@ -28,7 +29,7 @@
 			jdbcType="LONGVARCHAR" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, type, car_type, connect_phone, problem_desc, kilo, is_test_drive,
+		id, member_id, type, car_type, connect_phone, problem_desc, kilo, is_test_drive,
 		appoint_time,
 		arrive_time, status, create_at, create_by, update_at, update_by
 	</sql>
@@ -44,6 +45,16 @@
 		<include refid="Blob_Column_List" />
 		from appointment
 		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="selectByMemberId" resultMap="ResultMapWithBLOBs"
+		parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from appointment
+		where member_id = #{memberId,jdbcType=BIGINT}
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

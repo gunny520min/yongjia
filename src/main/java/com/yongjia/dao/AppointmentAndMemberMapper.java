@@ -12,5 +12,8 @@ public interface AppointmentAndMemberMapper {
     List<AppointmentAndMember> selectByStatus(@Param("status") Integer status, @Param("page") Map page);
 
     Long countByStatus(@Param("status") Integer status);
-
+    
+    List<AppointmentAndMember> selectByMemberId(Long memberId);
+    
+    AppointmentAndMember selectById(Long id);
 }

@@ -42,6 +42,30 @@
 		a.appoint_content
 	</sql>
 
+	<select id="selectById" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		FROM appointment as a 
+		LEFT JOIN member AS m 
+		ON a.member_id = m.id
+		WHERE a.id = #{id, jdbcType=BIGINT}
+	</select>
+
+	<select id="selectByMemberId" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		FROM appointment as a 
+		LEFT JOIN member AS m 
+		ON a.member_id = m.id
+		WHERE a.member_id = #{memberId, jdbcType=BIGINT}
+		ORDER BY a.create_at DESC
+		limit #{page.pageStart}, #{page.pageSize}
+	</select>
+
 	<select id="selectByStatus" resultMap="ResultMapWithBLOBs" >
 		select
 		<include refid="Base_Column_List" />

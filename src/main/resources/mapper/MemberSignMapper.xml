@@ -20,6 +20,7 @@
     -->
     id, member_id, month, times
   </sql>
+  
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     <!--
       WARNING - @mbggenerated
@@ -31,6 +32,14 @@
     from member_sign
     where id = #{id,jdbcType=BIGINT}
   </select>
+  
+  <select id="selectByMemberId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from member_sign
+    where member_id = #{memberId,jdbcType=BIGINT}
+  </select>
+  
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
     <!--
       WARNING - @mbggenerated
@@ -40,6 +49,7 @@
     delete from member_sign
     where id = #{id,jdbcType=BIGINT}
   </delete>
+  
   <insert id="insert" parameterType="com.yongjia.model.MemberSign" >
     <!--
       WARNING - @mbggenerated
@@ -54,6 +64,7 @@
     values (#{id,jdbcType=BIGINT}, #{memberId,jdbcType=BIGINT}, #{month,jdbcType=VARCHAR}, 
       #{times,jdbcType=INTEGER})
   </insert>
+  
   <insert id="insertSelective" parameterType="com.yongjia.model.MemberSign" >
     <!--
       WARNING - @mbggenerated
@@ -89,6 +100,7 @@
       </if>
     </trim>
   </insert>
+  
   <update id="updateByPrimaryKeySelective" parameterType="com.yongjia.model.MemberSign" >
     <!--
       WARNING - @mbggenerated
@@ -109,6 +121,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
+  
   <update id="updateByPrimaryKey" parameterType="com.yongjia.model.MemberSign" >
     <!--
       WARNING - @mbggenerated
