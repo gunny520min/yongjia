@@ -42,6 +42,8 @@
 		parameterType="java.lang.Long">
 		select
 		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
 		from car_model
 		where type_id = #{typeId,jdbcType=BIGINT}
 	</select>
@@ -49,6 +51,8 @@
 	<select id="selectByName" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
 		from car_model
 		where 1=1
 		<if test="typeName != null">
@@ -115,7 +119,7 @@
 			<if test="typeId != null">
 				#{typeId,jdbcType=BIGINT},
 			</if>
-			<if test="typeId != null">
+			<if test="typeName != null">
 				#{typeName,jdbcType=VARCHAR},
 			</if>
 			<if test="carModelName != null">
