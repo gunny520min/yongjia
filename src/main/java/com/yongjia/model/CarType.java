@@ -30,6 +30,8 @@ public class CarType {
     
     private Integer canEditFlag;
     
+    private String colors;
+    
     public Integer getCanEditFlag() {
         return canEditFlag;
     }
@@ -93,4 +95,13 @@ public class CarType {
     public void setCarTypeName(String carTypeName) {
         this.carTypeName = carTypeName;
     }
+
+    public String getColors() {
+        return colors;
+    }
+
+    public void setColors(String colors) {
+        this.colors = colors;
+    }
+    
 }

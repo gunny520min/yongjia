@@ -18,7 +18,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/customer")
-public class PotentialCustomerController extends BaseController {
+public class PotentialCustomerController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(PotentialCustomerController.class);
 

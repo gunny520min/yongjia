@@ -38,7 +38,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/pool")
-public class PointPoolController extends BaseController {
+public class PointPoolController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(PointPoolController.class);
 

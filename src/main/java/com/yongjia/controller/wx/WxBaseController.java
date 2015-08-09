@@ -1,9 +1,10 @@
 package com.yongjia.controller.wx;
 
+import com.yongjia.controller.web.WebBaseController;
 import com.yongjia.wxkit.utils.WxPropertiesUtil;
 
 
-public class WxBaseController {
+public class WxBaseController extends WebBaseController{
 
     /**
      */

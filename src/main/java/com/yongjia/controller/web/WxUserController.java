@@ -27,7 +27,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/wxuser")
-public class WxUserController extends BaseController {
+public class WxUserController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(WxUserController.class);
 

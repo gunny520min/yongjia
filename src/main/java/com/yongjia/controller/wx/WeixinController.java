@@ -116,13 +116,13 @@ public class WeixinController extends WxBaseController {
         }
     }
 
-    @RequestMapping("menu")
+    @RequestMapping("/menu")
     @ResponseBody
     public void pubnishMenu(HttpServletRequest request, HttpServletResponse response) {
         taskExecutor.execute(new PubnishMenuTask(request, response));
     }
 
-    @RequestMapping("getWxUserList")
+    @RequestMapping("/getWxUserList")
     @ResponseBody
     public void getOldUserList(HttpServletRequest request, HttpServletResponse response) {
         taskExecutor.execute(new getOldWxUserTask(wxUserMapper));
@@ -132,9 +132,9 @@ public class WeixinController extends WxBaseController {
     public String openid(Model model, String code, String page, HttpServletRequest request, HttpServletResponse response) {
         log.info("get openid start :" + request.getRequestURL().toString());
         String openid = WeixinUtil.getOpenid(AppID, AppSecret, code);
-        String redirectUrl = "";
+        String path = "";
         try {
-            redirectUrl = URLDecoder.decode(page, WxPropertiesUtil.getProperty(ParamString.ENCODING));
+            path = URLDecoder.decode(page, WxPropertiesUtil.getProperty(ParamString.ENCODING));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
@@ -143,17 +143,16 @@ public class WeixinController extends WxBaseController {
         if (pointPool != null) {
             pointPoolId = pointPool.getId();
         }
-        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid,pointPoolId);
-        model.addAttribute("wxUser", wxUserAndMember);
-
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
+        log.info("openid = " + openid);
         Map<String, String> params = new HashMap<String, String>();
         params.put(CookieUtil.OPEN_ID, openid);
-        if (wxUserAndMember.getId() != null) {
+        if (wxUserAndMember != null && wxUserAndMember.getId() != null) {
             params.put(CookieUtil.MEMBER_ID, wxUserAndMember.getId() + "");
         }
         CookieUtil.setIdentity(request, response, params, 0);
 
-        return redirectUrl;
+        return "redirect:" + path;
     }
 
     /**
@@ -337,7 +336,7 @@ public class WeixinController extends WxBaseController {
         String url = "";
         try {
             String page = URLEncoder.encode(menuUrl, WxPropertiesUtil.getProperty(ParamString.ENCODING));
-            url = WeixinUtil.getCode(AppID, "http://peon.cn/wx/openid?page=" + page, ParamString.SCOPE_SNSAPI_BASE,
+            url = WeixinUtil.getCode(AppID, "http://peon.cn/wx/api/openid?page=" + page, ParamString.SCOPE_SNSAPI_BASE,
                     "123");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -371,17 +370,17 @@ public class WeixinController extends WxBaseController {
             WxMenu wxMenu = new WxMenu();
             wxMenu.setType("view");
             wxMenu.setName("我的");
-            wxMenu.setUrl(menuUrlFormat(request, response, "weixin/managerHome"));
+            wxMenu.setUrl(menuUrlFormat(request, response, "/wx/view/mineHome"));
             menuList.add(wxMenu);
             wxMenu = new WxMenu();
             wxMenu.setType("view");
             wxMenu.setName("车管家");
-            wxMenu.setUrl("http://yjstatic.tlan.com.cn/weixin/keeper.html");
+            wxMenu.setUrl(menuUrlFormat(request, response, "/wx/view/managerHome"));
             menuList.add(wxMenu);
             wxMenu = new WxMenu();
             wxMenu.setType("view");
             wxMenu.setName("展厅");
-            wxMenu.setUrl("http://yjstatic.tlan.com.cn/weixin/styles.html");
+            wxMenu.setUrl(menuUrlFormat(request, response, "/wx/view/hallHome"));
             menuList.add(wxMenu);
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("button", menuList);

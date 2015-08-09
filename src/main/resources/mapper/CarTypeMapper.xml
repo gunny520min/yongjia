@@ -6,9 +6,10 @@
 		<result column="car_type_name" property="carTypeName" jdbcType="VARCHAR" />
 		<result column="import_flag" property="importFlag" jdbcType="INTEGER" />
 		<result column="can_edit_flag" property="canEditFlag" jdbcType="INTEGER" />
+		<result column="colors" property="colors" jdbcType="LONGVARCHAR" />
 	</resultMap>
 	<sql id="Base_Column_List">
-		id, car_type_name, import_flag, can_edit_flag
+		id, car_type_name, import_flag, can_edit_flag, colors
 	</sql>
 
 	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
@@ -40,9 +41,10 @@
 	<insert id="insert" parameterType="com.yongjia.model.CarType"
 		useGeneratedKeys="true" keyProperty="id">
 		insert into car_type
-		(car_type_name, import_flag, can_edit_flag)
+		(car_type_name, import_flag, can_edit_flag, colors)
 		values
-		(#{carTypeName,jdbcType=VARCHAR},#{importFlag,jdbcType=INTEGER},#{canEditFlag,jdbcType=INTEGER})
+		(#{carTypeName,jdbcType=VARCHAR},#{importFlag,jdbcType=INTEGER},
+		#{canEditFlag,jdbcType=INTEGER},#{colors,jdbcType=LONGVARCHAR})
 	</insert>
 
 	<insert id="insertSelective" parameterType="com.yongjia.model.CarType"
@@ -58,6 +60,9 @@
 			<if test="canEditFlag != null">
 				can_edit_flag,
 			</if>
+			<if test="colors != null">
+				colors,
+			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="carTypeName != null">
@@ -68,6 +73,9 @@
 			</if>
 			<if test="canEditFlag != null">
 				#{canEditFlag,jdbcType=INTEGER},
+			</if>
+			<if test="colors != null">
+				#{colors,jdbcType=LONGVARCHAR},
 			</if>
 		</trim>
 	</insert>
@@ -84,6 +92,9 @@
 			<if test="canEditFlag != null">
 				can_edit_flag = #{canEditFlag,jdbcType=INTEGER},
 			</if>
+			<if test="colors != null">
+				colors = #{colors,jdbcType=LONGVARCHAR},
+			</if>
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -92,7 +103,8 @@
 		update car_type
 		set car_type_name = #{carTypeName,jdbcType=VARCHAR},
 		import_flag = #{importFlag,jdbcType=INTEGER},
-		can_edit_flag = #{canEditFlag,jdbcType=INTEGER}
+		can_edit_flag = #{canEditFlag,jdbcType=INTEGER},
+		colors = #{colors,jdbcType=LONGVARCHAR}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 </mapper>

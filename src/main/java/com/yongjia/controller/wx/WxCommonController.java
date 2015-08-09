@@ -26,9 +26,7 @@ public class WxCommonController {
 
     @Autowired
     private SmsSendRecordMapper smsMapper;
-
-    @RequestMapping("/sendsms")
-    @ResponseBody
+    
     /**
      * type 0 注册
      * @param mobile
@@ -37,6 +35,8 @@ public class WxCommonController {
      * @param response
      * @return
      */
+    @RequestMapping("/sendsms")
+    @ResponseBody
     public Map sendsms(String mobile, Integer type, HttpServletRequest request, HttpServletResponse response) {
         log.info("sendsms params : mobile = " + mobile + " --- type = " + type);
         if (type == null || type < 0 || type >= SmsUtil.SmsTpl.length) {

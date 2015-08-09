@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yongjia.controller.web.BaseController;
+import com.yongjia.controller.web.WebBaseController;
 import com.yongjia.dao.MemberCarMapper;
 import com.yongjia.dao.MemberMapper;
 import com.yongjia.dao.PointPoolMapper;
@@ -31,7 +31,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/wx/member")
-public class WxMemberController extends BaseController {
+public class WxMemberController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(WxMemberController.class);
 

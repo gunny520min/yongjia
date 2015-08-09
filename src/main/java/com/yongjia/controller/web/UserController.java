@@ -21,7 +21,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/user")
-public class UserController extends BaseController {
+public class UserController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(UserController.class);
     private static final String defaultPwd = "123456";

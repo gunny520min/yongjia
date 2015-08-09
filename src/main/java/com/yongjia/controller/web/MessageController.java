@@ -19,7 +19,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/message")
-public class MessageController extends BaseController {
+public class MessageController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(MessageController.class);
 

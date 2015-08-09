@@ -1,0 +1,129 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- 积分换礼首页 -->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
+    <title>积分换礼</title>
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+    <link rel="stylesheet" href="css/base.css"/>
+    <link rel="stylesheet" href="css/app.css"/>
+  </head>
+  <body class="gifts bg-muted">
+    <section>
+      <div class="banner">
+        <img src="images/profile/gift.jpg" />
+      </div>
+
+      <div class="board">
+        <div class="header clearfix">
+          <h3 class="pull-left">
+            <small>我的积分</small>
+            <span class="text-warning">30000</span>
+          </h3>
+          <a class="pull-right small text-primary" href="">如何赚积分</a>
+        </div>
+        <div class="panel clearfix">
+          <div class="goods" href="">
+            <div class="wrap">
+              <a class="figure" href="gift.html">
+                <div class="cell">
+                  <img src="images/holder/goods.jpg" />
+                </div>
+              </a>
+              <div class="information">
+                <div class="cost clearfix">
+                  <span class="pull-left">小积分抽大奖</span>
+                  <span class="text-warning pull-right"><i class="icon icon-dollar"></i>1000</span>
+                </div>
+                <div class="remain clearfix">
+                  <span class="text-muted pull-left">剩余 <i class="text-warning">30</i></span>
+                  <span class="button button-warning exchange pull-right">兑换</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="goods" href="">
+            <div class="wrap">
+              <a class="figure" href="gift.html">
+                <div class="cell">
+                  <img src="images/holder/goods.jpg" />
+                </div>
+              </a>
+              <div class="information">
+                <div class="cost clearfix">
+                  <span class="pull-left">小积分抽大奖</span>
+                  <span class="text-warning pull-right"><i class="icon icon-dollar"></i>1000</span>
+                </div>
+                <div class="remain clearfix">
+                  <span class="text-muted pull-left">剩余 <i class="text-warning">30</i></span>
+                  <span class="button button-warning exchange pull-right">兑换</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="goods" href="">
+            <div class="wrap">
+              <a class="figure" href="/wx/view/giftDetail">
+                <div class="cell">
+                  <img src="images/holder/goods.jpg" />
+                </div>
+              </a>
+              <div class="information">
+                <div class="cost clearfix">
+                  <span class="pull-left">小积分抽大奖</span>
+                  <span class="text-warning pull-right"><i class="icon icon-dollar"></i>1000</span>
+                </div>
+                <div class="remain clearfix">
+                  <span class="text-muted pull-left">剩余 <i class="text-warning">30</i></span>
+                  <span class="button button-warning exchange pull-right">兑换</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="goods" href="">
+            <div class="wrap">
+              <a class="figure" href="gift.html">
+                <div class="cell">
+                  <img src="images/holder/goods.jpg" />
+                </div>
+              </a>
+              <div class="information">
+                <div class="cost clearfix">
+                  <span class="pull-left">小积分抽大奖</span>
+                  <span class="text-warning pull-right"><i class="icon icon-dollar"></i>1000</span>
+                </div>
+                <div class="remain clearfix">
+                  <span class="text-muted pull-left">剩余 <i class="text-warning">30</i></span>
+                  <span class="button button-warning exchange pull-right">兑换</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="goods" href="">
+            <div class="wrap">
+              <a class="figure" href="gift.html">
+                <div class="cell">
+                  <img src="images/holder/goods.jpg" />
+                </div>
+              </a>
+              <div class="information">
+                <div class="cost clearfix">
+                  <span class="pull-left">小积分抽大奖</span>
+                  <span class="text-warning pull-right"><i class="icon icon-dollar"></i>1000</span>
+                </div>
+                <div class="remain clearfix">
+                  <span class="text-muted pull-left">剩余 <i class="text-warning">30</i></span>
+                  <span class="button button-warning exchange pull-right">兑换</span>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </section>
+
+    <script src="js/base.js"></script>
+</body>
+</html>

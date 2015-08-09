@@ -39,7 +39,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/point")
-public class PointController extends BaseController {
+public class PointController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(PointController.class);
 

@@ -22,7 +22,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/appointment")
-public class AppointmentController extends BaseController {
+public class AppointmentController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(AppointmentController.class);
 

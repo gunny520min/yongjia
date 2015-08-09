@@ -53,7 +53,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/car")
-public class CarController extends BaseController {
+public class CarController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(CarController.class);
 
@@ -89,6 +89,7 @@ public class CarController extends BaseController {
     public Map addCarType(CarType carType, HttpServletRequest request, HttpServletResponse response) {
         try {
             carType.setCanEditFlag(CarType.CanEdit);
+            carType.setColors(carType.getColors().replace("，", ","));
             if (carTypeMapper.insertSelective(carType) > 0) {
                 return ToJsonUtil.toEntityMap(200, "success", null);
             } else {
@@ -104,12 +105,8 @@ public class CarController extends BaseController {
     @RequestMapping("/updateCarType")
     @ResponseBody
     public Map updateCarType(CarType carType, HttpServletRequest request, HttpServletResponse response) {
-        CarType carType2 = carTypeMapper.selectByPrimaryKey(carType.getId());
-        if (carType2.getCanEditFlag().equals(CarType.CannotEdit)) {
-            ToJsonUtil.toEntityMap(400, "该车型不可编辑", null);
-        }
         try {
-            carType.setCanEditFlag(CarType.CannotEdit);
+            carType.setColors(carType.getColors().replace("，", ","));
             if (carTypeMapper.updateByPrimaryKeySelective(carType) > 0) {
                 return ToJsonUtil.toEntityMap(200, "success", null);
             } else {
@@ -147,8 +144,7 @@ public class CarController extends BaseController {
     @Transactional
     public Map importCarModel(Long typeId, String typeName, String paramsStr, HttpServletRequest request,
             HttpServletResponse response) {
-        
-        
+
         try {
             // 修改车型，状态改为不可编辑和删除
             CarType carType = carTypeMapper.selectByPrimaryKey(typeId);
@@ -329,13 +325,13 @@ public class CarController extends BaseController {
 
     @RequestMapping("/carHalllist")
     @ResponseBody
-    public Map carHalllist(String typeName, Integer importFlag, Integer pageNo, Integer pageSize,
+    public Map carHalllist(String typeName, Integer importFlag, Integer status, Integer pageNo, Integer pageSize,
             HttpServletRequest request, HttpServletResponse response) {
 
-        Long totalCount = carHallMapper.countByCondition(typeName, importFlag);
+        Long totalCount = carHallMapper.countByCondition(typeName, importFlag, status);
         List<CarHall> carHallList = null;
         if (totalCount > 0) {
-            carHallList = carHallMapper.selectByCondition(typeName, importFlag, getPageMap(pageNo, pageSize));
+            carHallList = carHallMapper.selectByCondition(typeName, importFlag, status, getPageMap(pageNo, pageSize));
         }
 
         return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carHallList);

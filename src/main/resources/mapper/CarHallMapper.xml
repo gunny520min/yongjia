@@ -47,7 +47,10 @@
 			 and type_name = #{typeName,jdbcType=VARCHAR},
 		</if>
 		<if test="importFlag != null">
-			 and import_flag = #{importFlag,jdbcType=VARCHAR},
+			 and import_flag = #{importFlag,jdbcType=INTEGER},
+		</if>
+		<if test="status != null">
+			 and status = #{status,jdbcType=INTEGER},
 		</if>
 		limit #{page.pageStart}, #{page.pageSize}
 	</select>
@@ -61,7 +64,10 @@
 			 and type_name = #{typeName,jdbcType=VARCHAR},
 		</if>
 		<if test="importFlag != null">
-			 and import_flag = #{importFlag,jdbcType=VARCHAR},
+			 and import_flag = #{importFlag,jdbcType=INTEGER},
+		</if>
+		<if test="status != null">
+			 and status = #{status,jdbcType=INTEGER},
 		</if>
 	</select>
 	

@@ -31,7 +31,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/web/gift")
-public class GiftController extends BaseController {
+public class GiftController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(GiftController.class);
 

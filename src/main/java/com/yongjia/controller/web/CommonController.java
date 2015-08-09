@@ -27,7 +27,7 @@ import com.yongjia.utils.UpYunUtil;
 
 @Controller
 @RequestMapping("/web")
-public class CommonController extends BaseController {
+public class CommonController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(CommonController.class);
 

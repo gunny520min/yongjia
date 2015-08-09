@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yongjia.controller.web.BaseController;
+import com.yongjia.controller.web.WebBaseController;
 import com.yongjia.dao.UserMapper;
 import com.yongjia.model.User;
 import com.yongjia.utils.PasswordUtils;
@@ -19,7 +19,7 @@ import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/wx/saler")
-public class WxSalerController extends BaseController {
+public class WxSalerController extends WebBaseController {
 
     private static Logger log = Logger.getLogger(WxSalerController.class);
 
