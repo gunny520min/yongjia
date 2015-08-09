@@ -119,7 +119,7 @@ public class WxViewController extends WebBaseController {
 
     @ModelAttribute
     public void populateModel(Model model) {
-        model.addAttribute("shost", "http://192.168.1.139");
+        model.addAttribute("shost", "http://yjstatic.tlan.com.cn");
     }
 
     /**
