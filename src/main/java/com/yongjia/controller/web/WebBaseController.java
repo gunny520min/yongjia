@@ -12,7 +12,7 @@ import com.yongjia.controller.BaseController;
 @RequestMapping("/")
 public class WebBaseController extends BaseController{
 
-    @RequestMapping("")
+    @RequestMapping("index")
     private String index(HttpServletRequest request, HttpServletResponse response) {
         return "index";
     }
