@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class BaseController {
 
-    protected static final int defaultPageSize = 10;
+    protected static final int defaultPageSize = 20;
 
     protected Integer getPageNo(Integer pageNo) {
         if (pageNo == null || pageNo == 0) {

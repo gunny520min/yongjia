@@ -79,6 +79,34 @@
 		limit #{page.pageStart}, #{page.pageSize}
 	</select>
 
+	<select id="countByPoolIdAndMemberId" resultType="java.lang.Long">
+		select
+		count(1)
+		from member_point_record as mpr
+		left join member as m
+		on mpr.member_id = m.id
+		where mpr.member_id = #{memberId,jdbcType=BIGINT}
+		<if test="pointPoolId != null">
+			and mpr.point_pool_id = #{pointPoolId,jdbcType=BIGINT}
+		</if>
+	</select>
+
+	<select id="selectByPoolIdAndMemberId" resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from member_point_record as mpr
+		left join member as m
+		on mpr.member_id = m.id
+		where mpr.member_id = #{memberId,jdbcType=BIGINT}
+		<if test="pointPoolId != null">
+			and mpr.point_pool_id = #{pointPoolId,jdbcType=BIGINT}
+		</if>
+		order by mpr.create_at desc
+		limit #{page.pageStart}, #{page.pageSize}
+	</select>
+
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from member_point_record
 		where id = #{id,jdbcType=BIGINT}

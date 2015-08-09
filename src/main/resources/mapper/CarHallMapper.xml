@@ -13,6 +13,7 @@
 		<result column="price_most" property="priceMost" jdbcType="VARCHAR" />
 		<result column="img" property="img" jdbcType="VARCHAR" />
 		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="car_model_count" property="carModelCount" jdbcType="INTEGER" />
 		<result column="create_at" property="createAt" jdbcType="BIGINT" />
 		<result column="create_by" property="createBy" jdbcType="BIGINT" />
 		<result column="update_at" property="updateAt" jdbcType="BIGINT" />
@@ -24,7 +25,7 @@
 			14:25:04 CST 2015. -->
 		id, type_id, type_name, import_flag, price_lowest, price_most, img,
 		status, create_at, create_by, update_at,
-		update_by
+		update_by, car_model_count
 	</sql>
 	
 	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
@@ -44,13 +45,13 @@
 		from car_hall
 		where 1=1
 		<if test="typeName != null">
-			 and type_name = #{typeName,jdbcType=VARCHAR},
+			 and type_name = #{typeName,jdbcType=VARCHAR}
 		</if>
 		<if test="importFlag != null">
-			 and import_flag = #{importFlag,jdbcType=INTEGER},
+			 and import_flag = #{importFlag,jdbcType=INTEGER}
 		</if>
 		<if test="status != null">
-			 and status = #{status,jdbcType=INTEGER},
+			 and status = #{status,jdbcType=INTEGER}
 		</if>
 		limit #{page.pageStart}, #{page.pageSize}
 	</select>
@@ -61,13 +62,13 @@
 		from car_hall
 		where 1=1
 		<if test="typeName != null">
-			 and type_name = #{typeName,jdbcType=VARCHAR},
+			 and type_name = #{typeName,jdbcType=VARCHAR}
 		</if>
 		<if test="importFlag != null">
-			 and import_flag = #{importFlag,jdbcType=INTEGER},
+			 and import_flag = #{importFlag,jdbcType=INTEGER}
 		</if>
 		<if test="status != null">
-			 and status = #{status,jdbcType=INTEGER},
+			 and status = #{status,jdbcType=INTEGER}
 		</if>
 	</select>
 	
@@ -83,7 +84,7 @@
 		useGeneratedKeys="true" keyProperty="id">
 		insert into car_hall (type_id,
 		type_name, import_flag, price_lowest,
-		price_most, img, status,
+		price_most, img, status,car_model_count,
 		create_at, create_by, update_at,
 		update_by)
 		values
@@ -91,6 +92,7 @@
 		#{importFlag,jdbcType=INTEGER}, #{priceLowest,jdbcType=VARCHAR},
 		#{priceMost,jdbcType=VARCHAR}, #{img,jdbcType=VARCHAR},
 		#{status,jdbcType=INTEGER},
+		#{carModelCount,jdbcType=INTEGER},
 		#{createAt,jdbcType=BIGINT},
 		#{createBy,jdbcType=BIGINT}, #{updateAt,jdbcType=BIGINT},
 		#{updateBy,jdbcType=BIGINT})
@@ -119,6 +121,9 @@
 			</if>
 			<if test="status != null">
 				status,
+			</if>
+			<if test="carModelCount != null">
+				car_model_count,
 			</if>
 			<if test="createAt != null">
 				create_at,
@@ -154,6 +159,9 @@
 			</if>
 			<if test="status != null">
 				#{status,jdbcType=INTEGER},
+			</if>
+			<if test="carModelCount != null">
+				#{carModelCount,jdbcType=INTEGER},
 			</if>
 			<if test="createAt != null">
 				#{createAt,jdbcType=BIGINT},
@@ -194,6 +202,9 @@
 			<if test="status != null">
 				status = #{status,jdbcType=INTEGER},
 			</if>
+			<if test="carModelCount != null">
+				car_model_count = #{carModelCount,jdbcType=INTEGER},
+			</if>
 			<if test="createAt != null">
 				create_at = #{createAt,jdbcType=BIGINT},
 			</if>
@@ -226,6 +237,7 @@
 		img = #{img,jdbcType=VARCHAR},
 		status =
 		#{status,jdbcType=INTEGER},
+		car_model_count = #{carModelCount,jdbcType=INTEGER},
 		create_at = #{createAt,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},
 		update_at =

@@ -1,5 +1,6 @@
 package com.yongjia.controller.wx;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,24 +10,36 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yongjia.controller.web.WebBaseController;
 import com.yongjia.dao.MemberCarMapper;
 import com.yongjia.dao.MemberMapper;
+import com.yongjia.dao.MemberPointMapper;
+import com.yongjia.dao.MemberPointRecordMapper;
+import com.yongjia.dao.MemberSignMapper;
+import com.yongjia.dao.MemberSignRecordMapper;
 import com.yongjia.dao.PointPoolMapper;
+import com.yongjia.dao.SignPointConfigMapper;
 import com.yongjia.dao.SmsSendRecordMapper;
 import com.yongjia.dao.WxUser2memberMapper;
 import com.yongjia.dao.WxUserAndMemberMapper;
 import com.yongjia.model.Member;
 import com.yongjia.model.MemberCar;
+import com.yongjia.model.MemberPoint;
+import com.yongjia.model.MemberPointRecord;
+import com.yongjia.model.MemberSign;
+import com.yongjia.model.MemberSignRecord;
 import com.yongjia.model.PointPool;
+import com.yongjia.model.SignPointConfig;
 import com.yongjia.model.SmsSendRecord;
 import com.yongjia.model.WxUser2member;
 import com.yongjia.model.WxUserAndMember;
 import com.yongjia.sms.utils.SmsUtil;
 import com.yongjia.utils.CookieUtil;
+import com.yongjia.utils.DateUtil;
 import com.yongjia.utils.ToJsonUtil;
 
 @Controller
@@ -53,14 +66,29 @@ public class WxMemberController extends WebBaseController {
     @Autowired
     private PointPoolMapper pointPoolMapper;
 
-    @RequestMapping("/regsiter")
+    @Autowired
+    private MemberSignMapper memberSignMapper;
+
+    @Autowired
+    private SignPointConfigMapper signPointConfigMapper;
+
+    @Autowired
+    private MemberPointMapper memberPointMapper;
+
+    @Autowired
+    private MemberPointRecordMapper memberPointRecordMapper;
+
+    @Autowired
+    private MemberSignRecordMapper memberSignRecordMapper;
+
+    @RequestMapping("/edit")
     @ResponseBody
-    public Map regsiter(String mobile, String viliCode, HttpServletRequest request, HttpServletResponse response) {
+    public Map edit(String name, Integer sex, String mobile, String valiCode, HttpServletRequest request, HttpServletResponse response) {
 
         String openid = CookieUtil.getOpenid(request);
         log.info("openid = " + openid);
         log.info("mobile = " + mobile);
-        log.info("viliCode = " + viliCode);
+        log.info("valiCode = " + valiCode);
         /**
          * 判断手机号是否合法
          */
@@ -75,20 +103,43 @@ public class WxMemberController extends WebBaseController {
         if (pointPool != null) {
             pointPoolId = pointPool.getId();
         }
+        Long now = System.currentTimeMillis();
         WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
-        if (wxUserAndMember.getId() > 0) {
-            return ToJsonUtil.toEntityMap(400, "您已经注册过了", null);
+        if (wxUserAndMember.getId()!=null && wxUserAndMember.getId() > 0) {
+            if (!wxUserAndMember.getMobile().equals(mobile)) {
+                /**
+                 * 判断验证是否正确
+                 */
+                SmsSendRecord smsSendRecord = smsSendRecordMapper.selectByMobileAndTpl(mobile,
+                        SmsUtil.SmsTpl[SmsUtil.TypeRegister]);
+                
+                if (smsSendRecord == null || now - smsSendRecord.getCreateAt() > SmsUtil.OverDueTime) {
+                    return ToJsonUtil.toEntityMap(400, "请发送验证码", null);
+                }
+                if (!smsSendRecord.getCode().equals(valiCode)) {
+                    return ToJsonUtil.toEntityMap(400, "验证码错误", null);
+                }
+            }
+            Member member = new Member();
+            member.setId(wxUserAndMember.getId());
+            member.setMobile(mobile);
+            member.setName(name);
+            member.setSex(sex);
+            member.setUpdateAt(now);
+            memberMapper.updateByPrimaryKeySelective(member);
+            
+            return ToJsonUtil.toEntityMap(200, "success", null);
         }
         /**
          * 判断验证是否正确
          */
         SmsSendRecord smsSendRecord = smsSendRecordMapper.selectByMobileAndTpl(mobile,
                 SmsUtil.SmsTpl[SmsUtil.TypeRegister]);
-        Long now = System.currentTimeMillis();
+        
         if (smsSendRecord == null || now - smsSendRecord.getCreateAt() > SmsUtil.OverDueTime) {
             return ToJsonUtil.toEntityMap(400, "请发送验证码", null);
         }
-        if (!smsSendRecord.getCode().equals(viliCode)) {
+        if (!smsSendRecord.getCode().equals(valiCode)) {
             return ToJsonUtil.toEntityMap(400, "验证码错误", null);
         }
         /**
@@ -97,8 +148,8 @@ public class WxMemberController extends WebBaseController {
         Member member = new Member();
         member.setMobile(mobile);
         member.setHeadImgurl(wxUserAndMember.getHeadimgurl());
-        member.setName(wxUserAndMember.getNickname());
-        member.setSex(wxUserAndMember.getSex());
+        member.setName(name);
+        member.setSex(sex);
         member.setStatus(Member.StatusMember);
         member.setValiFlag(Member.NoVali);
         member.setCreateAt(now);
@@ -112,7 +163,9 @@ public class WxMemberController extends WebBaseController {
                 if (wxUser2memberMapper.insert(wxUser2member) > 0) {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put(CookieUtil.OPEN_ID, openid);
-                    params.put(CookieUtil.MEMBER_ID, wxUserAndMember.getId() + "");
+                    params.put(CookieUtil.MEMBER_ID, memberId + "");
+                    
+                    CookieUtil.setIdentity(request, response, params, 0);
                     return ToJsonUtil.toEntityMap(200, "success", null);
                 } else {
                     return ToJsonUtil.toEntityMap(400, "insert wxuser2member fail", null);
@@ -174,6 +227,86 @@ public class WxMemberController extends WebBaseController {
             return ToJsonUtil.toEntityMap(200, "success", null);
         } else {
             return ToJsonUtil.toEntityMap(400, "insert memberCar error", null);
+        }
+    }
+
+    @RequestMapping("/sign")
+    @ResponseBody
+    @Transactional
+    public Map sign(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            Long memberId = CookieUtil.getMemberId(request);
+            if (memberId == null) {
+                return ToJsonUtil.toEntityMap(400, "必须是会员", null);
+            }
+            Long now = System.currentTimeMillis();
+            String month = DateUtil.formatDatetime(new Date(now), "yyyy-M");
+            MemberSign memberSign = memberSignMapper.selectByMemberIdAndMonth(memberId, month);
+            if (memberSign == null) {
+                memberSign = new MemberSign();
+                memberSign.setMemberId(memberId);
+                memberSign.setMonth(month);
+                memberSign.setTimes(0);
+                memberSignMapper.insertSelective(memberSign);
+            }
+
+            PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+            Long pointPoolId = 0L;
+            if (pointPool != null) {
+                pointPoolId = pointPool.getId();
+            }
+
+            SignPointConfig signPointConfig = signPointConfigMapper.selectByMonthAndTimes(month,
+                    memberSign.getTimes()+1);
+            if (signPointConfig==null) {
+                signPointConfig = new SignPointConfig();
+                signPointConfig.setMonth(memberSign.getMonth());
+                signPointConfig.setPoint(0);
+                signPointConfig.setTimes(memberSign.getTimes()+1);
+            }
+            /**
+             * 新增积分
+             */
+            MemberPoint memberPoint = memberPointMapper.selectByMemberIdAndPoolId(memberId, pointPoolId);
+            if (memberPoint == null) {
+                memberPoint = new MemberPoint();
+                memberPoint.setMemberId(memberId);
+                memberPoint.setPointPoolId(pointPoolId);
+                memberPoint.setPoint(signPointConfig.getPoint());
+                memberPointMapper.insertSelective(memberPoint);
+            } else {
+                memberPoint.setPoint(memberPoint.getPoint() + signPointConfig.getPoint());
+                memberPointMapper.updateByPrimaryKeySelective(memberPoint);
+            }
+            /**
+             * 新增积分记录
+             */
+            MemberPointRecord memberPointRecord = new MemberPointRecord();
+            memberPointRecord.setMemberId(memberId);
+            memberPointRecord.setPointPoolId(pointPoolId);
+            memberPointRecord.setPoint(signPointConfig.getPoint());
+            memberPointRecord.setType(MemberPointRecord.TypeGet);
+            memberPointRecord.setAction("签到");
+            memberPointRecord.setActionContent("签到");
+            memberPointRecord.setCreateAt(now);
+            memberPointRecordMapper.insertSelective(memberPointRecord);
+            /**
+             * 新增签到记录
+             */
+            MemberSignRecord memberSignRecord = new MemberSignRecord();
+            memberSignRecord.setMemberId(memberId);
+            memberSignRecord.setSignDate(DateUtil.formatDate(new Date(now)));
+            memberSignRecordMapper.insertSelective(memberSignRecord);
+            /**
+             * 修改用户签到次数
+             */
+            memberSign.setTimes(memberSign.getTimes() + 1);
+            memberSignMapper.updateByPrimaryKeySelective(memberSign);
+
+            return ToJsonUtil.toEntityMap(200, "success", null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ToJsonUtil.toEntityMap(500, "server error", null);
         }
     }
 

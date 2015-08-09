@@ -24,6 +24,7 @@
     <result column="id" property="id" jdbcType="BIGINT" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="member_sex" property="memberSex" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="INTEGER" />
     <result column="vali_flag" property="valiFlag" jdbcType="INTEGER" />
     <result column="create_at" property="createAt" jdbcType="BIGINT" />
@@ -40,7 +41,7 @@
     -->
     wu.openid, wu.subscribe, wu.nickname, wu.sex, wu.language, wu.city, wu.province, 
     wu.country, wu.headimgurl, wu.subscribe_time, wu.unionid, wu.remark, wu.groupid, wu.ticket,
-    m.id, m.name, m.mobile, m.status, m.vali_flag,
+    m.id, m.name, m.mobile,m.sex as member_sex, m.status, m.vali_flag,
     m.create_at, m.create_by, m.update_at, m.update_by,
     mp.point
   </sql>

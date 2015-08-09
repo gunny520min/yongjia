@@ -96,7 +96,16 @@ public class CarHall {
     
     private List<Long> carModelIds;
     
+    private Integer carModelCount;
     
+    public Integer getCarModelCount() {
+        return carModelCount;
+    }
+
+    public void setCarModelCount(Integer carModelCount) {
+        this.carModelCount = carModelCount;
+    }
+
     public List<String> getCarHallPics() {
         return carHallPics;
     }

@@ -336,7 +336,7 @@ public class WeixinController extends WxBaseController {
         String url = "";
         try {
             String page = URLEncoder.encode(menuUrl, WxPropertiesUtil.getProperty(ParamString.ENCODING));
-            url = WeixinUtil.getCode(AppID, "http://peon.cn/wx/api/openid?page=" + page, ParamString.SCOPE_SNSAPI_BASE,
+            url = WeixinUtil.getCode(AppID, "http://yongjia.tlan.com.cn/wx/api/openid?page=" + page, ParamString.SCOPE_SNSAPI_BASE,
                     "123");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

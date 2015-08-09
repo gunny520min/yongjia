@@ -73,6 +73,25 @@
 		from message
 	</select>
 
+	<select id="selectNews" resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from message
+		where pos_message = 1 and status = 0
+		order by update_at desc
+		limit #{page.pageStart},
+		#{page.pageSize}
+	</select>
+
+	<select id="countNews" resultType="java.lang.Long">
+		select
+		count(1)
+		from message
+		where pos_message = 1 and status = 0
+	</select>
+
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
 		delete from
 		message

@@ -385,6 +385,11 @@ public class CarController extends WebBaseController {
         carHall.setUpdateAt(now);
         carHall.setUpdateBy(userId);
         carHall.setStatus(CarHall.StatusActive);
+        if (carHall.getCarModelIds() != null) {
+            carHall.setCarModelCount(carHall.getCarModelIds().size());
+        } else {
+            carHall.setCarModelCount(0);
+        }
         carHallMapper.insertSelective(carHall);
         Long carHallId = carHall.getId();
         try {
@@ -415,6 +420,11 @@ public class CarController extends WebBaseController {
     @ResponseBody
     @Transactional
     public Map updateCarHall(CarHall carHall, HttpServletRequest request, HttpServletResponse response) {
+        if (carHall.getCarModelIds() != null) {
+            carHall.setCarModelCount(carHall.getCarModelIds().size());
+        } else {
+            carHall.setCarModelCount(0);
+        }
         carHallMapper.updateByPrimaryKeySelective(carHall);
         Long carHallId = carHall.getId();
         try {
