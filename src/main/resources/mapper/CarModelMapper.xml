@@ -46,6 +46,7 @@
 		<include refid="Blob_Column_List" />
 		from car_model
 		where type_id = #{typeId,jdbcType=BIGINT}
+		and status = 0
 	</select>
 
 	<select id="selectByName" resultMap="BaseResultMap">

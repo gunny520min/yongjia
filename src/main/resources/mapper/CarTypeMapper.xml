@@ -20,11 +20,38 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
-	<select id="selectByImportFlag" resultMap="BaseResultMap">
+	<select id="selectByCondition" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
 		from car_type
 		where 1 = 1
+		<if test="importFlag != null">
+			and import_flag = #{importFlag, jdbcType=INTEGER}
+		</if>
+		<if test="canEditFlag != null">
+			and can_edit_flag = #{canEditFlag, jdbcType=INTEGER}
+		</if>
+		limit #{page.pageStart}, #{page.pageSize}
+	</select>
+
+	<select id="countByCondition" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from car_type
+		where 1 = 1
+		<if test="importFlag != null">
+			and import_flag = #{importFlag, jdbcType=INTEGER}
+		</if>
+		<if test="canEditFlag != null">
+			and can_edit_flag = #{canEditFlag, jdbcType=INTEGER}
+		</if>
+	</select>
+
+	<select id="selectByImportFlag" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from car_type
+		where 1 = 1 and can_edit_flag = 1
 		<if test="importFlag != null">
 			and import_flag = #{importFlag, jdbcType=INTEGER}
 		</if>
@@ -102,9 +129,12 @@
 	<update id="updateByPrimaryKey" parameterType="com.yongjia.model.CarType">
 		update car_type
 		set car_type_name = #{carTypeName,jdbcType=VARCHAR},
-		import_flag = #{importFlag,jdbcType=INTEGER},
-		can_edit_flag = #{canEditFlag,jdbcType=INTEGER},
-		colors = #{colors,jdbcType=LONGVARCHAR}
+		import_flag =
+		#{importFlag,jdbcType=INTEGER},
+		can_edit_flag =
+		#{canEditFlag,jdbcType=INTEGER},
+		colors =
+		#{colors,jdbcType=LONGVARCHAR}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 </mapper>

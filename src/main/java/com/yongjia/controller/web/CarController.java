@@ -81,7 +81,25 @@ public class CarController extends WebBaseController {
             carList = carModelMapper.selectByName(typeName, modelName, getPageMap(pageNo, pageSize));
         }
 
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carList);
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carList);
+    }
+
+    @RequestMapping("/getCarTypeList")
+    @ResponseBody
+    public Map getCarType(Integer importFlag, Integer canEditFlag, Integer pageNo, Integer pageSize,
+            HttpServletRequest request, HttpServletResponse response) {
+        try {
+            Long totalCount = carTypeMapper.countByCondition(importFlag, canEditFlag);
+            List<CarType> carTypeList = null;
+            if (totalCount>0) {
+                carTypeList= carTypeMapper.selectByCondition(importFlag, canEditFlag, getPageMap(pageNo, pageSize));
+            }
+            
+            return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carTypeList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ToJsonUtil.toEntityMap(400, "error", null);
+        }
     }
 
     @RequestMapping("/addCarType")
@@ -334,7 +352,7 @@ public class CarController extends WebBaseController {
             carHallList = carHallMapper.selectByCondition(typeName, importFlag, status, getPageMap(pageNo, pageSize));
         }
 
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carHallList);
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carHallList);
     }
 
     // @RequestMapping("/getCarHallPics")

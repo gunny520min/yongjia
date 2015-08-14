@@ -36,7 +36,7 @@ public class WxMessageController extends BaseController {
                 messageList = messageMapper.selectNews(getPageMap(pageNo, pageSize));
             }
 
-            return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
+            return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
                     messageList);
         } catch (Exception e) {
             return ToJsonUtil.toEntityMap(500, "server error", null);

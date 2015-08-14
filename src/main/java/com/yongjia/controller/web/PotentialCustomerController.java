@@ -34,7 +34,7 @@ public class PotentialCustomerController extends WebBaseController {
         if (totalCount != null && totalCount > 0) {
             List<PotentialCustomerAndMember> customerList = pCustomermMapper.selectByNameAndPhone(name, mobile,
                     getPageMap(pageNo, pageSize));
-            return ToJsonUtil.toPagetMap(200, "success", pageNo, pageSize, totalCount, customerList);
+            return ToJsonUtil.toPageMap(200, "success", pageNo, pageSize, totalCount, customerList);
         } else {
             return ToJsonUtil.toEntityMap(200, "success", null);
         }

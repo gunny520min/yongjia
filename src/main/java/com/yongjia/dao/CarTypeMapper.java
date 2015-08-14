@@ -1,6 +1,7 @@
 package com.yongjia.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -38,6 +39,9 @@ public interface CarTypeMapper {
      * @mbggenerated Tue Jul 07 14:25:04 CST 2015
      */
     CarType selectByPrimaryKey(Long id);
+    
+    Long countByCondition(@Param("importFlag")Integer importFlag,@Param("canEditFlag")Integer canEditFlag);
+    List<CarType> selectByCondition(@Param("importFlag")Integer importFlag,@Param("canEditFlag")Integer canEditFlag,@Param("page")Map page);
     
     List<CarType> selectByImportFlag(@Param("importFlag")Integer importFlag);
 

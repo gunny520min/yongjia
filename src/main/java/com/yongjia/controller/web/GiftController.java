@@ -59,7 +59,7 @@ public class GiftController extends WebBaseController {
         if (totalCount > 0) {
             giftList = giftMapper.selectByNameAndStatus(name, status, getPageMap(pageNo, pageSize));
         }
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, giftList);
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, giftList);
     }
 
     @RequestMapping("/get")

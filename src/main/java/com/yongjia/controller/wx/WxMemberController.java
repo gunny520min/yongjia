@@ -83,7 +83,8 @@ public class WxMemberController extends WebBaseController {
 
     @RequestMapping("/edit")
     @ResponseBody
-    public Map edit(String name, Integer sex, String mobile, String valiCode, HttpServletRequest request, HttpServletResponse response) {
+    public Map edit(String name, Integer sex, String mobile, String valiCode, HttpServletRequest request,
+            HttpServletResponse response) {
 
         String openid = CookieUtil.getOpenid(request);
         log.info("openid = " + openid);
@@ -105,14 +106,14 @@ public class WxMemberController extends WebBaseController {
         }
         Long now = System.currentTimeMillis();
         WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
-        if (wxUserAndMember.getId()!=null && wxUserAndMember.getId() > 0) {
+        if (wxUserAndMember.getId() != null && wxUserAndMember.getId() > 0) {
             if (!wxUserAndMember.getMobile().equals(mobile)) {
                 /**
                  * 判断验证是否正确
                  */
                 SmsSendRecord smsSendRecord = smsSendRecordMapper.selectByMobileAndTpl(mobile,
                         SmsUtil.SmsTpl[SmsUtil.TypeRegister]);
-                
+
                 if (smsSendRecord == null || now - smsSendRecord.getCreateAt() > SmsUtil.OverDueTime) {
                     return ToJsonUtil.toEntityMap(400, "请发送验证码", null);
                 }
@@ -127,7 +128,7 @@ public class WxMemberController extends WebBaseController {
             member.setSex(sex);
             member.setUpdateAt(now);
             memberMapper.updateByPrimaryKeySelective(member);
-            
+
             return ToJsonUtil.toEntityMap(200, "success", null);
         }
         /**
@@ -135,7 +136,7 @@ public class WxMemberController extends WebBaseController {
          */
         SmsSendRecord smsSendRecord = smsSendRecordMapper.selectByMobileAndTpl(mobile,
                 SmsUtil.SmsTpl[SmsUtil.TypeRegister]);
-        
+
         if (smsSendRecord == null || now - smsSendRecord.getCreateAt() > SmsUtil.OverDueTime) {
             return ToJsonUtil.toEntityMap(400, "请发送验证码", null);
         }
@@ -164,7 +165,7 @@ public class WxMemberController extends WebBaseController {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put(CookieUtil.OPEN_ID, openid);
                     params.put(CookieUtil.MEMBER_ID, memberId + "");
-                    
+
                     CookieUtil.setIdentity(request, response, params, 0);
                     return ToJsonUtil.toEntityMap(200, "success", null);
                 } else {
@@ -179,41 +180,42 @@ public class WxMemberController extends WebBaseController {
         }
     }
 
-    @RequestMapping("/valiCarOwn")
-    @ResponseBody
-    public Map valiCarOwn(String name, Integer sex, MemberCar memberCar, HttpServletRequest request,
-            HttpServletResponse response) {
-
-        Long now = System.currentTimeMillis();
-        Long memberId = CookieUtil.getMemberId(request);
-        if (memberId == null || memberId <= 0) {
-            return ToJsonUtil.toEntityMap(400, "您还不是会员，请注册", null);
-        }
-        Member member = memberMapper.selectByPrimaryKey(memberId);
-        member.setName(name);
-        member.setSex(sex);
-        member.setValiFlag(Member.ToVali);
-        member.setUpdateAt(now);
-        if (memberMapper.updateByPrimaryKeySelective(member) > 0) {
-            memberCar.setMemberId(memberId);
-            memberCar.setStatus(MemberCar.StatusToVali);
-            memberCar.setCreateAt(now);
-            memberCar.setUpdateAt(now);
-
-            if (memberCarMapper.insertSelective(memberCar) > 0) {
-
-                return ToJsonUtil.toEntityMap(200, "success", null);
-            } else {
-                return ToJsonUtil.toEntityMap(400, "insert memberCar error", null);
-            }
-        } else {
-            return ToJsonUtil.toEntityMap(400, "update member error", null);
-        }
-
-    }
+    // @RequestMapping("/valiCarOwn")
+    // @ResponseBody
+    // public Map valiCarOwn(String name, Integer sex, MemberCar memberCar, HttpServletRequest request,
+    // HttpServletResponse response) {
+    //
+    // Long now = System.currentTimeMillis();
+    // Long memberId = CookieUtil.getMemberId(request);
+    // if (memberId == null || memberId <= 0) {
+    // return ToJsonUtil.toEntityMap(400, "您还不是会员，请注册", null);
+    // }
+    // Member member = memberMapper.selectByPrimaryKey(memberId);
+    // member.setName(name);
+    // member.setSex(sex);
+    // member.setValiFlag(Member.ToVali);
+    // member.setUpdateAt(now);
+    // if (memberMapper.updateByPrimaryKeySelective(member) > 0) {
+    // memberCar.setMemberId(memberId);
+    // memberCar.setStatus(MemberCar.StatusToVali);
+    // memberCar.setCreateAt(now);
+    // memberCar.setUpdateAt(now);
+    //
+    // if (memberCarMapper.insertSelective(memberCar) > 0) {
+    //
+    // return ToJsonUtil.toEntityMap(200, "success", null);
+    // } else {
+    // return ToJsonUtil.toEntityMap(400, "insert memberCar error", null);
+    // }
+    // } else {
+    // return ToJsonUtil.toEntityMap(400, "update member error", null);
+    // }
+    //
+    // }
 
     @RequestMapping("/addCar")
     @ResponseBody
+    @Transactional
     public Map addCar(MemberCar memberCar, HttpServletRequest request, HttpServletResponse response) {
 
         Long memberId = CookieUtil.getMemberId(request);
@@ -224,7 +226,14 @@ public class WxMemberController extends WebBaseController {
         memberCar.setUpdateAt(now);
 
         if (memberCarMapper.insertSelective(memberCar) > 0) {
-            return ToJsonUtil.toEntityMap(200, "success", null);
+            Member member = memberMapper.selectByPrimaryKey(memberId);
+            member.setUpdateAt(now);
+            member.setValiFlag(Member.ToVali);
+            if (memberMapper.insertSelective(member) > 0) {
+                return ToJsonUtil.toEntityMap(200, "success", null);
+            } else {
+                return ToJsonUtil.toEntityMap(400, "update member error", null);
+            }
         } else {
             return ToJsonUtil.toEntityMap(400, "insert memberCar error", null);
         }
@@ -257,12 +266,12 @@ public class WxMemberController extends WebBaseController {
             }
 
             SignPointConfig signPointConfig = signPointConfigMapper.selectByMonthAndTimes(month,
-                    memberSign.getTimes()+1);
-            if (signPointConfig==null) {
+                    memberSign.getTimes() + 1);
+            if (signPointConfig == null) {
                 signPointConfig = new SignPointConfig();
                 signPointConfig.setMonth(memberSign.getMonth());
                 signPointConfig.setPoint(0);
-                signPointConfig.setTimes(memberSign.getTimes()+1);
+                signPointConfig.setTimes(memberSign.getTimes() + 1);
             }
             /**
              * 新增积分

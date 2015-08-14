@@ -4,21 +4,26 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yongjia.dao.AppointmentAndMemberMapper;
 import com.yongjia.dao.AppointmentMapper;
+import com.yongjia.dao.WxUser2memberMapper;
 import com.yongjia.model.Appointment;
 import com.yongjia.model.AppointmentAndMember;
+import com.yongjia.model.WxUser2member;
 import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.ToJsonUtil;
+import com.yongjia.wxkit.template.uitls.TplMessageUtil;
 
 @Controller
 @RequestMapping("/web/appointment")
@@ -30,6 +35,14 @@ public class AppointmentController extends WebBaseController {
     private AppointmentMapper appointmentMapper;
     @Autowired
     private AppointmentAndMemberMapper appointmentAndMemberMapper;
+    @Autowired
+    private WxUser2memberMapper wxUser2memberMapper;
+
+    /**
+     * 注入线程池
+     */
+    @Resource(name = "taskExecutor")
+    private TaskExecutor taskExecutor;
 
     @RequestMapping("/list")
     @ResponseBody
@@ -42,7 +55,7 @@ public class AppointmentController extends WebBaseController {
             appointmentList = appointmentAndMemberMapper.selectByStatus(status, getPageMap(pageNo, pageSize));
         }
 
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
                 appointmentList);
     }
 
@@ -73,7 +86,16 @@ public class AppointmentController extends WebBaseController {
         appointment.setStatus(status);
         if (arriveTime != null && arriveTime > 0) {
             appointment.setArriveTime(arriveTime);
+            if (status == Appointment.StatusToDo) {
+                if (appointment.getType() > 0 && appointment.getType() < Appointment.TypeStr.length) {
+                    /**
+                     * 发送服务确认通知
+                     */
+                    taskExecutor.execute(new SendServiceConfirmTplTask(appointment));
+                }
+            }
         }
+
         appointment.setUpdateAt(new Date().getTime());
         appointment.setUpdateBy(userId);
 
@@ -84,4 +106,28 @@ public class AppointmentController extends WebBaseController {
         }
     }
 
+    /**
+     * 发送服务确认通知
+     * 
+     * @ClassName: SendServiceChangeTplTask
+     * @Description: TODO
+     * @author Comsys-guj
+     * @date 2015年8月13日 下午10:27:13
+     * 
+     */
+    private class SendServiceConfirmTplTask implements Runnable {
+
+        private Appointment appointment;
+
+        public SendServiceConfirmTplTask(Appointment appointment) {
+            this.appointment = appointment;
+        }
+
+        public void run() {
+            WxUser2member wxUser2member = wxUser2memberMapper.selectByMemberId(appointment.getMemberId());
+            TplMessageUtil.sendServiceConfirmTpl(wxUser2member.getOpenid(), Appointment.TypeStr[appointment.getType()],
+                    appointment.getArriveTime());
+        }
+
+    }
 }

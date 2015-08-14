@@ -20,18 +20,6 @@
             <a><img src="${ item.img }"></a>
           </c:forEach>
         </div>
-        <c:if test="${ fn:length(carHallPics) > 0}">
-          <div class="swipe-pagination">
-            <c:forEach var="item" items="${carHallPics }" varStatus="loop">
-              <c:if test="${loop.first}">
-                <a class="active"></a>
-              </c:if>
-              <c:if test="${!loop.first}">
-                <a></a>
-              </c:if>
-            </c:forEach>
-          </div>
-        </c:if>
       </div>
     </div>
     <div class="name">

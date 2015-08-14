@@ -73,6 +73,7 @@
 		<if test="isMember != null">
 			and m.id is not null
 		</if>
+		order by m.vali_flag desc, m.status desc, m.update_at desc
 		limit #{page.pageStart}, #{page.pageSize}
   </select>
   

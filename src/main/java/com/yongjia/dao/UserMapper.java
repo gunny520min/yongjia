@@ -33,6 +33,8 @@ public interface UserMapper {
 	 */
     User selectByPrimaryKey(Long id);
     
+    List<User> selectAllSaler();
+    
     User selectByOpenid(String openid);
 	
 	List<User> selectByNameAndPhone(@Param("name")String name, @Param("mobile")String mobile, @Param("page")Map page);

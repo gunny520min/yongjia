@@ -1,6 +1,7 @@
 package com.yongjia.model;
 
 public class Appointment {
+    public static final String[] TypeStr = new String[]{"","维修","保养","看车","年审","其他"};
     // 维修，保养，看车，年审，其他
     public static final int TypeWeixiu = 1;
     public static final int TypeBaoyang = 2;

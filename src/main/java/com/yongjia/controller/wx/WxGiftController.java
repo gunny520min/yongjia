@@ -39,7 +39,7 @@ public class WxGiftController extends BaseController {
             }
 
             return ToJsonUtil
-                    .toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, giftList);
+                    .toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, giftList);
         } catch (Exception e) {
             return ToJsonUtil.toEntityMap(500, "server error", null);
         }

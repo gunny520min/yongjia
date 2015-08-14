@@ -1,41 +1,31 @@
 package com.yongjia.controller.web;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.yongjia.dao.MemberCarMapper;
-import com.yongjia.dao.MemberMapper;
 import com.yongjia.dao.MemberPointMapper;
 import com.yongjia.dao.MemberPointRecordMapper;
-import com.yongjia.dao.PointPoolConfigMapper;
 import com.yongjia.dao.PointPoolMapper;
-import com.yongjia.dao.SignPointConfigMapper;
-import com.yongjia.dao.UserMapper;
-import com.yongjia.dao.WxUserMapper;
-import com.yongjia.model.Member;
-import com.yongjia.model.MemberCar;
+import com.yongjia.dao.WxUser2memberMapper;
 import com.yongjia.model.MemberPoint;
 import com.yongjia.model.MemberPointRecord;
 import com.yongjia.model.PointPool;
-import com.yongjia.model.PointPoolConfig;
-import com.yongjia.model.SignPointConfig;
-import com.yongjia.model.User;
-import com.yongjia.model.WxUser;
+import com.yongjia.model.WxUser2member;
 import com.yongjia.utils.CookieUtil;
-import com.yongjia.utils.PasswordUtils;
 import com.yongjia.utils.ToJsonUtil;
+import com.yongjia.wxkit.template.uitls.TplMessageUtil;
 
 @Controller
 @RequestMapping("/web/point")
@@ -52,6 +42,15 @@ public class PointController extends WebBaseController {
     @Autowired
     private PointPoolMapper pointPoolMapper;
 
+    @Autowired
+    private WxUser2memberMapper wxUser2memberMapper;
+
+    /**
+     * 注入线程池
+     */
+    @Resource(name = "taskExecutor")
+    private TaskExecutor taskExecutor;
+
     @RequestMapping("/listExchange")
     @ResponseBody
     public Map listExchange(Long pointPoolId, Integer pageNo, Integer pageSize, HttpServletRequest request,
@@ -63,7 +62,7 @@ public class PointController extends WebBaseController {
             memberPointRecordList = memberPointRecordMapper.selectByPoolIdAndType(pointPoolId,
                     MemberPointRecord.TypeUse, getPageMap(pageNo, pageSize));
         }
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
                 memberPointRecordList);
     }
 
@@ -78,7 +77,7 @@ public class PointController extends WebBaseController {
             memberPointRecordList = memberPointRecordMapper.selectByPoolIdAndType(pointPoolId,
                     MemberPointRecord.TypeGet, getPageMap(pageNo, pageSize));
         }
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
                 memberPointRecordList);
     }
 
@@ -107,6 +106,11 @@ public class PointController extends WebBaseController {
             memberPoint.setPoint(memberPoint.getPoint() - memberPointRecord.getPoint());
             if (memberPointMapper.updateByPrimaryKeySelective(memberPoint) > 0) {
                 if (memberPointRecordMapper.insertSelective(memberPointRecord) > 0) {
+                    /**
+                     * 发送积分变动通知
+                     */
+                    taskExecutor.execute(new SendPointChangeTplTask(memberPointRecord.getMemberId(), memberPointRecord,
+                            memberPoint.getPoint()));
                     return ToJsonUtil.toEntityMap(200, "success", null);
                 } else {
                     return ToJsonUtil.toEntityMap(400, "error", null);
@@ -144,6 +148,11 @@ public class PointController extends WebBaseController {
                 memberPoint.setPointPoolId(pointPool.getId());
                 memberPoint.setPoint(memberPointRecord.getPoint());
                 if (memberPointMapper.insertSelective(memberPoint) > 0) {
+                    /**
+                     * 发送积分变动通知
+                     */
+                    taskExecutor.execute(new SendPointChangeTplTask(memberPointRecord.getMemberId(), memberPointRecord,
+                            memberPoint.getPoint()));
                     return ToJsonUtil.toEntityMap(200, "success", null);
                 } else {
                     return ToJsonUtil.toEntityMap(400, "error", null);
@@ -162,4 +171,22 @@ public class PointController extends WebBaseController {
         }
     }
 
+    private class SendPointChangeTplTask implements Runnable {
+
+        private Long memberId;
+        private MemberPointRecord memberPointRecord;
+        private Integer leftPoint;
+
+        public SendPointChangeTplTask(Long memberId, MemberPointRecord memberPointRecord, Integer leftPoint) {
+            this.memberId = memberId;
+            this.memberPointRecord = memberPointRecord;
+            this.leftPoint = leftPoint;
+        }
+
+        public void run() {
+            WxUser2member wxUser2member = wxUser2memberMapper.selectByMemberId(memberId);
+            TplMessageUtil.sendPointChangeTpl(wxUser2member.getOpenid(), memberPointRecord, leftPoint);
+        }
+
+    }
 }

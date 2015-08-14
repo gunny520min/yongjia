@@ -36,6 +36,9 @@ public class WxCarController extends BaseController {
                     getPageMap(pageNo, pageSize));
         }
 
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carHallList);
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, carHallList);
     }
+    
+    
+    
 }

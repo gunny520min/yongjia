@@ -69,7 +69,7 @@ public class WxUserController extends WebBaseController {
                     getPageMap(pageNo, pageSize));
             log.info("wxuserAndMemberList is :" + JSONArray.fromObject(wxuserAndMemberList).toString());
         }
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount,
                 wxuserAndMemberList);
     }
 

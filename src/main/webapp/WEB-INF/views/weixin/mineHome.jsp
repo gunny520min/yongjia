@@ -42,11 +42,40 @@
         </div>
       </div>
       <div class="list border compact">
-        <a class="item item-oneline item-icon-right" href="/wx/view/sign">
+      	<c:choose>
+            <c:when test="${wxuser.id != null}">
+            <a class="item item-oneline item-icon-right" href="/wx/view/myCars">
+          <i class="icon icon-nav-sign-small"></i>
+         我的车辆
+          <i class="icon icon-more"></i>
+        </a>
+            </c:when>
+            <c:otherwise>
+            <a class="item item-oneline item-icon-right action login-required">
+          <i class="icon icon-nav-sign-small"></i>
+         我的车辆
+          <i class="icon icon-more"></i>
+        </a>
+            </c:otherwise>
+          </c:choose>
+          
+        <c:choose>
+            <c:when test="${wxuser.id != null}">
+            <a class="item item-oneline item-icon-right" href="/wx/view/sign">
           <i class="icon icon-nav-sign-small"></i>
           签到得积分
           <i class="icon icon-more"></i>
         </a>
+            </c:when>
+            <c:otherwise>
+            <a class="item item-oneline item-icon-right action login-required" >
+          <i class="icon icon-nav-sign-small"></i>
+          签到得积分
+          <i class="icon icon-more"></i>
+        </a>
+            </c:otherwise>
+          </c:choose>
+        
         <a class="item item-oneline item-icon-right" href="/wx/view/gift">
           <i class="icon icon-nav-gift-small"></i>
           积分换礼
@@ -57,11 +86,23 @@
           资讯吧
           <i class="icon icon-more"></i>
         </a>
-        <a class="item item-oneline item-icon-right" href="/wx/view/myAppointment">
+        <c:choose>
+            <c:when test="${wxuser.id != null}">
+            <a class="item item-oneline item-icon-right" href="/wx/view/myAppointment">
           <i class="icon icon-nav-msg-small"></i>
           我的预约
           <i class="icon icon-more"></i>
         </a>
+            </c:when>
+            <c:otherwise>
+            <a class="item item-oneline item-icon-right action login-required" >
+          <i class="icon icon-nav-msg-small"></i>
+          我的预约
+          <i class="icon icon-more"></i>
+        </a>
+            </c:otherwise>
+          </c:choose>
+        
       </div>
     </section>
     <script id="loginRequired" type="text/swig-template">

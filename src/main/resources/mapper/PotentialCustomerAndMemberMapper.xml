@@ -43,12 +43,40 @@
 		m.mobile, m.sex, m.head_imgurl, m.name
 	</sql>
 	
+	<select id="countByUserId" resultType="java.lang.Long" >
+		select
+		count(1)
+		from potential_customer as p
+		LEFT JOIN member as m on p.member_id = m.id
+		where p.service_by = #{userId,jdbcType=BIGINT}
+		limit #{page.pageStart}, #{page.pageSize}
+	</select>
+	
+	<select id="selectByUserId" resultMap="BaseResultMap" >
+		select
+		<include refid="Base_Column_List" />
+		from potential_customer as p
+		LEFT JOIN member as m on p.member_id = m.id
+		where p.service_by = #{userId,jdbcType=BIGINT}
+		order by p.update_at desc
+		limit #{page.pageStart}, #{page.pageSize}
+	</select>
+	
+	<select id="selectToService" resultMap="BaseResultMap" parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from potential_customer as p
+		LEFT JOIN member as m on p.member_id = m.id
+		where p.service_by is null
+		order by p.update_at desc
+	</select>
+	
 	<select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Long">
 		select
 		<include refid="Base_Column_List" />
 		from potential_customer as p
 		LEFT JOIN member as m on p.member_id = m.id
-		where m.id = #{id,jdbcType=BIGINT}
+		where p.id = #{id,jdbcType=BIGINT}
 	</select>
 
 	<select id="selectByNameAndPhone" resultMap="BaseResultMap">
@@ -63,6 +91,7 @@
 		<if test="mobile != null">
 			and m.mobile = #{mobile,jdbcType=VARCHAR}
 		</if>
+		order by p.update_at desc
 		limit #{page.pageStart}, #{page.pageSize}
 	</select>
 

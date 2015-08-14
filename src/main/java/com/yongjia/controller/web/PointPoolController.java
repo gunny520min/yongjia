@@ -68,9 +68,9 @@ public class PointPoolController extends WebBaseController {
                 }
             }
             return ToJsonUtil
-                    .toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, pointPoolList);
+                    .toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, pointPoolList);
         } else {
-            return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, null);
+            return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, null);
         }
     }
 
@@ -83,7 +83,7 @@ public class PointPoolController extends WebBaseController {
         if (count > 0) {
             pointPoolRecordList = pointPoolRecordMapper.selectByPointPoolIdAndType(pointPoolId,type, getPageMap(pageNo, pageSize));
         }
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count,
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count,
                 pointPoolRecordList);
     }
 

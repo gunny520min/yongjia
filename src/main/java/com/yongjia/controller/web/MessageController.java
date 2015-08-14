@@ -33,7 +33,7 @@ public class MessageController extends WebBaseController {
         Long totalCount = messageMapper.countAll();
         List<Message> messageList = messageMapper.selectAll(getPageMap(pageNo, pageSize));
         
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, messageList);
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, messageList);
     }
     
     @RequestMapping("/add")

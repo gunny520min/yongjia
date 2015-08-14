@@ -37,6 +37,14 @@
 		where openid = #{openid,jdbcType=VARCHAR}
 	</select>
 
+	<select id="selectAllSaler" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+		<include refid="Base_Column_List" />
+		from user
+		where openid is not null and roid = 4
+	</select>
+
 	<select id="selectByAccount" resultMap="BaseResultMap"
 		parameterType="java.lang.String">
 		select

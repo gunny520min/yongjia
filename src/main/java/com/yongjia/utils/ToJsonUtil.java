@@ -42,7 +42,7 @@ public class ToJsonUtil {
         return map;
     }
 
-    public static final Map toPagetMap(Integer code, String message, Integer pageNo, Integer pageSize,
+    public static final Map toPageMap(Integer code, String message, Integer pageNo, Integer pageSize,
             Long totalCount, List list) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("code", code);

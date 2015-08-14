@@ -44,7 +44,7 @@ public class UserController extends WebBaseController {
         if (totalCount > 0) {
             userList = userMapper.selectByNameAndPhone(name, mobile, getPageMap(pageNo, pageSize));
         }
-        return ToJsonUtil.toPagetMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, userList);
+        return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), totalCount, userList);
     }
 
     @RequestMapping("/add")

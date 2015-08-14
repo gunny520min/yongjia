@@ -2,7 +2,9 @@ package com.yongjia.controller.wx;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +24,8 @@ import com.yongjia.dao.CarHallModelMapper;
 import com.yongjia.dao.CarHallPicMapper;
 import com.yongjia.dao.CarModelMapper;
 import com.yongjia.dao.GiftMapper;
+import com.yongjia.dao.MemberCarMapper;
+import com.yongjia.dao.MemberMapper;
 import com.yongjia.dao.MemberPointMapper;
 import com.yongjia.dao.MemberPointRecordMapper;
 import com.yongjia.dao.MemberSignMapper;
@@ -42,6 +46,7 @@ import com.yongjia.model.CarModel;
 import com.yongjia.model.CarModelParam;
 import com.yongjia.model.Gift;
 import com.yongjia.model.Member;
+import com.yongjia.model.MemberCar;
 import com.yongjia.model.MemberPoint;
 import com.yongjia.model.MemberPointRecord;
 import com.yongjia.model.MemberSign;
@@ -117,6 +122,12 @@ public class WxViewController extends WebBaseController {
     @Autowired
     private MemberSignRecordMapper memberSignRecordMapper;
 
+    @Autowired
+    private MemberCarMapper memberCarMapper;
+
+    @Autowired
+    private MemberMapper memberMapper;
+
     @ModelAttribute
     public void populateModel(Model model) {
         model.addAttribute("shost", "http://yjstatic.tlan.com.cn");
@@ -144,7 +155,18 @@ public class WxViewController extends WebBaseController {
         model.addAttribute("wxuser", wxUserAndMember);
 
         User user = userMapper.selectByOpenid(openid);
-        model.addAttribute("saler", user);
+        model.addAttribute("user", user);
+
+        if (user != null) {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(CookieUtil.OPEN_ID, openid);
+            if (wxUserAndMember != null && wxUserAndMember.getId() != null) {
+                params.put(CookieUtil.MEMBER_ID, wxUserAndMember.getId() + "");
+            }
+            params.put(CookieUtil.USER_ID, user.getId() + "");
+            params.put(CookieUtil.USER_NAME, user.getName());
+            CookieUtil.setIdentity(request, response, params, 0);
+        }
         return "weixin/mineHome";
     }
 
@@ -196,31 +218,45 @@ public class WxViewController extends WebBaseController {
      * @param openid
      * @return
      */
-    @RequestMapping("/verifyCarOwner")
-    public String verifyCarOwner(Model model, HttpServletRequest request, HttpServletResponse response) {
-        String openid = CookieUtil.getOpenid(request);
-        log.info("openid = " + openid);
-        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
-        Long pointPoolId = 0L;
-        if (pointPool != null) {
-            pointPoolId = pointPool.getId();
-        }
-        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
-        model.addAttribute("wxuser", wxUserAndMember);
-        return "weixin/verifyCarOwner";
-    }
+    // @RequestMapping("/verifyCarOwner")
+    // public String verifyCarOwner(Model model, HttpServletRequest request, HttpServletResponse response) {
+    // String openid = CookieUtil.getOpenid(request);
+    // log.info("openid = " + openid);
+    // PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+    // Long pointPoolId = 0L;
+    // if (pointPool != null) {
+    // pointPoolId = pointPool.getId();
+    // }
+    // WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
+    // model.addAttribute("wxuser", wxUserAndMember);
+    // return "weixin/verifyCarOwner";
+    // }
 
     /**
-     * 添加车
+     * 用户添加车辆
      * 
      * @param model
      * @return
      */
-    // @RequestMapping("/addCar")
-    // public String memberAddCar(Model model, HttpServletRequest request, HttpServletResponse response) {
-    //
-    // return "weixin/addCar";
-    // }
+    @RequestMapping("/addCar")
+    public String addCar(Model model, HttpServletRequest request, HttpServletResponse response) {
+        return "weixin/addCar";
+    }
+
+    /**
+     * 
+     * @param model
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping("/myCars")
+    public String myCars(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+        model.addAttribute("cars", memberCars);
+        return "weixin/myCars";
+    }
 
     /**
      * 签到页面
@@ -281,7 +317,6 @@ public class WxViewController extends WebBaseController {
      * @param model
      * @return
      */
-    // TODO selectAll or tobe json
     @RequestMapping("/gift")
     public String gift(Model model, HttpServletRequest request, HttpServletResponse response) {
         String openid = CookieUtil.getOpenid(request);
@@ -324,17 +359,6 @@ public class WxViewController extends WebBaseController {
     }
 
     /**
-     * 如何赚取积分界面
-     * 
-     * @param model
-     * @return
-     */
-    @RequestMapping("/pointNotice")
-    public String pointNotice(Model model, HttpServletRequest request, HttpServletResponse response) {
-        return "weixin/pointNotice";
-    }
-
-    /**
      * 我的积分
      * 
      * @param model
@@ -351,7 +375,7 @@ public class WxViewController extends WebBaseController {
             pointPoolId = pointPool.getId();
         }
         MemberPoint memberPoint = memberPointMapper.selectByMemberIdAndPoolId(memberId, pointPoolId);
-        if (memberPoint==null) {
+        if (memberPoint == null) {
             memberPoint = new MemberPoint();
             memberPoint.setPoint(0);
             memberPoint.setMemberId(memberId);
@@ -359,15 +383,15 @@ public class WxViewController extends WebBaseController {
             memberPointMapper.insertSelective(memberPoint);
         }
         model.addAttribute("memberPoint", memberPoint);
-        
+
         Long totalCount = memberPointRecordMapper.countByPoolIdAndMemberId(pointPoolId, memberId);
         List<MemberPointRecord> memberPointRecords = null;
         if (totalCount > 0) {
-            memberPointRecords = memberPointRecordMapper.selectByPoolIdAndMemberId(pointPoolId,
-                    memberId, getPageMap(1, defaultPageSize));
+            memberPointRecords = memberPointRecordMapper.selectByPoolIdAndMemberId(pointPoolId, memberId,
+                    getPageMap(1, defaultPageSize));
         }
         model.addAttribute("memberPointRecords", memberPointRecords);
-        
+
         return "weixin/myPoint";
     }
 
@@ -381,10 +405,14 @@ public class WxViewController extends WebBaseController {
     @RequestMapping("/myAppointment")
     public String myAppointment(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
+        List<AppointmentAndMember> appointmentList = null;
         if (memberId != null) {
-            List<AppointmentAndMember> appointmentList = appointmentAndMemberMapper.selectByMemberId(memberId);
-            model.addAttribute("appointmentList", appointmentList);
+            Long totalCount = appointmentAndMemberMapper.countByMemberId(memberId);
+            if (totalCount != null && totalCount > 0) {
+                appointmentList = appointmentAndMemberMapper.selectByMemberId(memberId, getPageMap(1, defaultPageSize));
+            }
         }
+        model.addAttribute("appointmentList", appointmentList);
         return "weixin/myAppointment";
     }
 
@@ -427,11 +455,11 @@ public class WxViewController extends WebBaseController {
      * @param openid
      * @return
      */
-    @RequestMapping("/myEmail")
-    public String myEmail(Model model, HttpServletRequest request, HttpServletResponse response) {
-
-        return "weixin/myEmail";
-    }
+    // @RequestMapping("/myEmail")
+    // public String myEmail(Model model, HttpServletRequest request, HttpServletResponse response) {
+    //
+    // return "weixin/myEmail";
+    // }
 
     /**
      * 销售登录
@@ -477,7 +505,14 @@ public class WxViewController extends WebBaseController {
      */
     @RequestMapping("/salerCustomer")
     public String salerCustomer(Model model, HttpServletRequest request, HttpServletResponse response) {
-
+        Long userId = CookieUtil.getUserID(request);
+        Long totalCount = potentialCustomerAndMemberMapper.countByUserId(userId);
+        List<PotentialCustomerAndMember> potentialCustomers = null;
+        if (totalCount > 0) {
+            potentialCustomers = potentialCustomerAndMemberMapper
+                    .selectByUserId(userId, getPageMap(1, defaultPageSize));
+        }
+        model.addAttribute("potentialCustomers", potentialCustomers);
         return "weixin/salerCustomer";
     }
 
@@ -502,6 +537,9 @@ public class WxViewController extends WebBaseController {
      */
     @RequestMapping("/managerHome")
     public String carHome(Model model, HttpServletRequest request, HttpServletResponse response) {
+        String openid = CookieUtil.getOpenid(request);
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, 0L);
+        model.addAttribute("wxuser", wxUserAndMember);
         List<Message> messageList = messageMapper.selectManager();
         model.addAttribute("activity", messageList);
         return "weixin/managerHome";
@@ -519,14 +557,52 @@ public class WxViewController extends WebBaseController {
     }
 
     /**
-     * 预约首页
+     * 预约维修
      * 
      * @param model
      * @return
      */
-    @RequestMapping("/appointmentHome")
-    public String appointmentHome(Model model, HttpServletRequest request, HttpServletResponse response) {
-        return "weixin/appointmentHome";
+    @RequestMapping("/appointWeixiu")
+    public String appointmentWeixiu(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        Member member = memberMapper.selectByPrimaryKey(memberId);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+
+        model.addAttribute("wxuser", member);
+        model.addAttribute("cars", memberCars);
+        return "weixin/appointWeixiu";
+    }
+
+    @RequestMapping("/appointBaoyang")
+    public String appointmentBaoyang(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        Member member = memberMapper.selectByPrimaryKey(memberId);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+
+        model.addAttribute("wxuser", member);
+        model.addAttribute("cars", memberCars);
+        return "weixin/appointBaoyang";
+    }
+
+    @RequestMapping("/appointKanche")
+    public String appointmentKanche(Model model, HttpServletRequest request, HttpServletResponse response) {
+        return "weixin/appointKanche";
+    }
+
+    @RequestMapping("/appointNianshen")
+    public String appointmentNianshen(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        Member member = memberMapper.selectByPrimaryKey(memberId);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+
+        model.addAttribute("wxuser", member);
+        model.addAttribute("cars", memberCars);
+        return "weixin/appointNianshen";
+    }
+
+    @RequestMapping("/appointQita")
+    public String appointmentQita(Model model, HttpServletRequest request, HttpServletResponse response) {
+        return "weixin/appointQita";
     }
 
     /**
@@ -555,17 +631,6 @@ public class WxViewController extends WebBaseController {
         model.addAttribute("potentialCustomers", potentialCustomers);
 
         return "weixin/buycarHome";
-    }
-
-    /**
-     * 新增购车计划
-     * 
-     * @param model
-     * @return
-     */
-    @RequestMapping("/addCar")
-    public String addCar(Model model, HttpServletRequest request, HttpServletResponse response) {
-        return "weixin/addCar";
     }
 
     /**
