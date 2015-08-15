@@ -46,6 +46,7 @@
 		<include refid="Base_Column_List" />
 		from potential_customer
 		where member_id = #{memberId,jdbcType=BIGINT}
+		order by id desc
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -56,12 +57,13 @@
 	<insert id="insert" parameterType="com.yongjia.model.PotentialCustomer"
 		useGeneratedKeys="true" keyProperty="id">
 		insert into potential_customer (member_id, car_model,
+		connect_mobile,
 		car_type, car_color, buy_type,
 		buy_for, buy_budget, buy_date,
 		pay_type, service_by, service_by_name,
 		create_at, create_by,
 		update_at, update_by)
-		values (#{memberId,jdbcType=BIGINT}, #{carModel,jdbcType=VARCHAR},
+		values (#{memberId,jdbcType=BIGINT}, #{carModel,jdbcType=VARCHAR},#{connectMobile,jdbcType=VARCHAR},
 		#{carType,jdbcType=VARCHAR}, #{carColor,jdbcType=VARCHAR},
 		#{buyType,jdbcType=INTEGER},
 		#{buyFor,jdbcType=INTEGER}, #{buyBudget,jdbcType=VARCHAR}, #{buyDate,jdbcType=BIGINT},
@@ -77,6 +79,9 @@
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="memberId != null">
 				member_id,
+			</if>
+			<if test="connectMobile != null">
+				connect_mobile,
 			</if>
 			<if test="carModel != null">
 				car_model,
@@ -124,6 +129,9 @@
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
 			<if test="memberId != null">
 				#{memberId,jdbcType=BIGINT},
+			</if>
+			<if test="connectMobile != null">
+				#{connectMobile,jdbcType=VARCHAR},
 			</if>
 			<if test="carModel != null">
 				#{carModel,jdbcType=VARCHAR},
@@ -176,6 +184,9 @@
 			<if test="memberId != null">
 				member_id = #{memberId,jdbcType=BIGINT},
 			</if>
+			<if test="connectMobile != null">
+				connect_mobile = #{connectMobile,jdbcType=VARCHAR},
+			</if>
 			<if test="carModel != null">
 				car_model = #{carModel,jdbcType=VARCHAR},
 			</if>
@@ -226,6 +237,7 @@
 		update potential_customer
 		set member_id = #{memberId,jdbcType=BIGINT},
 		car_model = #{carModel,jdbcType=VARCHAR},
+		connect_mobile = #{connectMobile,jdbcType=VARCHAR},
 		car_type = #{carType,jdbcType=VARCHAR},
 		car_color = #{carColor,jdbcType=VARCHAR},
 		buy_type = #{buyType,jdbcType=INTEGER},
@@ -250,6 +262,9 @@
 			</if>
 			<if test="carModel != null">
 				car_model = #{carModel,jdbcType=VARCHAR},
+			</if>
+			<if test="connectMobile != null">
+				connect_mobile = #{connectMobile,jdbcType=VARCHAR},
 			</if>
 			<if test="carType != null">
 				car_type = #{carType,jdbcType=VARCHAR},

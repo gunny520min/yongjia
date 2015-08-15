@@ -45,15 +45,15 @@ public class WxUserController extends WebBaseController {
 
     @RequestMapping("/list")
     @ResponseBody
-    public Map list(String name, String mobile, Integer isMember, Integer pageNo, Integer pageSize, HttpServletRequest request,
-            HttpServletResponse response) {
+    public Map list(String name, String mobile, Integer isMember, Integer pageNo, Integer pageSize,
+            HttpServletRequest request, HttpServletResponse response) {
         if (name != null && name.length() == 0) {
             name = null;
         }
         if (mobile != null && mobile.length() == 0) {
             mobile = null;
         }
-        if (isMember != null && isMember==0) {
+        if (isMember != null && isMember == 0) {
             isMember = null;
         }
         PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
@@ -62,10 +62,10 @@ public class WxUserController extends WebBaseController {
             pointPoolId = pointPool.getId();
         }
 
-        Long totalCount = wxUserAndMemberMapper.countByCondition(name, mobile, pointPoolId,isMember);
+        Long totalCount = wxUserAndMemberMapper.countByCondition(name, mobile, pointPoolId, isMember);
         List<WxUserAndMember> wxuserAndMemberList = null;
         if (totalCount > 0) {
-            wxuserAndMemberList = wxUserAndMemberMapper.selectByCondition(name, mobile, pointPoolId,isMember,
+            wxuserAndMemberList = wxUserAndMemberMapper.selectByCondition(name, mobile, pointPoolId, isMember,
                     getPageMap(pageNo, pageSize));
             log.info("wxuserAndMemberList is :" + JSONArray.fromObject(wxuserAndMemberList).toString());
         }
@@ -79,7 +79,7 @@ public class WxUserController extends WebBaseController {
         if (memberId == null) {
             return ToJsonUtil.toEntityMap(400, "error", null);
         } else {
-            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId, MemberCar.StatusYes);
             return ToJsonUtil.toListMap(200, "success", memberCars);
         }
     }
@@ -105,7 +105,7 @@ public class WxUserController extends WebBaseController {
 
             Member member = memberMapper.selectByPrimaryKey(memberCar.getMemberId());
             member.setStatus(Member.StatusCarOwner);
-            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberCar.getMemberId());
+            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberCar.getMemberId(), null);
             Integer viliFlag = Member.NoVali;
             for (MemberCar car : memberCars) {
                 if (car.getStatus().equals(MemberCar.StatusToVali)) {
@@ -133,7 +133,7 @@ public class WxUserController extends WebBaseController {
         memberCar.setStatus(MemberCar.StatusNo);
         if (memberCarMapper.updateByPrimaryKeySelective(memberCar) > 0) {
             Member member = memberMapper.selectByPrimaryKey(memberCar.getMemberId());
-            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberCar.getMemberId());
+            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberCar.getMemberId(), null);
             Integer viliFlag = Member.NoVali;
             for (MemberCar car : memberCars) {
                 if (car.getStatus().equals(MemberCar.StatusToVali)) {
@@ -143,7 +143,7 @@ public class WxUserController extends WebBaseController {
             }
             member.setValiFlag(viliFlag);
             if (memberMapper.updateByPrimaryKeySelective(member) > 0) {
-                
+
                 return ToJsonUtil.toEntityMap(200, "success", null);
             } else {
                 return ToJsonUtil.toEntityMap(400, "error", null);

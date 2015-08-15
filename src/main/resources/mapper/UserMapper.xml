@@ -42,7 +42,7 @@
 		select
 		<include refid="Base_Column_List" />
 		from user
-		where openid is not null and roid = 4
+		where openid is not null and role_id = 4
 	</select>
 
 	<select id="selectByAccount" resultMap="BaseResultMap"

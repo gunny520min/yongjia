@@ -64,7 +64,7 @@
 		limit #{page.pageStart}, #{page.pageSize}
 	</select>
 
-	<select id="countByMemberId" resultMap="ResultMapWithBLOBs" >
+	<select id="countByMemberId" resultType="java.lang.Long" >
 		select
 		count(1)
 		FROM appointment as a 

@@ -37,13 +37,11 @@ import com.yongjia.dao.PotentialCustomerMapper;
 import com.yongjia.dao.SignPointConfigMapper;
 import com.yongjia.dao.UserMapper;
 import com.yongjia.dao.WxUserAndMemberMapper;
-import com.yongjia.model.Appointment;
 import com.yongjia.model.AppointmentAndMember;
 import com.yongjia.model.CarHall;
 import com.yongjia.model.CarHallModel;
 import com.yongjia.model.CarHallPic;
 import com.yongjia.model.CarModel;
-import com.yongjia.model.CarModelParam;
 import com.yongjia.model.Gift;
 import com.yongjia.model.Member;
 import com.yongjia.model.MemberCar;
@@ -57,13 +55,9 @@ import com.yongjia.model.PotentialCustomer;
 import com.yongjia.model.PotentialCustomerAndMember;
 import com.yongjia.model.SignPointConfig;
 import com.yongjia.model.User;
-import com.yongjia.model.WxMsgItem;
-import com.yongjia.model.WxUser;
 import com.yongjia.model.WxUserAndMember;
-import com.yongjia.model.WxUserEmail;
 import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.DateUtil;
-import com.yongjia.utils.ToJsonUtil;
 
 @Controller
 @RequestMapping("/wx/view")
@@ -253,7 +247,7 @@ public class WxViewController extends WebBaseController {
     @RequestMapping("/myCars")
     public String myCars(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
-        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId, null);
         model.addAttribute("cars", memberCars);
         return "weixin/myCars";
     }
@@ -566,7 +560,7 @@ public class WxViewController extends WebBaseController {
     public String appointmentWeixiu(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
         Member member = memberMapper.selectByPrimaryKey(memberId);
-        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId,MemberCar.StatusYes);
 
         model.addAttribute("wxuser", member);
         model.addAttribute("cars", memberCars);
@@ -577,7 +571,7 @@ public class WxViewController extends WebBaseController {
     public String appointmentBaoyang(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
         Member member = memberMapper.selectByPrimaryKey(memberId);
-        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId,MemberCar.StatusYes);
 
         model.addAttribute("wxuser", member);
         model.addAttribute("cars", memberCars);
@@ -586,6 +580,9 @@ public class WxViewController extends WebBaseController {
 
     @RequestMapping("/appointKanche")
     public String appointmentKanche(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        Member member = memberMapper.selectByPrimaryKey(memberId);
+        model.addAttribute("wxuser", member);
         return "weixin/appointKanche";
     }
 
@@ -593,7 +590,7 @@ public class WxViewController extends WebBaseController {
     public String appointmentNianshen(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
         Member member = memberMapper.selectByPrimaryKey(memberId);
-        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId,MemberCar.StatusYes);
 
         model.addAttribute("wxuser", member);
         model.addAttribute("cars", memberCars);
@@ -602,19 +599,13 @@ public class WxViewController extends WebBaseController {
 
     @RequestMapping("/appointQita")
     public String appointmentQita(Model model, HttpServletRequest request, HttpServletResponse response) {
-        return "weixin/appointQita";
-    }
+        Long memberId = CookieUtil.getMemberId(request);
+        Member member = memberMapper.selectByPrimaryKey(memberId);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId,MemberCar.StatusYes);
 
-    /**
-     * 
-     * @param model
-     * @return
-     */
-    @RequestMapping("/myAppointmentDetail")
-    public String appointmentDetail(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
-        AppointmentAndMember appointmentAndMember = appointmentAndMemberMapper.selectById(id);
-        model.addAttribute("appointment", appointmentAndMember);
-        return "weixin/myAppointmentDetail";
+        model.addAttribute("wxuser", member);
+        model.addAttribute("cars", memberCars);
+        return "weixin/appointQita";
     }
 
     /**
@@ -629,10 +620,30 @@ public class WxViewController extends WebBaseController {
         Long memberId = CookieUtil.getMemberId(request);
         List<PotentialCustomer> potentialCustomers = potentialCustomerMapper.selectByMemberId(memberId);
         model.addAttribute("potentialCustomers", potentialCustomers);
-
+        String[] buytypeStrs = new String[]{"首次购车","增购","换购"};
+        String[] buyforStrs = new String[]{"家庭","公司","其他"};
+        String[] paytypeStrs = new String[]{"全款","贷款"};
+        model.addAttribute("buytypeStrs", buytypeStrs);
+        model.addAttribute("buyforStrs", buyforStrs);
+        model.addAttribute("paytypeStrs", paytypeStrs);
         return "weixin/buycarHome";
     }
+    /**
+     * 
+     * @param model
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping("/buycarAdd")
+    public String buycarAdd(Model model, HttpServletRequest request, HttpServletResponse response) {
+        Long memberId = CookieUtil.getMemberId(request);
+        Member member = memberMapper.selectByPrimaryKey(memberId);
+        model.addAttribute("wxuser", member);
 
+        return "weixin/buycarAdd";
+    }
+    
     /**
      * 展厅首页
      * 

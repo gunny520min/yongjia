@@ -40,11 +40,14 @@
     where id = #{id,jdbcType=BIGINT}
   </select>
   
-  <select id="selectByMemberId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+  <select id="selectByMemberId" resultMap="BaseResultMap" >
     select 
     <include refid="Base_Column_List" />
     from member_car
     where member_id = #{memberId,jdbcType=BIGINT}
+    <if test="status != null" >
+        and status = #{status, jdbcType=INTEGER}
+      </if>
     order by status asc, update_at desc
   </select>
   

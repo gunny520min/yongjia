@@ -67,13 +67,13 @@
 
 	<insert id="insert" parameterType="com.yongjia.model.Appointment"
 		useGeneratedKeys="true" keyProperty="id">
-		insert into appointment (type, car_type,
+		insert into appointment (member_id, type, car_type,
 		connect_phone, problem_desc, kilo,
 		is_test_drive, appoint_time, arrive_time,
 		status, create_at, create_by,
 		update_at, update_by, appoint_content
 		)
-		values (#{type,jdbcType=INTEGER},
+		values (#{memberId,jdbcType=BIGINT},#{type,jdbcType=INTEGER},
 		#{carType,jdbcType=VARCHAR},
 		#{connectPhone,jdbcType=VARCHAR}, #{problemDesc,jdbcType=VARCHAR}, #{kilo,jdbcType=VARCHAR},
 		#{isTestDrive,jdbcType=INTEGER}, #{appointTime,jdbcType=BIGINT},
@@ -88,6 +88,9 @@
 		useGeneratedKeys="true" keyProperty="id">
 		insert into appointment
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="memberId != null">
+				member_id,
+			</if>
 			<if test="type != null">
 				type,
 			</if>
@@ -132,6 +135,9 @@
 			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="memberId != null">
+				#{memberId,jdbcType=BIGINT},
+			</if>
 			<if test="type != null">
 				#{type,jdbcType=INTEGER},
 			</if>
@@ -180,6 +186,9 @@
 	<update id="updateByPrimaryKeySelective" parameterType="com.yongjia.model.Appointment">
 		update appointment
 		<set>
+			<if test="memberId != null">
+				member_id = #{memberId,jdbcType=BIGINT},
+			</if>
 			<if test="type != null">
 				type = #{type,jdbcType=INTEGER},
 			</if>
@@ -228,7 +237,8 @@
 
 	<update id="updateByPrimaryKeyWithBLOBs" parameterType="com.yongjia.model.Appointment">
 		update appointment
-		set type = #{type,jdbcType=INTEGER},
+		set member_id = #{memberId,jdbcType=BIGINT},
+		type = #{type,jdbcType=INTEGER},
 		car_type = #{carType,jdbcType=VARCHAR},
 		connect_phone = #{connectPhone,jdbcType=VARCHAR},
 		problem_desc = #{problemDesc,jdbcType=VARCHAR},
@@ -247,7 +257,8 @@
 
 	<update id="updateByPrimaryKey" parameterType="com.yongjia.model.Appointment">
 		update appointment
-		set type = #{type,jdbcType=INTEGER},
+		set member_id = #{memberId,jdbcType=BIGINT},
+		type = #{type,jdbcType=INTEGER},
 		car_type = #{carType,jdbcType=VARCHAR},
 		connect_phone = #{connectPhone,jdbcType=VARCHAR},
 		problem_desc = #{problemDesc,jdbcType=VARCHAR},
