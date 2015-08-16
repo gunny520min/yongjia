@@ -41,11 +41,27 @@
           </c:choose>
         </div>
       </div>
+      	<c:choose>
+            <c:when test="${user != null}">
+              <div class="list border">
+              	<a class="item item-oneline item-icon-right" href="/wx/view/salerCustomer">
+		          	<i class="icon icon-nav-user-small"></i>
+		         我的客户
+		          	<i class="icon icon-more"></i>
+	        	</a>
+		        <a class="item item-oneline item-icon-right" href="/wx/view/salerGrabCustomer">
+		          <i class="icon icon-nav-service-small"></i>
+		         抢客户
+		          <i class="icon icon-more"></i>
+		        </a>
+              </div>
+            </c:when>
+        </c:choose>
       <div class="list border compact">
       	<c:choose>
             <c:when test="${wxuser.id != null}">
             <a class="item item-oneline item-icon-right" href="/wx/view/myCars">
-          <i class="icon icon-nav-sign-small"></i>
+          <i class="icon icon-nav-car-small"></i>
          我的车辆
           <i class="icon icon-more"></i>
         </a>

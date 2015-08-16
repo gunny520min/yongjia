@@ -116,8 +116,8 @@ public class TplMessageUtil {
         
         StructBean fieldNameStruct = new StructBean("变动原因", DataColor);// {{FieldName.DATA}}:{{Account.DATA}}
         data.put("FieldName", fieldNameStruct);
-        StructBean accountStruct = new StructBean(memberPointRecord.getAction(), DataColor);
-        data.put("account", accountStruct);
+        StructBean accountStruct = new StructBean(memberPointRecord.getAction()+"-"+memberPointRecord.getActionContent(), DataColor);
+        data.put("Account", accountStruct);
         String typeStr;
         if (memberPointRecord.getType().equals(MemberPointRecord.TypeGet)) {
             typeStr = "新增";

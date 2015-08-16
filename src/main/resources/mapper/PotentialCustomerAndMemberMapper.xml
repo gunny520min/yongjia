@@ -49,7 +49,6 @@
 		from potential_customer as p
 		LEFT JOIN member as m on p.member_id = m.id
 		where p.service_by = #{userId,jdbcType=BIGINT}
-		limit #{page.pageStart}, #{page.pageSize}
 	</select>
 	
 	<select id="selectByUserId" resultMap="BaseResultMap" >

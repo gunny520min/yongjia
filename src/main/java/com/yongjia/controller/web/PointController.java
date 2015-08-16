@@ -160,6 +160,11 @@ public class PointController extends WebBaseController {
             } else {
                 memberPoint.setPoint(memberPoint.getPoint() + memberPointRecord.getPoint());
                 if (memberPointMapper.updateByPrimaryKeySelective(memberPoint) > 0) {
+                    /**
+                     * 发送积分变动通知
+                     */
+                    taskExecutor.execute(new SendPointChangeTplTask(memberPointRecord.getMemberId(), memberPointRecord,
+                            memberPoint.getPoint()));
                     return ToJsonUtil.toEntityMap(200, "success", null);
                 } else {
                     return ToJsonUtil.toEntityMap(400, "error", null);

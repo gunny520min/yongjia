@@ -1,5 +1,7 @@
 package com.yongjia.controller.wx;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -26,10 +28,13 @@ import com.yongjia.model.User;
 import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.ToJsonUtil;
 import com.yongjia.wxkit.template.uitls.TplMessageUtil;
+import com.yongjia.wxkit.utils.ParamString;
+import com.yongjia.wxkit.utils.WeixinUtil;
+import com.yongjia.wxkit.utils.WxPropertiesUtil;
 
 @Controller
 @RequestMapping("/wx/pCustomer")
-public class WxPotentialCustomerController extends BaseController {
+public class WxPotentialCustomerController extends WxBaseController {
 
     private static Logger log = Logger.getLogger(WxPotentialCustomerController.class);
 
@@ -73,7 +78,7 @@ public class WxPotentialCustomerController extends BaseController {
              * 发送抢客户通知
              */
             taskExecutor.execute(new SendManagerNotifyTask(pCustomer));
-            
+
             return ToJsonUtil.toEntityMap(200, "success", null);
         }
 
@@ -95,7 +100,7 @@ public class WxPotentialCustomerController extends BaseController {
                 return ToJsonUtil.toEntityMap(200, "success", null);
             }
         }
-        return ToJsonUtil.toEntityMap(400, "没抢到客户", null);
+        return ToJsonUtil.toEntityMap(400, "客户已经被抢走了", null);
     }
 
     @RequestMapping("/list")
@@ -133,10 +138,22 @@ public class WxPotentialCustomerController extends BaseController {
             Member member = memberMapper.selectByPrimaryKey(pCustomer.getMemberId());
             for (User user : salerList) {
                 TplMessageUtil.sendManagerNotifyTpl(user.getOpenid(), "新客户提醒", user.getName(),
-                        "有客户 " + member.getName() + " 提交购车计划",
-                        "http://yongjia.tlan.com.cn/wx/view/salerCustomerDetail?id=" + pCustomer.getId());
+                        "有客户 " + member.getName() + " 提交购车计划", menuUrlFormat("/wx/view/salerCustomerDetail?id="
+                                + pCustomer.getId()));
             }
         }
+    }
 
+    private String menuUrlFormat(String menuUrl) {
+        String url = "";
+        try {
+            String page = URLEncoder.encode(menuUrl, WxPropertiesUtil.getProperty(ParamString.ENCODING));
+            url = WeixinUtil.getCode(AppID, "http://yongjia.tlan.com.cn/wx/api/openid?page=" + page,
+                    ParamString.SCOPE_SNSAPI_BASE, "123");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return url;
     }
 }

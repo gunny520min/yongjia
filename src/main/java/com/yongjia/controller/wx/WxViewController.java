@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -463,8 +464,13 @@ public class WxViewController extends WebBaseController {
      */
     @RequestMapping("/salerLogin")
     public String salerLogin(Model model, HttpServletRequest request, HttpServletResponse response) {
-
-        return "weixin/salerLogin";
+        String openid = CookieUtil.getOpenid(request);
+        User user = userMapper.selectByOpenid(openid);
+        if (user == null) {
+            return "weixin/salerLogin";
+        } else {
+            return "forward:/wx/view/mineHome";
+        }
     }
 
     /**
@@ -488,6 +494,21 @@ public class WxViewController extends WebBaseController {
     @RequestMapping("/salerGrabCustomer")
     public String grabCustomer(Model model, HttpServletRequest request, HttpServletResponse response) {
 
+        List<PotentialCustomerAndMember> potentialCustomers = potentialCustomerAndMemberMapper.selectToService();
+        if (potentialCustomers.size() > 0) {
+            int index = (int) (Math.random() * potentialCustomers.size());
+            while (index < 0 || index >= potentialCustomers.size()) {
+                index = (int) (Math.random() * potentialCustomers.size());
+            }
+
+            model.addAttribute("pCustomer", potentialCustomers.get(index));
+        } else {
+            model.addAttribute("pCustomer", null);
+        }
+        model.addAttribute("buytypeStrs", PotentialCustomer.buytypeStrs);
+        model.addAttribute("buyforStrs", PotentialCustomer.buyforStrs);
+        model.addAttribute("paytypeStrs", PotentialCustomer.paytypeStrs);
+        
         return "weixin/salerGrabCustomer";
     }
 
@@ -507,6 +528,10 @@ public class WxViewController extends WebBaseController {
                     .selectByUserId(userId, getPageMap(1, defaultPageSize));
         }
         model.addAttribute("potentialCustomers", potentialCustomers);
+
+        model.addAttribute("buytypeStrs", PotentialCustomer.buytypeStrs);
+        model.addAttribute("buyforStrs", PotentialCustomer.buyforStrs);
+        model.addAttribute("paytypeStrs", PotentialCustomer.paytypeStrs);
         return "weixin/salerCustomer";
     }
 
@@ -519,8 +544,11 @@ public class WxViewController extends WebBaseController {
     @RequestMapping("/salerCustomerDetail")
     public String salerCustomerDetail(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
         PotentialCustomerAndMember potentialCustomer = potentialCustomerAndMemberMapper.selectById(id);
-        model.addAttribute("potentialCustomer", potentialCustomer);
-        return "weixin/salerCustomerDetail";
+        model.addAttribute("pCustomer", potentialCustomer);
+        model.addAttribute("buytypeStrs", PotentialCustomer.buytypeStrs);
+        model.addAttribute("buyforStrs", PotentialCustomer.buyforStrs);
+        model.addAttribute("paytypeStrs", PotentialCustomer.paytypeStrs);
+        return "weixin/salerGrabCustomer";
     }
 
     /**
@@ -560,7 +588,7 @@ public class WxViewController extends WebBaseController {
     public String appointmentWeixiu(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
         Member member = memberMapper.selectByPrimaryKey(memberId);
-        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId,MemberCar.StatusYes);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId, MemberCar.StatusYes);
 
         model.addAttribute("wxuser", member);
         model.addAttribute("cars", memberCars);
@@ -571,7 +599,7 @@ public class WxViewController extends WebBaseController {
     public String appointmentBaoyang(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
         Member member = memberMapper.selectByPrimaryKey(memberId);
-        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId,MemberCar.StatusYes);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId, MemberCar.StatusYes);
 
         model.addAttribute("wxuser", member);
         model.addAttribute("cars", memberCars);
@@ -590,7 +618,7 @@ public class WxViewController extends WebBaseController {
     public String appointmentNianshen(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
         Member member = memberMapper.selectByPrimaryKey(memberId);
-        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId,MemberCar.StatusYes);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId, MemberCar.StatusYes);
 
         model.addAttribute("wxuser", member);
         model.addAttribute("cars", memberCars);
@@ -601,7 +629,7 @@ public class WxViewController extends WebBaseController {
     public String appointmentQita(Model model, HttpServletRequest request, HttpServletResponse response) {
         Long memberId = CookieUtil.getMemberId(request);
         Member member = memberMapper.selectByPrimaryKey(memberId);
-        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId,MemberCar.StatusYes);
+        List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId, MemberCar.StatusYes);
 
         model.addAttribute("wxuser", member);
         model.addAttribute("cars", memberCars);
@@ -620,14 +648,13 @@ public class WxViewController extends WebBaseController {
         Long memberId = CookieUtil.getMemberId(request);
         List<PotentialCustomer> potentialCustomers = potentialCustomerMapper.selectByMemberId(memberId);
         model.addAttribute("potentialCustomers", potentialCustomers);
-        String[] buytypeStrs = new String[]{"首次购车","增购","换购"};
-        String[] buyforStrs = new String[]{"家庭","公司","其他"};
-        String[] paytypeStrs = new String[]{"全款","贷款"};
-        model.addAttribute("buytypeStrs", buytypeStrs);
-        model.addAttribute("buyforStrs", buyforStrs);
-        model.addAttribute("paytypeStrs", paytypeStrs);
+
+        model.addAttribute("buytypeStrs", PotentialCustomer.buytypeStrs);
+        model.addAttribute("buyforStrs", PotentialCustomer.buyforStrs);
+        model.addAttribute("paytypeStrs", PotentialCustomer.paytypeStrs);
         return "weixin/buycarHome";
     }
+
     /**
      * 
      * @param model
@@ -643,7 +670,7 @@ public class WxViewController extends WebBaseController {
 
         return "weixin/buycarAdd";
     }
-    
+
     /**
      * 展厅首页
      * 

@@ -215,7 +215,7 @@
 				service_by = #{serviceBy,jdbcType=BIGINT},
 			</if>
 			<if test="serviceByName != null">
-				service_byName = #{serviceByName,jdbcType=VARCHAR},
+				service_by_name = #{serviceByName,jdbcType=VARCHAR},
 			</if>
 			<if test="createAt != null">
 				create_at = #{createAt,jdbcType=BIGINT},
@@ -246,7 +246,7 @@
 		buy_date = #{buyDate,jdbcType=BIGINT},
 		pay_type = #{payType,jdbcType=INTEGER},
 		service_by = #{serviceBy,jdbcType=BIGINT},
-		service_byName = #{serviceByName,jdbcType=VARCHAR},
+		service_by_name = #{serviceByName,jdbcType=VARCHAR},
 		create_at = #{createAt,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},
 		update_at = #{updateAt,jdbcType=BIGINT},
@@ -291,7 +291,7 @@
 				service_by = #{serviceBy,jdbcType=BIGINT},
 			</if>
 			<if test="serviceByName != null">
-				service_byName = #{serviceByName,jdbcType=VARCHAR},
+				service_by_name = #{serviceByName,jdbcType=VARCHAR},
 			</if>
 			<if test="createAt != null">
 				create_at = #{createAt,jdbcType=BIGINT},

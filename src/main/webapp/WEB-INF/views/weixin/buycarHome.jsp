@@ -24,7 +24,14 @@
 	              <jsp:setProperty name="date" property="time" value="${item.createAt}" />
                   <fmt:formatDate value="${date}" pattern="yyyy年MM月dd日" />
 	              </span>
-	              <span class="pull-right text-danger">${item.serviceBy == null ? "等待销售顾问联络" : "销售顾问："+item.serviceByName}</span>
+	              <span class="pull-right text-danger">
+	              <c:if test="${item.serviceBy == null}">
+	              等待销售顾问联络
+	              </c:if>
+	              <c:if test="${item.serviceBy != null}">
+	              销售顾问：${item.serviceByName }
+	              </c:if>
+	              </span>
 	            </div>
 	            <div class="summary">
 	              <p>${item.carModel } - ${item.carColor }</p>

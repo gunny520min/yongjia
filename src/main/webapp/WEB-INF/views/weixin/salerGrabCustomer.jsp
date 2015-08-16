@@ -1,49 +1,74 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" trimDirectiveWhitespaces="true" pageEncoding="UTF-8"%> 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<!-- 添加车辆 -->
+<%@ taglib prefix="fmt"  uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
-    <title>添加车辆信息</title>
-    <link rel="shortcut icon" href="images/favicon.ico"/>
-    <link rel="stylesheet" href="css/base.css"/>
-    <link rel="stylesheet" href="css/app.css"/>
+    <title>抢客户</title>
+    <link rel="shortcut icon" href="${shost}/weixin/images/favicon.ico"/>
+    <link rel="stylesheet" href="${shost}/weixin/css/base.css"/>
+    <link rel="stylesheet" href="${shost}/weixin/css/app.css"/>
   </head>
-  <body class="binding bg-muted">
-    <form method="post">
-      <section class="has-footer">
-        <a class="item item-thumbnail item-icon-right" href="">
-          <div class="thumbnail">
-            <img src="images/holder/car.jpg" />
+  <body class="plans bg-muted">
+  <jsp:useBean id="date" class="java.util.Date" />
+    <section class="has-footer">
+      <div class="list padding compact">
+        <c:choose>
+          <c:when test="${pCustomer != null}">
+            <div class="item" data-id="${pCustomer.id}">
+              <div class="title">
+                客户姓名：${pCustomer.name}
+              </div>
+              <div class="summary">
+                <p>联系电话：${pCustomer.connectMobile }</p>
+                <p>意向车型：${pCustomer.carModel} - ${pCustomer.carColor}</p>
+                <p>购车预算：${pCustomer.buyBudget}万</p>
+                <p>购车方式：${paytypeStrs[pCustomer.payType]}</p>
+                <p>购车次数：${buytypeStrs[pCustomer.buyType]}</p>
+                <p>购车用途：${buyforStrs[pCustomer.buyFor]} </p>
+                <p>购车时间：
+                  <jsp:setProperty name="date" property="time" value="${pCustomer.buyDate}" />
+                  <fmt:formatDate value="${date}" pattern="yyyy年MM月dd日" />
+                </p>
+                <i class="icon icon-detail"></i>
+              </div>
+            </div>
+          </c:when>
+          <c:otherwise>
+            <div class="padding text-center small">暂时还没有客户</div>
+          </c:otherwise>
+        </c:choose>
+      </div>
+    </section>
+    <c:if test="${pCustomer != null}">
+	    <c:if test="${pCustomer.serviceBy == null}">
+	      <footer class="bar fixed noborder bar-button">
+	        <button class="button button-primary button-block">抢客户</button>
+	      </footer>
+	    </c:if>
+	    <c:if test="${pCustomer.serviceBy != null}">
+	      <footer class="bar fixed noborder bar-button">
+	        <button class="button button-primary button-block" disabled>客户已经被抢走了</button>
+	      </footer>
+	    </c:if>
+    </c:if>
+    <script id="success" type="text/swig-template">
+      <div class="masklayer flex">
+        <div class="modal col">
+          <div class="wrap">
+            <h3 class="title text-center">温馨提示</h3>
+            <div class="content text-center small">抢客户成功啦！</div>
           </div>
-          <div class="information">
-            <h3 class="ellipsis">英菲尼迪FX</h3>
-            <small>共有3款车型</small>
-          </div>
-          <i class="icon icon-more"></i>
-        </a>
-        <div class="list">
-          <div class="item item-divider">车牌号码</div>
-          <div class="item item-input">
-            <input type="text" placeholder="请输入车牌号码" maxlength="7" />
-          </div>
-          <div class="item item-divider">车主手机号</div>
-          <div class="item item-input">
-            <input type="tel" placeholder="请输入手机号" />
-          </div>
-          <div class="item item-divider">短信验证码<a class="action pull-right text-primary">发送验证码</a></div>
-          <div class="item item-input">
-            <input type="text" placeholder="请输入您的验证码" maxlength="6" />
-          </div>
+          <a class="footer center-block text-center" href="/wx/view/salerCustomer">
+  			<span class="text-primary">确定</span>
+		  </a>
         </div>
-      </section>
-
-      <footer class="bar fixed noborder bar-button">
-        <a class="button button-primary button-block">完成车辆添加</a>
-      </footer>
-    </form>
-    <script src="js/base.js"></script>
-</body>
+      </div>
+    </script>
+    <script src="${shost}/weixin/js/base.js"></script>
+    <script src="${shost}/weixin/js/grab.js"></script>
+  </body>
 </html>

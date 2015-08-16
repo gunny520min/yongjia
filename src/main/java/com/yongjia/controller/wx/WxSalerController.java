@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.yongjia.controller.web.WebBaseController;
 import com.yongjia.dao.UserMapper;
 import com.yongjia.model.User;
+import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.PasswordUtils;
 import com.yongjia.utils.ToJsonUtil;
 
@@ -29,12 +30,22 @@ public class WxSalerController extends WebBaseController {
     @RequestMapping("/login")
     @ResponseBody
     public Map login(String account, String pwd, HttpServletRequest request, HttpServletResponse response) {
-
+        String openid = CookieUtil.getOpenid(request);
+        User user = userMapper.selectByOpenid(openid);
+        if (user!=null) {
+            return ToJsonUtil.toEntityMap(400, "您已经登录了", null);
+        }
+        
         User saler = userMapper.selectByAccount(account);
         if (saler != null) {
             if (saler.getRoleId() == User.RoleSaler) {
                 if (PasswordUtils.authenticatePassword(saler.getPwd(), pwd)) {
-                    return ToJsonUtil.toEntityMap(200, "success", saler);
+                    saler.setOpenid(openid);
+                    if (userMapper.updateByPrimaryKeySelective(saler) > 0) {
+                        return ToJsonUtil.toEntityMap(200, "success", saler);
+                    } else {
+                        return ToJsonUtil.toEntityMap(500, "update user error", null);
+                    }
                 } else {
                     return ToJsonUtil.toEntityMap(400, "账号或密码错误！", null);
                 }
@@ -48,15 +59,14 @@ public class WxSalerController extends WebBaseController {
 
     @RequestMapping("/resetPwd")
     @ResponseBody
-    public Map resetPwd(Long id, String oldpwd, String newpwd, HttpServletRequest request,
-            HttpServletResponse response) {
+    public Map resetPwd(Long id, String oldpwd, String newpwd, HttpServletRequest request, HttpServletResponse response) {
 
         User saler = userMapper.selectByPrimaryKey(id);
         if (saler != null) {
             if (saler.getRoleId() == User.RoleSaler) {
                 if (PasswordUtils.authenticatePassword(saler.getPwd(), oldpwd)) {
                     saler.setPwd(PasswordUtils.encode(newpwd));
-                    userMapper.updateByPrimaryKey(saler);
+                    userMapper.updateByPrimaryKeySelective(saler);
                     return ToJsonUtil.toEntityMap(200, "success", saler);
                 } else {
                     return ToJsonUtil.toEntityMap(400, "密码错误！", null);
