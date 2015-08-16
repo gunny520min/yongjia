@@ -165,7 +165,7 @@ public class WeixinController extends WxBaseController {
         try {
             msg = WeiXin.recv(request.getInputStream());
             WxSendMsg sendMsg = WeiXin.builderSendByRecv(msg);
-            log.info("wxopenid");
+            log.info("openid");
             log.info(sendMsg.getToUser());
 
             // 目前支持的消息有(
@@ -238,9 +238,9 @@ public class WeixinController extends WxBaseController {
                 String url = wxMsgItemList.get(i).getUrl();
                 // 附带openid
                 if (url.contains("?")) {
-                    url += "&wxopenid=" + sendMsg.getToUser();
+                    url += "&openid=" + sendMsg.getToUser();
                 } else {
-                    url += "?wxopenid=" + sendMsg.getToUser();
+                    url += "?openid=" + sendMsg.getToUser();
                 }
                 sendNewsMsg.addItem(wxMsgItemList.get(i).getTitle(), wxMsgItemList.get(i).getDescription(),
                         wxMsgItemList.get(i).getPic(), url);

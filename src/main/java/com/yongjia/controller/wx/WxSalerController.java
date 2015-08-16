@@ -31,6 +31,9 @@ public class WxSalerController extends WebBaseController {
     @ResponseBody
     public Map login(String account, String pwd, HttpServletRequest request, HttpServletResponse response) {
         String openid = CookieUtil.getOpenid(request);
+        if (openid==null || openid.length()==0) {
+            openid = request.getParameter("openid");
+        }
         User user = userMapper.selectByOpenid(openid);
         if (user!=null) {
             return ToJsonUtil.toEntityMap(400, "您已经登录了", null);
