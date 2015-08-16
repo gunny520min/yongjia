@@ -57,12 +57,12 @@ public class WebInterceptor implements HandlerInterceptor {
             }
         } else if (url.contains(wxURL) && !url.contains(wxApiURL)){
             if (CookieUtil.getOpenid(request)==null) {
-//                render(ToJsonUtil.toEntityStr(401, "请从微信登录", null), response);
-//                return false;
-                Map<String, String> params = new HashMap<String, String>();
-                params.put(CookieUtil.OPEN_ID, "ovK7Ijrw-yzJMkXMyDQD0X_SG_Nw");
-                params.put(CookieUtil.MEMBER_ID, "5");
-                CookieUtil.setIdentity(request, response, params, 0);
+                render(ToJsonUtil.toEntityStr(401, "请从微信登录", null), response);
+                return false;
+//                Map<String, String> params = new HashMap<String, String>();
+//                params.put(CookieUtil.OPEN_ID, "ovK7Ijrw-yzJMkXMyDQD0X_SG_Nw");
+//                params.put(CookieUtil.MEMBER_ID, "5");
+//                CookieUtil.setIdentity(request, response, params, 0);
             } else {
                 CookieUtil.refreshCookie(request, response);
             }
