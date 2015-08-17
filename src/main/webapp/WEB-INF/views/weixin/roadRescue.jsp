@@ -21,7 +21,7 @@
       </a>
       <div class="list padding">
         <div class="item item-divider text-center">救援电话</div>
-        <a class="button button-block button-primary" href="tel:010-87654321">010-87654321</a>
+        <a class="button button-block button-primary" href="tel:13911550471">13911550471</a>
         <a class="button button-block button-primary" href="tel:010-87654321">010-87654321</a>
       </div>
     </section>
