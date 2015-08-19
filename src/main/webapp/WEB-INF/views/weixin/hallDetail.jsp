@@ -34,7 +34,46 @@
         </a>  
       </c:forEach>
     </div>
+    
+    <footer class="bar fixed bar-buttons">
+      <c:choose>
+        <c:when test="${wxuser !=null and wxuser.id != null}">
+          <div class="row">
+            <div class="col">
+              <a class="button button-primary button-block button-outline" href="/wx/view/appointKanche">预约看车</a>
+            </div>
+            <div class="col">
+              <a class="button button-primary button-block" href="/wx/view/buycarAdd">提交购车意向</a>
+            </div>
+          </div>
+        </c:when>
+        <c:otherwise>
+          <div class="row">
+            <div class="col">
+              <a class="button button-primary button-block button-outline action login-required">预约看车</a>
+            </div>
+            <div class="col">
+              <a class="button button-primary button-block action login-required">提交购车意向</a>
+            </div>
+          </div>
+        </c:otherwise>
+      </c:choose>
+    </footer>
 
+    <script id="loginRequired" type="text/swig-template">
+      <div class="masklayer flex">
+        <div class="modal col">
+          <div class="wrap">
+            <h3 class="title text-center">温馨提示</h3>
+            <div class="content text-center small">您需要先注册成为会员才可以哟~</div>
+          </div>
+          <div class="footer">
+            <button class="text-center button text-primary cancel">取消</button>
+            <a class="text-center button text-primary confirm" href="/wx/view/wxuserEdit">确定</a>
+          </div>
+        </div>
+      </div>
+    </script>
     <script src="${shost}/weixin/js/base.js"></script>
     <script src="${shost}/weixin/js/hall.js"></script>
   </body>
