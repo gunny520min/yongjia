@@ -53,6 +53,7 @@
 		<if test="status != null">
 			 and status = #{status,jdbcType=INTEGER}
 		</if>
+		order by id desc
 		limit #{page.pageStart}, #{page.pageSize}
 	</select>
 	

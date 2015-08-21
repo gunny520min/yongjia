@@ -52,9 +52,16 @@
         <div class="col">
           <a class="button button-warning button-block button-outline" href="/wx/view/wxuserEdit">编辑个人资料</a>
         </div>
-        <div class="col">
-          <a class="button button-warning button-block" href="/wx/view/wxuserEdit">验证为车主</a>
-        </div>
+        <c:if test="${wxuser.status == 1 }">
+	        <div class="col">
+	          <a class="button button-warning button-block" href="/wx/view/addCar">验证为车主</a>
+	        </div>
+        </c:if>
+        <c:if test="${wxuser.status == 2 }">
+	        <div class="col">
+	          <a class="button button-warning button-block" href="/wx/view/myCars">查看我的车</a>
+	        </div>
+        </c:if>
       </div>
     </footer>
 

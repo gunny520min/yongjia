@@ -1,5 +1,6 @@
 package com.yongjia.controller.web;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,8 +68,7 @@ public class PointPoolController extends WebBaseController {
                     pointPoolList.get(i).setStatus(PointPool.StatusNoActive);
                 }
             }
-            return ToJsonUtil
-                    .toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, pointPoolList);
+            return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, pointPoolList);
         } else {
             return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count, null);
         }
@@ -78,10 +78,11 @@ public class PointPoolController extends WebBaseController {
     @ResponseBody
     public Map recordlist(Long pointPoolId, Integer type, Integer pageNo, Integer pageSize, HttpServletRequest request,
             HttpServletResponse response) {
-        Long count = pointPoolRecordMapper.countByPointPoolIdAndType(pointPoolId,type);
+        Long count = pointPoolRecordMapper.countByPointPoolIdAndType(pointPoolId, type);
         List<PointPoolRecord> pointPoolRecordList = null;
         if (count > 0) {
-            pointPoolRecordList = pointPoolRecordMapper.selectByPointPoolIdAndType(pointPoolId,type, getPageMap(pageNo, pageSize));
+            pointPoolRecordList = pointPoolRecordMapper.selectByPointPoolIdAndType(pointPoolId, type,
+                    getPageMap(pageNo, pageSize));
         }
         return ToJsonUtil.toPageMap(200, "success", getPageNo(pageNo), getPageSize(pageSize), count,
                 pointPoolRecordList);
@@ -245,11 +246,11 @@ public class PointPoolController extends WebBaseController {
         for (int i = 0; i < monthDayCount; i++) {
             SignPointConfig signPointConfig = new SignPointConfig();
             signPointConfig.setMonth(month);
-            signPointConfig.setTimes(i+1);
+            signPointConfig.setTimes(i + 1);
             signPointConfig.setPoint(0);
 
             for (SignPointConfig sp : signPointConfigListFromDb) {
-                if (sp.getTimes().equals(i+1)) {
+                if (sp.getTimes().equals(i + 1)) {
                     signPointConfig.setPoint(sp.getPoint());
                     break;
                 }
@@ -265,9 +266,19 @@ public class PointPoolController extends WebBaseController {
     @ResponseBody
     public Map setSignConfig(String month, Integer times, Integer point, HttpServletRequest request,
             HttpServletResponse response) {
+
         if (CookieUtil.getRoleID(request) != null && CookieUtil.getRoleID(request) <= 2) {
             Long userId = CookieUtil.getUserID(request);
             Long now = System.currentTimeMillis();
+            try {
+                Long monthTime = DateUtil.parseDatetime(month, "yyyy-M").getTime();
+                if (now > monthTime) {
+                    return ToJsonUtil.toEntityMap(400, "不可修改签到积分", null);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return ToJsonUtil.toEntityMap(400, "month传参有误", null);
+            }
             SignPointConfig signPointConfig = signPointConfigMapper.selectByMonthAndTimes(month, times);
             if (signPointConfig != null) {
                 signPointConfig.setPoint(point);
