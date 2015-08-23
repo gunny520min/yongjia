@@ -570,6 +570,7 @@ public class WxViewController extends WebBaseController {
 
             potentialCustomer.setName(StringUtils.getSecurityName(potentialCustomer.getName()));
             potentialCustomer.setMobile(StringUtils.getSecurityMobile(potentialCustomer.getMobile()));
+            potentialCustomer.setConnectMobile(StringUtils.getSecurityMobile(potentialCustomer.getConnectMobile()));
         }
         model.addAttribute("pCustomer", potentialCustomer);
         model.addAttribute("buytypeStrs", PotentialCustomer.buytypeStrs);
