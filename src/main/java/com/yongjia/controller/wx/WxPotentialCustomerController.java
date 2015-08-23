@@ -90,6 +90,12 @@ public class WxPotentialCustomerController extends WxBaseController {
     public Map grab(Long pCustomerId, HttpServletRequest request, HttpServletResponse response) {
         Long userId = CookieUtil.getUserID(request);
         String userName = CookieUtil.getUserName(request);
+        if (userId==null) {
+            String openid = CookieUtil.getOpenid(request);
+            User user = userMapper.selectByOpenid(openid);
+            userId = user.getId();
+            userName = user.getName();
+        }
         PotentialCustomer pCustomer = potentialCustomerMapper.selectByPrimaryKey(pCustomerId);
         if (pCustomer.getServiceBy() == null || pCustomer.getServiceBy() <= 0) {
             pCustomer.setServiceBy(userId);
@@ -107,6 +113,11 @@ public class WxPotentialCustomerController extends WxBaseController {
     @ResponseBody
     public Map list(Integer pageNo, Integer pageSize, HttpServletRequest request, HttpServletResponse response) {
         Long userId = CookieUtil.getUserID(request);
+        if (userId==null) {
+            String openid = CookieUtil.getOpenid(request);
+            User user = userMapper.selectByOpenid(openid);
+            userId = user.getId();
+        }
         Long totalCount = potentialCustomerAndMemberMapper.countByUserId(userId);
         List<PotentialCustomerAndMember> potentialCustomers = null;
         if (totalCount > 0) {

@@ -59,6 +59,7 @@ import com.yongjia.model.User;
 import com.yongjia.model.WxUserAndMember;
 import com.yongjia.utils.CookieUtil;
 import com.yongjia.utils.DateUtil;
+import com.yongjia.utils.StringUtils;
 
 @Controller
 @RequestMapping("/wx/view")
@@ -153,7 +154,7 @@ public class WxViewController extends WebBaseController {
         model.addAttribute("user", user);
 
         if (user != null) {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, String> params = CookieUtil.getIdentity(request);
             params.put(CookieUtil.OPEN_ID, openid);
             if (wxUserAndMember != null && wxUserAndMember.getId() != null) {
                 params.put(CookieUtil.MEMBER_ID, wxUserAndMember.getId() + "");
@@ -494,6 +495,17 @@ public class WxViewController extends WebBaseController {
     @RequestMapping("/salerGrabCustomer")
     public String grabCustomer(Model model, HttpServletRequest request, HttpServletResponse response) {
 
+        String openid = CookieUtil.getOpenid(request);
+        User user = userMapper.selectByOpenid(openid);
+        model.addAttribute("user", user);
+
+        if (user != null) {
+            Map<String, String> params = CookieUtil.getIdentity(request);
+            params.put(CookieUtil.USER_ID, user.getId() + "");
+            params.put(CookieUtil.USER_NAME, user.getName());
+            CookieUtil.setIdentity(request, response, params, 0);
+        }
+
         List<PotentialCustomerAndMember> potentialCustomers = potentialCustomerAndMemberMapper.selectToService();
         if (potentialCustomers.size() > 0) {
             int index = (int) (Math.random() * potentialCustomers.size());
@@ -508,7 +520,7 @@ public class WxViewController extends WebBaseController {
         model.addAttribute("buytypeStrs", PotentialCustomer.buytypeStrs);
         model.addAttribute("buyforStrs", PotentialCustomer.buyforStrs);
         model.addAttribute("paytypeStrs", PotentialCustomer.paytypeStrs);
-        
+
         return "weixin/salerGrabCustomer";
     }
 
@@ -543,7 +555,22 @@ public class WxViewController extends WebBaseController {
      */
     @RequestMapping("/salerCustomerDetail")
     public String salerCustomerDetail(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
+        String openid = CookieUtil.getOpenid(request);
+        User user = userMapper.selectByOpenid(openid);
+
+        if (user != null) {
+            Map<String, String> params = CookieUtil.getIdentity(request);
+            params.put(CookieUtil.USER_ID, user.getId() + "");
+            params.put(CookieUtil.USER_NAME, user.getName());
+            CookieUtil.setIdentity(request, response, params, 0);
+        }
+
         PotentialCustomerAndMember potentialCustomer = potentialCustomerAndMemberMapper.selectById(id);
+        if (potentialCustomer.getServiceBy() == null || potentialCustomer.getServiceBy() <= 0) {
+
+            potentialCustomer.setName(StringUtils.getSecurityName(potentialCustomer.getName()));
+            potentialCustomer.setMobile(StringUtils.getSecurityMobile(potentialCustomer.getMobile()));
+        }
         model.addAttribute("pCustomer", potentialCustomer);
         model.addAttribute("buytypeStrs", PotentialCustomer.buytypeStrs);
         model.addAttribute("buyforStrs", PotentialCustomer.buyforStrs);
