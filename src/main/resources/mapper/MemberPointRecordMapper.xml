@@ -21,6 +21,7 @@
 			jdbcType="VARCHAR" />
 		<result column="create_at" property="createAt" jdbcType="BIGINT" />
 		<result column="create_by" property="createBy" jdbcType="BIGINT" />
+		<result column="create_by_name" property="createByName" jdbcType="BIGINT" />
 	</resultMap>
 
 	<resultMap id="ResultMapWithBLOBs" type="com.yongjia.model.MemberPointRecord"
@@ -32,7 +33,7 @@
 		mpr.id, mpr.member_id, m.name, m.mobile, m.sex, m.head_imgurl, m.status,
 		m.vali_flag,
 		mpr.point_pool_id, mpr.point, mpr.type, mpr.action, mpr.action_content, mpr.create_at,
-		mpr.create_by
+		mpr.create_by, mpr.create_by_name
 	</sql>
 
 	<sql id="Blob_Column_List">
@@ -116,12 +117,14 @@
 		useGeneratedKeys="true" keyProperty="id">
 		insert into member_point_record (member_id, point_pool_id,
 		point, type, action,
-		create_at, create_by, remark)
+		create_at, create_by,
+		create_by_name, remark)
 		values (#{memberId,jdbcType=BIGINT}, #{pointPoolId,jdbcType=BIGINT},
 		#{point,jdbcType=INTEGER}, #{type,jdbcType=INTEGER},
 		#{action,jdbcType=VARCHAR},
 		#{actionContent,jdbcType=VARCHAR},#{createAt,jdbcType=BIGINT},
 		#{createBy,jdbcType=BIGINT},
+		#{createByName,jdbcType=VARCHAR},
 		#{remark,jdbcType=LONGVARCHAR}
 		)
 	</insert>
@@ -154,6 +157,9 @@
 			<if test="createBy != null">
 				create_by,
 			</if>
+			<if test="createByName != null">
+				create_by_name,
+			</if>
 			<if test="remark != null">
 				remark,
 			</if>
@@ -182,6 +188,9 @@
 			</if>
 			<if test="createBy != null">
 				#{createBy,jdbcType=BIGINT},
+			</if>
+			<if test="createByName != null">
+				#{createByName,jdbcType=VARCHAR},
 			</if>
 			<if test="remark != null">
 				#{remark,jdbcType=LONGVARCHAR},
@@ -216,6 +225,9 @@
 			<if test="createBy != null">
 				create_by = #{createBy,jdbcType=BIGINT},
 			</if>
+			<if test="createByName != null">
+				create_by_name = #{createByName,jdbcType=VARCHAR},
+			</if>
 			<if test="remark != null">
 				remark = #{remark,jdbcType=LONGVARCHAR},
 			</if>
@@ -233,6 +245,7 @@
 		actionContent = #{actionContent,jdbcType=VARCHAR},
 		create_at = #{createAt,jdbcType=BIGINT},
 		create_by = #{createBy,jdbcType=BIGINT},
+		create_by_name = #{createByName,jdbcType=VARCHAR},
 		remark = #{remark,jdbcType=LONGVARCHAR}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -246,7 +259,8 @@
 		action = #{action,jdbcType=VARCHAR},
 		actionContent = #{actionContent,jdbcType=VARCHAR},
 		create_at = #{createAt,jdbcType=BIGINT},
-		create_by = #{createBy,jdbcType=BIGINT}
+		create_by = #{createBy,jdbcType=BIGINT},
+		create_by_name = #{createByName,jdbcType=VARCHAR}
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 

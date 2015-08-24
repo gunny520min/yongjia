@@ -94,8 +94,10 @@ public class PointController extends WebBaseController {
         }
         memberPointRecord.setPointPoolId(pointPool.getId());
         Long userId = CookieUtil.getUserID(request);
+        String userName = CookieUtil.getUserName(request);
         memberPointRecord.setType(MemberPointRecord.TypeUse);
         memberPointRecord.setCreateBy(userId);
+        memberPointRecord.setCreateByName(userName);
         memberPointRecord.setCreateAt(System.currentTimeMillis());
 
         MemberPoint memberPoint = memberPointMapper.selectByMemberIdAndPoolId(memberPointRecord.getMemberId(),
@@ -136,8 +138,10 @@ public class PointController extends WebBaseController {
         }
         memberPointRecord.setPointPoolId(pointPool.getId());
         Long userId = CookieUtil.getUserID(request);
+        String userName = CookieUtil.getUserName(request);
         memberPointRecord.setType(MemberPointRecord.TypeGet);
         memberPointRecord.setCreateBy(userId);
+        memberPointRecord.setCreateByName(userName);
         memberPointRecord.setCreateAt(System.currentTimeMillis());
         if (memberPointRecordMapper.insertSelective(memberPointRecord) > 0) {
             MemberPoint memberPoint = memberPointMapper.selectByMemberIdAndPoolId(memberPointRecord.getMemberId(),

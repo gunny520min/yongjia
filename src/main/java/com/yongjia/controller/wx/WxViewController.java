@@ -731,6 +731,16 @@ public class WxViewController extends WebBaseController {
     @RequestMapping("/hallDetail")
     public String hallDetail(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
 
+        String openid = CookieUtil.getOpenid(request);
+        log.info("openid = " + openid);
+        PointPool pointPool = pointPoolMapper.selectActivePool(System.currentTimeMillis());
+        Long pointPoolId = 0L;
+        if (pointPool != null) {
+            pointPoolId = pointPool.getId();
+        }
+        WxUserAndMember wxUserAndMember = wxUserAndMemberMapper.selectByOpenid(openid, pointPoolId);
+        model.addAttribute("wxuser", wxUserAndMember);
+
         CarHall carHall = carHallMapper.selectByPrimaryKey(id);
         model.addAttribute("hall", carHall);
 
