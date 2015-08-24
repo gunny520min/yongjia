@@ -58,21 +58,21 @@ public class WebInterceptor implements HandlerInterceptor {
             }
         } else if (url.contains(wxURL) && !url.contains(wxApiURL)) {
             if (CookieUtil.getOpenid(request) == null) {
-//                if (url.contains(wxURLLogin)) {
-//                    String openid = request.getParameter("openid");
-//                    if (openid != null && openid.length() > 0) {
-//                        Map<String, String> params = new HashMap<String, String>();
-//                        params.put(CookieUtil.OPEN_ID, openid);
-//                        CookieUtil.setIdentity(request, response, params, 0);
-//                        return true;
-//                    }
-//                }
-//                render(ToJsonUtil.toEntityStr(401, "请从微信登录", null), response);
-//                return false;
-                Map<String, String> params = new HashMap<String, String>();
-                params.put(CookieUtil.OPEN_ID, "ovK7Ijrw-yzJMkXMyDQD0X_SG_Nw");
-                params.put(CookieUtil.MEMBER_ID, "5");
-                CookieUtil.setIdentity(request, response, params, 0);
+                if (url.contains(wxURLLogin)) {
+                    String openid = request.getParameter("openid");
+                    if (openid != null && openid.length() > 0) {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put(CookieUtil.OPEN_ID, openid);
+                        CookieUtil.setIdentity(request, response, params, 0);
+                        return true;
+                    }
+                }
+                render(ToJsonUtil.toEntityStr(401, "请从微信登录", null), response);
+                return false;
+                // Map<String, String> params = new HashMap<String, String>();
+                // params.put(CookieUtil.OPEN_ID, "ovK7Ijrw-yzJMkXMyDQD0X_SG_Nw");
+                // params.put(CookieUtil.MEMBER_ID, "5");
+                // CookieUtil.setIdentity(request, response, params, 0);
             } else {
                 CookieUtil.refreshCookie(request, response);
             }
