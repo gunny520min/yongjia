@@ -34,7 +34,7 @@
             <input name="mobile" value="${wxuser.mobile}" type="tel" placeholder="请输入您的手机号" maxlength="11" />
           </div>
           <div class="captcha">
-            <div class="item item-divider">短信验证码<a class="pull-right action text-primary">发送验证码</a></div>
+            <div class="item item-divider captcha">短信验证码<a class="pull-right action text-primary">发送验证码</a></div>
             <div class="item item-input">
               <input name="valiCode" type="text" placeholder="请输入您的验证码" maxlength="6" />
             </div>
