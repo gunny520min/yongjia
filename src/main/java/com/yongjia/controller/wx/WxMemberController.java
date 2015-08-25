@@ -229,7 +229,7 @@ public class WxMemberController extends WebBaseController {
             Member member = memberMapper.selectByPrimaryKey(memberId);
             member.setUpdateAt(now);
             member.setValiFlag(Member.ToVali);
-            if (memberMapper.insertSelective(member) > 0) {
+            if (memberMapper.updateByPrimaryKeySelective(member) > 0) {
                 return ToJsonUtil.toEntityMap(200, "success", null);
             } else {
                 return ToJsonUtil.toEntityMap(400, "update member error", null);
