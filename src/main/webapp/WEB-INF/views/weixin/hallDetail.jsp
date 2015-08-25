@@ -38,10 +38,10 @@
     <footer class="bar fixed bar-button">
       <c:choose>
         <c:when test="${wxuser !=null and wxuser.id != null}">
-          <a class="button button-primary button-block button-outline" href="/wx/view/appointKanche?name=<c:out value='${hall.typeName}' />">预约看车</a>
+          <a class="button button-primary button-block" href="/wx/view/appointKanche?name=<c:out value='${hall.typeName}' />">预约看车</a>
         </c:when>
         <c:otherwise>
-          <a class="button button-primary button-block button-outline action login-required">预约看车</a>
+          <a class="button button-primary button-block action login-required">预约看车</a>
         </c:otherwise>
       </c:choose>
     </footer>
