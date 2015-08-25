@@ -764,7 +764,7 @@ public class WxViewController extends WebBaseController {
      */
     @RequestMapping("/carParam")
     public String carParam(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
-        CarModel carModel = carModelMapper.selectByPrimaryKey(id);
+        CarHallModel carModel = carHallModelMapper.selectByPrimaryKey(id);
         model.addAttribute("carModel", carModel);
         if (carModel.getParams() != null && carModel.getParams().length() > 0) {
             model.addAttribute("carParams", JSONArray.parse(carModel.getParams()));
@@ -774,7 +774,7 @@ public class WxViewController extends WebBaseController {
 
     @RequestMapping("/carModel")
     public String carModel(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
-        CarModel carModel = carModelMapper.selectByPrimaryKey(id);
+        CarHallModel carModel = carHallModelMapper.selectByPrimaryKey(id);
         model.addAttribute("carModel", carModel);
         return "weixin/carParam";
     }
