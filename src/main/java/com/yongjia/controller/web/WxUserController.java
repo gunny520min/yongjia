@@ -79,7 +79,7 @@ public class WxUserController extends WebBaseController {
         if (memberId == null) {
             return ToJsonUtil.toEntityMap(400, "error", null);
         } else {
-            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId, MemberCar.StatusYes);
+            List<MemberCar> memberCars = memberCarMapper.selectByMemberId(memberId, null);
             return ToJsonUtil.toListMap(200, "success", memberCars);
         }
     }
