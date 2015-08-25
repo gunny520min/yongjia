@@ -35,27 +35,13 @@
       </c:forEach>
     </div>
     
-    <footer class="bar fixed bar-buttons">
+    <footer class="bar fixed bar-button">
       <c:choose>
         <c:when test="${wxuser !=null and wxuser.id != null}">
-          <div class="row">
-            <div class="col">
-              <a class="button button-primary button-block button-outline" href="/wx/view/appointKanche">预约看车</a>
-            </div>
-            <div class="col">
-              <a class="button button-primary button-block" href="/wx/view/buycarAdd">提交购车意向</a>
-            </div>
-          </div>
+          <a class="button button-primary button-block button-outline" href="/wx/view/appointKanche?name=<c:out value='${hall.typeName}' />">预约看车</a>
         </c:when>
         <c:otherwise>
-          <div class="row">
-            <div class="col">
-              <a class="button button-primary button-block button-outline action login-required">预约看车</a>
-            </div>
-            <div class="col">
-              <a class="button button-primary button-block action login-required">提交购车意向</a>
-            </div>
-          </div>
+          <a class="button button-primary button-block button-outline action login-required">预约看车</a>
         </c:otherwise>
       </c:choose>
     </footer>
