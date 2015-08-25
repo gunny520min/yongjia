@@ -766,7 +766,9 @@ public class WxViewController extends WebBaseController {
     public String carParam(Model model, Long id, HttpServletRequest request, HttpServletResponse response) {
         CarModel carModel = carModelMapper.selectByPrimaryKey(id);
         model.addAttribute("carModel", carModel);
-        model.addAttribute("carParams", JSONArray.parse(carModel.getParams()));
+        if (carModel.getParams() != null && carModel.getParams().length() > 0) {
+            model.addAttribute("carParams", JSONArray.parse(carModel.getParams()));
+        }
         return "weixin/carParam";
     }
 
